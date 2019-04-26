@@ -6,11 +6,8 @@ import tech.cryptonomic.cloud.nautilus.routes.endpoint.UserEndpoints
 import tech.cryptonomic.cloud.nautilus.services.UserService
 import akka.http.scaladsl.server.Directives._
 
-//  users	                POST	Add new user
-//  users                 PUT update user
-//  users/{user}	        GET	Fetches user info
-//  users/{user}/apiKeys	GET	Get all API keys for given user
-//  users/{user}/usage	  GET	Gets the number of queries used by the given user
+// TODO:
+//   users/{user}/usage	  GET	Gets the number of queries used by the given user
 class UserRoutes(userService: UserService) extends UserEndpoints with server.Endpoints with server.JsonSchemaEntities {
 
   val createUserRoute: Route = createUser.implementedByAsync { userReg =>

@@ -8,7 +8,6 @@ import tech.cryptonomic.cloud.nautilus.model.ApiKey
 import scala.language.higherKinds
 
 trait ApiKeyRepo[F[_]] {
-
   def getAllApiKeys: F[List[ApiKey]]
 
   def validateApiKey(apiKey: String): F[Boolean]

@@ -4,10 +4,7 @@ import endpoints.algebra
 import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas.UserSchemas
 
-//  users	                POST	Add new user
-//  users                 PUT update user
-//  users/{user}	        GET	Fetches user info
-//  users/{user}/apiKeys	GET	Get all API keys for given user
+// TODO:
 //  users/{user}/usage	  GET	Gets the number of queries used by the given user
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas {
 

@@ -7,18 +7,12 @@ import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
 
 import scala.language.higherKinds
 
-//  users	                POST	Add new user
-//  users                 PUT update user
-//  users/{user}	        GET	Fetches user info
-//  users/{user}/apiKeys	GET	Get all API keys for given user
-//  users/{user}/usage	  GET	Gets the number of queries used by the given user
 trait UserRepo[F[_]] {
   def createUser(userReg: UserReg): F[Int]
 
   def updateUser(user: User): F[Int]
 
   def getUser(userId: Long): F[Option[User]]
-
 }
 
 class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit br: Bracket[F, Throwable]) extends UserRepo[F] {
