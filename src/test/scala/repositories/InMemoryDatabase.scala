@@ -23,24 +23,11 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
   import scala.collection.JavaConverters._
 
   /** how to name the database schema for the test */
-  protected val databaseName = "nautilus_test"
+  protected val databaseName = "nautilus-test"
   /** port to use, try to avoid conflicting usage */
   protected val databasePort = 5555
   /** here are temp files for the embedded process, can wipe out if needed */
   protected val cachedRuntimePath = Paths.get("test-nautilus-postgres-path")
-  /** defines configuration for a randomly named embedded instance */
-  protected val confString =
-    s"""conseildb = {
-       |    url                 = "jdbc:postgresql://localhost:$databasePort/$databaseName"
-       |    connectionPool      = disabled
-       |    keepAliveConnection = true
-       |    driver              = org.postgresql.Driver
-       |    properties = {
-       |      user     = ${EmbeddedPostgres.DEFAULT_USER}
-       |      password = ${EmbeddedPostgres.DEFAULT_PASSWORD}
-       |    }
-       |  }
-    """.stripMargin
 
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   val testTransactor = Transactor.fromDriverManager[IO](
@@ -97,5 +84,4 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
     }
     super.beforeEach()
   }
-
 }

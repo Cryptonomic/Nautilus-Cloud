@@ -23,5 +23,4 @@ class ApiKeyRepoTest extends WordSpec with Matchers with IOChecker with InMemory
       check(sut.getUserApiKeys(0))
     }
   }
-
 }

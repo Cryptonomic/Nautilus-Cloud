@@ -1,6 +1,5 @@
 package tech.cryptonomic.cloud.nautilus.repositories
 
-import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
 import tech.cryptonomic.cloud.nautilus.model.{User, UserReg}

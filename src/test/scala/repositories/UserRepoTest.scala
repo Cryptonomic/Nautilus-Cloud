@@ -26,5 +26,4 @@ class UserRepoTest extends WordSpec with Matchers with IOChecker with InMemoryDa
       check(sut.getUser(0))
     }
   }
-
 }

@@ -2,24 +2,17 @@ package tech.cryptonomic.cloud.nautilus
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives.{
-  getFromResource,
-  getFromResourceDirectory,
-  pathEndOrSingleSlash,
-  pathPrefix
-}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
-import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
-import akka.http.scaladsl.server.Directives._
 import cats.effect.{ContextShift, IO}
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
 import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepoImpl, UserRepoImpl}
-import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserService, UserServiceImpl}
+import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
+import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
+import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceImpl}
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 object Nautilus extends App {
 

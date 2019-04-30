@@ -105,5 +105,4 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest with
       }
     }
   }
-
 }

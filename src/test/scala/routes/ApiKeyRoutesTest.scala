@@ -9,7 +9,6 @@ import tech.cryptonomic.cloud.nautilus.model.ApiKey
 import tech.cryptonomic.cloud.nautilus.routes.ApiKeyRoutes
 import tech.cryptonomic.cloud.nautilus.services.ApiKeyService
 
-import scala.concurrent.Future
 
 class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers {
 
