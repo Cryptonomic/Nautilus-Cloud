@@ -22,16 +22,16 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
-  def getUser: Endpoint[Long, Option[User]] =
+  def getUser: Endpoint[Int, Option[User]] =
     endpoint(
-      request = get(url = path / "users" / segment[Long]("userId")),
+      request = get(url = path / "users" / segment[Int]("userId")),
       response = jsonResponse[User]().orNotFound(),
       tags = List("User")
     )
 
-  def getUserKeys: Endpoint[Long, List[ApiKey]] =
+  def getUserKeys: Endpoint[Int, List[ApiKey]] =
     endpoint(
-      request = get(url = path / "users" / segment[Long]("userId") / "apiKeys"),
+      request = get(url = path / "users" / segment[Int]("userId") / "apiKeys"),
       response = jsonResponse[List[ApiKey]](),
       tags = List("User")
     )

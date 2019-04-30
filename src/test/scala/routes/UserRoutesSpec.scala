@@ -4,6 +4,7 @@ import java.sql.Timestamp
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
@@ -52,20 +53,16 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest with
         |}
       """.stripMargin
 
-    val apiKeyService = new ApiKeyService {
-      override def getAllApiKeys: Future[List[ApiKey]] = Future.successful(List(exampleApiKey))
 
-      override def validateApiKey(apiKey: String): Future[Boolean] = Future.successful(true)
-    }
 
-    val userService = new UserService {
-      override def createUser(userReg: UserReg): Future[Unit] = Future.successful(())
+    val userService = new UserService[IO] {
+      override def createUser(userReg: UserReg): IO[Unit] = IO.pure(())
 
-      override def updateUser(user: User): Future[Unit] = Future.successful(())
+      override def updateUser(user: User): IO[Unit] = IO.pure(())
 
-      override def getUser(userId: Long): Future[Option[User]] = Future.successful(Some(exampleUser))
+      override def getUser(userId: Int): IO[Option[User]] = IO.pure(Some(exampleUser))
 
-      override def getUserApiKeys(userId: Long): Future[List[ApiKey]] = Future.successful(List(exampleApiKey))
+      override def getUserApiKeys(userId: Int): IO[List[ApiKey]] = IO.pure(List(exampleApiKey))
     }
 
     val sut = new UserRoutes(userService)

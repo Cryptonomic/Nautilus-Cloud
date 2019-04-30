@@ -2,6 +2,7 @@ package routes
 
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.cloud.nautilus.model.ApiKey
@@ -27,10 +28,10 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
         |  }]
       """.stripMargin
 
-    val apiKeyService = new ApiKeyService {
-      override def getAllApiKeys: Future[List[ApiKey]] = Future.successful(List(exampleApiKey))
+    val apiKeyService = new ApiKeyService[IO] {
+      override def getAllApiKeys: IO[List[ApiKey]] = IO.pure(List(exampleApiKey))
 
-      override def validateApiKey(apiKey: String): Future[Boolean] = Future.successful(true)
+      override def validateApiKey(apiKey: String): IO[Boolean] = IO.pure(true)
     }
     val sut = new ApiKeyRoutes(apiKeyService)
 

@@ -3,11 +3,11 @@ package tech.cryptonomic.cloud.nautilus.model
 import java.sql.Timestamp
 
 case class ApiKey(
-    keyId: Long,
+    keyId: Int,
     key: String,
-    resourceId: Long,
-    userId: Long,
-    tierId: Long,
+    resourceId: Int,
+    userId: Int,
+    tierId: Int,
     dateIssued: Option[Timestamp],
     dateSuspended: Option[Timestamp]
 )

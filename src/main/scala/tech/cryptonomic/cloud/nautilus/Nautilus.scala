@@ -23,11 +23,6 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 
 object Nautilus extends App {
 
-//  apiKeys	              GET	Gets all API keys
-//  apiKeys/{apiKey}	    GET	Validates given API key
-//  users	                PUT	Add new user
-//  users/{user}	        GET	Fetches user info
-//  users/{user}/apiKeys	GET	Get all API keys for given user
 //  users/{user}/usage	  GET	Gets the number of queries used by the given user
 
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
@@ -40,11 +35,11 @@ object Nautilus extends App {
     "nautilususer",
     "p@ssw0rd"
   )
-  lazy val apiKeysRepo = new ApiKeyRepoImpl[IO](xa)
-  lazy val apiKeysService = new ApiKeyServiceImpl(apiKeysRepo)
+  lazy val apiKeysRepo = new ApiKeyRepoImpl
+  lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo, xa)
   lazy val apiKeysRoutes = new ApiKeyRoutes(apiKeysService)
-  lazy val userRepo = new UserRepoImpl[IO](xa)
-  lazy val userService = new UserServiceImpl(userRepo, apiKeysRepo)
+  lazy val userRepo = new UserRepoImpl
+  lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo, xa)
   lazy val userRoutes = new UserRoutes(userService)
 
   val route: Route =

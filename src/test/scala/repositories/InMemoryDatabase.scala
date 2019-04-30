@@ -1,0 +1,101 @@
+package repositories
+
+
+import cats.effect.{ContextShift, IO}
+import doobie.implicits._
+import doobie.util.fragment.Fragment
+import doobie.util.transactor.Transactor
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestSuite}
+
+import scala.concurrent.ExecutionContext
+import scala.io.Source
+
+/**
+  * Provides access to a test in-memory database initialized with conseil schema
+  */
+trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
+  self: TestSuite =>
+  import java.nio.file._
+
+  import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres
+  import ru.yandex.qatools.embed.postgresql.distribution.Version
+
+  import scala.collection.JavaConverters._
+
+  /** how to name the database schema for the test */
+  protected val databaseName = "nautilus_test"
+  /** port to use, try to avoid conflicting usage */
+  protected val databasePort = 5555
+  /** here are temp files for the embedded process, can wipe out if needed */
+  protected val cachedRuntimePath = Paths.get("test-nautilus-postgres-path")
+  /** defines configuration for a randomly named embedded instance */
+  protected val confString =
+    s"""conseildb = {
+       |    url                 = "jdbc:postgresql://localhost:$databasePort/$databaseName"
+       |    connectionPool      = disabled
+       |    keepAliveConnection = true
+       |    driver              = org.postgresql.Driver
+       |    properties = {
+       |      user     = ${EmbeddedPostgres.DEFAULT_USER}
+       |      password = ${EmbeddedPostgres.DEFAULT_PASSWORD}
+       |    }
+       |  }
+    """.stripMargin
+
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  val testTransactor = Transactor.fromDriverManager[IO](
+    "org.postgresql.Driver",
+    s"jdbc:postgresql://localhost:$databasePort/$databaseName",
+    EmbeddedPostgres.DEFAULT_USER,
+    EmbeddedPostgres.DEFAULT_PASSWORD
+  )
+
+
+  /* turns off anti-corruption guarantees settings that will improve performance on testing
+   * override to change or add test-specific settings
+   */
+  protected val pgInitParams = List("--nosync", "--lc-collate=C")
+  /* turns off anti-corruption guarantees settings that will improve performance on testing
+   * override to change or add test-specific settings
+   */
+  protected val pgConfigs = List("-c", "full_page_writes=off")
+
+  lazy val dbInstance = new EmbeddedPostgres(Version.V9_5_15)
+
+  protected val dbSchema = Source.fromFile("./doc/nautilus.sql").getLines().mkString("\n")
+
+  protected val allTables = List(
+    "users",
+    "tiers",
+    "api_keys",
+    "resources"
+  )
+
+  override protected def beforeAll(): Unit = {
+    super.beforeAll()
+    dbInstance.start(
+      EmbeddedPostgres.cachedRuntimeConfig(cachedRuntimePath),
+      "localhost",
+      databasePort,
+      databaseName,
+      EmbeddedPostgres.DEFAULT_USER,
+      EmbeddedPostgres.DEFAULT_PASSWORD,
+      pgInitParams.asJava,
+      pgConfigs.asJava)
+
+    Fragment.const(dbSchema).update.run.transact(testTransactor).unsafeRunSync()
+  }
+
+  override protected def afterAll(): Unit = {
+    dbInstance.stop()
+    super.afterAll()
+  }
+
+  override protected def beforeEach(): Unit = {
+    allTables.map { table =>
+      Fragment.const(s"DELETE FROM $table").update.run.transact(testTransactor).unsafeRunSync()
+    }
+    super.beforeEach()
+  }
+
+}

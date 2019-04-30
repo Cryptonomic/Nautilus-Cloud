@@ -2,8 +2,7 @@ package tech.cryptonomic.cloud.nautilus.model
 
 import java.sql.Timestamp
 
-case class User(
-    userId: Int,
+case class UserReg(
     userName: String,
     userEmail: String,
     userRole: String,
