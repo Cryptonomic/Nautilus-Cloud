@@ -1,7 +1,7 @@
 version: "3.1"
 
 services:
-  conseil-postgres:
+  nautilus-postgres:
     image: postgres:10.3-alpine
     ports:
     - 5433:5432

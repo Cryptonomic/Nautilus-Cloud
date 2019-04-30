@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext
 import scala.io.Source
 
 /**
-  * Provides access to a test in-memory database initialized with conseil schema
+  * Provides access to a test in-memory database initialized with nautilus schema
   */
 trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
   self: TestSuite =>
