@@ -9,27 +9,34 @@ import cats.effect.IO
 
 // TODO:
 //   users/{user}/usage	  GET	Gets the number of queries used by the given user
+
+/** User routes implementation */
 class UserRoutes(userService: UserService[IO])
     extends UserEndpoints
     with server.Endpoints
     with server.JsonSchemaEntities {
 
+  /** User creation route implementation */
   val createUserRoute: Route = createUser.implementedByAsync { userReg =>
     userService.createUser(userReg).unsafeToFuture()
   }
 
+  /** User update route implementation */
   val updateUserRoute: Route = updateUser.implementedByAsync { user =>
     userService.updateUser(user).unsafeToFuture()
   }
 
+  /** User route implementation */
   val getUserRoute: Route = getUser.implementedByAsync { userId =>
     userService.getUser(userId).unsafeToFuture()
   }
 
+  /** User keys route implementation */
   val getUserKeysRoute: Route = getUserKeys.implementedByAsync { userId =>
     userService.getUserApiKeys(userId).unsafeToFuture()
   }
 
+  /** Concatenated User routes */
   val routes: Route = concat(
     createUserRoute,
     updateUserRoute,

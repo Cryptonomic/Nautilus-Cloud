@@ -3,8 +3,10 @@ package tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas
 import endpoints.{algebra, generic}
 import tech.cryptonomic.cloud.nautilus.model.ApiKey
 
+/** Schemas used for ApiKey endpoints */
 trait ApiKeySchemas extends algebra.JsonSchemas with generic.JsonSchemas {
 
+  /** ApiKey schema */
   implicit lazy val apiKeySchema: JsonSchema[ApiKey] =
     genericJsonSchema[ApiKey]
 

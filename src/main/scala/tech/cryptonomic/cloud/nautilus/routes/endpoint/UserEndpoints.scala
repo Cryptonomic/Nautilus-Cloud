@@ -6,8 +6,11 @@ import tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas.UserSchemas
 
 // TODO:
 //  users/{user}/usage	  GET	Gets the number of queries used by the given user
+
+/** User relevant endpoints */
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas {
 
+  /** User creation endpoint definition */
   def createUser: Endpoint[UserReg, Unit] =
     endpoint(
       request = post(url = path / "users", jsonRequest[UserReg]()),
@@ -15,6 +18,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
+  /** User update endpoint definition */
   def updateUser: Endpoint[User, Unit] =
     endpoint(
       request = put(url = path / "users", jsonRequest[User]()),
@@ -22,6 +26,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
+  /** User endpoint definition */
   def getUser: Endpoint[Int, Option[User]] =
     endpoint(
       request = get(url = path / "users" / segment[Int]("userId")),
@@ -29,6 +34,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
+  /** User keys endpoint definition */
   def getUserKeys: Endpoint[Int, List[ApiKey]] =
     endpoint(
       request = get(url = path / "users" / segment[Int]("userId") / "apiKeys"),

@@ -8,10 +8,8 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
-import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
-import tech.cryptonomic.cloud.nautilus.services.{ApiKeyService, UserService}
-
-import scala.concurrent.Future
+import tech.cryptonomic.cloud.nautilus.routes.UserRoutes
+import tech.cryptonomic.cloud.nautilus.services.UserService
 
 class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers {
 
