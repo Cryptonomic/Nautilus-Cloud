@@ -6,6 +6,9 @@ import tech.cryptonomic.cloud.nautilus.routes.endpoint.UserEndpoints
 import tech.cryptonomic.cloud.nautilus.services.UserService
 import akka.http.scaladsl.server.Directives._
 import cats.effect.IO
+import tech.cryptonomic.cloud.nautilus.model.Usage
+
+import scala.concurrent.Future
 
 // TODO:
 //   users/{user}/usage	  GET	Gets the number of queries used by the given user
@@ -34,6 +37,11 @@ class UserRoutes(userService: UserService[IO])
   /** User keys route implementation */
   val getUserKeysRoute: Route = getUserKeys.implementedByAsync { userId =>
     userService.getUserApiKeys(userId).unsafeToFuture()
+  }
+
+  /** ApiKey usage route implementation */
+  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedByAsync { apiKey =>
+    Future.successful(Some(Usage("dummyKey", 500, 15000)))
   }
 
   /** Concatenated User routes */

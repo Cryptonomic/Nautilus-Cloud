@@ -1,7 +1,7 @@
 package tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas
 
 import endpoints.{algebra, generic}
-import tech.cryptonomic.cloud.nautilus.model.{User, UserReg}
+import tech.cryptonomic.cloud.nautilus.model.{Usage, User, UserReg}
 
 /** Schemas used for User endpoints */
 trait UserSchemas extends algebra.JsonSchemas with generic.JsonSchemas with ApiKeySchemas {
@@ -12,4 +12,8 @@ trait UserSchemas extends algebra.JsonSchemas with generic.JsonSchemas with ApiK
   /** User schema */
   implicit lazy val userSchema: JsonSchema[User] =
     genericJsonSchema[User]
+
+  /** Usage schema */
+  implicit lazy val usageSchema: JsonSchema[Usage] =
+    genericJsonSchema[Usage]
 }

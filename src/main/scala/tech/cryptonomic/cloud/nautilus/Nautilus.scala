@@ -16,8 +16,6 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 object Nautilus extends App {
 
-//  users/{user}/usage	  GET	Gets the number of queries used by the given user
-
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher

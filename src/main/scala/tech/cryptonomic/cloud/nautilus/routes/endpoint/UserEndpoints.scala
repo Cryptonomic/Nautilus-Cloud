@@ -1,7 +1,7 @@
 package tech.cryptonomic.cloud.nautilus.routes.endpoint
 
 import endpoints.algebra
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, Usage, User, UserReg}
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas.UserSchemas
 
 // TODO:
@@ -42,10 +42,10 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
-//  def getQueriesUsage: Endpoint[Long, Option[List[ApiKey]]] =
-//    endpoint(
-//      request = get(url = path / "users" / segment[Long]("userId") / "usage"),
-//      response = jsonResponse[List[Usage]]().orNotFound(),
-//      tags = List("User")
-//    )
+  def getApiKeyUsage: Endpoint[String, Option[Usage]] =
+    endpoint(
+      request = get(url = path / "users" / segment[String]("apiKey") / "usage"),
+      response = jsonResponse[Usage]().orNotFound(),
+      tags = List("User")
+    )
 }
