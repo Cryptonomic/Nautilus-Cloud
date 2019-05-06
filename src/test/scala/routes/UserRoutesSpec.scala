@@ -7,7 +7,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserReg}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserRegistration}
 import tech.cryptonomic.cloud.nautilus.routes.UserRoutes
 import tech.cryptonomic.cloud.nautilus.services.UserService
 
@@ -54,7 +54,7 @@ class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest with
 
 
     val userService = new UserService[IO] {
-      override def createUser(userReg: UserReg): IO[Unit] = IO.pure(())
+      override def createUser(userReg: UserRegistration): IO[Unit] = IO.pure(())
 
       override def updateUser(user: User): IO[Unit] = IO.pure(())
 

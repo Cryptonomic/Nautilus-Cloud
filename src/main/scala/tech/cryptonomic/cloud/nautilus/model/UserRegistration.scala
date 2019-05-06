@@ -3,7 +3,7 @@ package tech.cryptonomic.cloud.nautilus.model
 import java.sql.Timestamp
 
 /** Class used in user registration */
-case class UserReg(
+case class UserRegistration(
     userName: String,
     userEmail: String,
     userRole: String,

@@ -1,23 +1,24 @@
 package tech.cryptonomic.cloud.nautilus.repositories
 
-import doobie.Query0
+import cats.effect.Bracket
 import doobie.implicits._
+import doobie.util.transactor.Transactor
 import tech.cryptonomic.cloud.nautilus.model.ApiKey
+import tech.cryptonomic.cloud.nautilus.repositories.dao.ApiKeyDao
 
-/** Trait representing Doobie API Key repo queries */
-class ApiKeyRepoImpl extends ApiKeyRepo {
+import scala.language.higherKinds
+
+/** Trait representing API Key repo queries */
+class ApiKeyRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable]) extends ApiKeyRepo[F] with ApiKeyDao {
   /** Query returning all API keys from the DB */
-  override def getAllApiKeys: Query0[ApiKey] =
-    sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys"
-      .query[ApiKey]
+  override def getAllApiKeys: F[List[ApiKey]] =
+    getAllApiKeysQuery.to[List].transact(transactor)
 
   /** Query checking if API key is valid */
-  override def validateApiKey(apiKey: String): Query0[Boolean] =
-    sql"SELECT exists (SELECT 1 FROM api_keys WHERE key = $apiKey LIMIT 1)"
-      .query[Boolean]
+  override def validateApiKey(apiKey: String): F[Boolean] =
+    validateApiKeyQuery(apiKey).nel.map(_.head).transact(transactor)
 
   /** Query returning API keys connected to user */
-  override def getUserApiKeys(userId: Int): Query0[ApiKey] =
-    sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys WHERE userid = $userId"
-      .query[ApiKey]
+  override def getUserApiKeys(userId: Int): F[List[ApiKey]] =
+    getUserApiKeysQuery(userId).to[List].transact(transactor)
 }

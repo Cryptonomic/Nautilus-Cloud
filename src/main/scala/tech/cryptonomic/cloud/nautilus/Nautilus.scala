@@ -26,11 +26,11 @@ object Nautilus extends App {
     "nautilususer",
     "p@ssw0rd"
   )
-  lazy val apiKeysRepo = new ApiKeyRepoImpl
-  lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo, xa)
+  lazy val apiKeysRepo = new ApiKeyRepoImpl(xa)
+  lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo)
   lazy val apiKeysRoutes = new ApiKeyRoutes(apiKeysService)
-  lazy val userRepo = new UserRepoImpl
-  lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo, xa)
+  lazy val userRepo = new UserRepoImpl(xa)
+  lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo)
   lazy val userRoutes = new UserRoutes(userService)
 
   val route: Route =

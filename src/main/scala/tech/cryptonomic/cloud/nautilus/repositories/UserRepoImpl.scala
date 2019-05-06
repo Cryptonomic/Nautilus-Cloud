@@ -1,27 +1,24 @@
 package tech.cryptonomic.cloud.nautilus.repositories
 
-import doobie.util.query.Query0
-import doobie.util.update.Update0
-import tech.cryptonomic.cloud.nautilus.model.{User, UserReg}
+import cats.effect.Bracket
 import doobie.implicits._
+import doobie.util.transactor.Transactor
+import tech.cryptonomic.cloud.nautilus.model.{User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.repositories.dao.UserDao
 
-/** Trait representing Doobie User repo queries */
-class UserRepoImpl extends UserRepo {
+import scala.language.higherKinds
+
+/** Trait representing User repo queries */
+class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable]) extends UserRepo[F] with UserDao {
   /** Creates user */
-  override def createUser(userReg: UserReg): Update0 =
-    sql"""INSERT INTO users (username, useremail, userrole, registrationdate, accountsource, accountdescription)
-         |VALUES (${userReg.userName}, ${userReg.userEmail}, ${userReg.userRole},
-         |${userReg.registrationDate}, ${userReg.accountSource}, ${userReg.accountDescription}) """.stripMargin.update
+  override def createUser(userReg: UserRegistration): F[Unit] =
+    createUserQuery(userReg).run.map(_ => ()).transact(transactor)
 
   /** Updates user */
-  override def updateUser(user: User): Update0 =
-    sql"""UPDATE users SET username = ${user.userName}, useremail = ${user.userEmail},
-         |userrole = ${user.userRole}, registrationdate = ${user.registrationDate},
-         |accountsource = ${user.accountSource}, accountdescription = ${user.accountDescription}
-         |WHERE userid = ${user.userId}""".stripMargin.update
+  override def updateUser(user: User): F[Unit] =
+    updateUserQuery(user).run.map(_ => ()).transact(transactor)
 
   /** Returns user */
-  override def getUser(userId: Int): Query0[User] =
-    sql"SELECT userid, username, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE userid = $userId"
-      .query[User]
+  override def getUser(userId: Int): F[Option[User]] =
+    getUserQuery(userId).option.transact(transactor)
 }

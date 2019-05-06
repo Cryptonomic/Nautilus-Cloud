@@ -6,7 +6,7 @@ import tech.cryptonomic.cloud.nautilus.routes.endpoint.UserEndpoints
 import tech.cryptonomic.cloud.nautilus.services.UserService
 import akka.http.scaladsl.server.Directives._
 import cats.effect.IO
-import tech.cryptonomic.cloud.nautilus.model.Usage
+import tech.cryptonomic.cloud.nautilus.model.UsageLeft
 
 import scala.concurrent.Future
 
@@ -41,7 +41,7 @@ class UserRoutes(userService: UserService[IO])
 
   /** ApiKey usage route implementation */
   val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedByAsync { apiKey =>
-    Future.successful(Some(Usage("dummyKey", 500, 15000)))
+    Future.successful(Some(UsageLeft("dummyKey", 500, 15000)))
   }
 
   /** Concatenated User routes */
