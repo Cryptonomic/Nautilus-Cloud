@@ -5,6 +5,7 @@ import tech.cryptonomic.cloud.nautilus.model.ApiKey
 import doobie.implicits._
 
 trait ApiKeyDao {
+
   /** Query returning all API keys from the DB */
   def getAllApiKeysQuery: Query0[ApiKey] =
     sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys"

@@ -1,12 +1,12 @@
 package tech.cryptonomic.cloud.nautilus.repositories
 
-import doobie.util.query.Query0
 import scala.language.higherKinds
 
 import tech.cryptonomic.cloud.nautilus.model.{User, UserRegistration}
 
-/** Trait representing Doobie User repo queries */
+/** Trait representing User repo queries */
 trait UserRepo[F[_]] {
+
   /** Creates user */
   def createUser(userReg: UserRegistration): F[Unit]
 

@@ -8,8 +8,6 @@ import akka.http.scaladsl.server.Directives._
 import cats.effect.IO
 import tech.cryptonomic.cloud.nautilus.model.UsageLeft
 
-import scala.concurrent.Future
-
 // TODO:
 //   users/{user}/usage	  GET	Gets the number of queries used by the given user
 
@@ -40,8 +38,8 @@ class UserRoutes(userService: UserService[IO])
   }
 
   /** ApiKey usage route implementation */
-  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedByAsync { apiKey =>
-    Future.successful(Some(UsageLeft("dummyKey", 500, 15000)))
+  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedBy { apiKey =>
+    Some(UsageLeft("dummyKey", 500, 15000))
   }
 
   /** Concatenated User routes */

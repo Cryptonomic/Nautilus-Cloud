@@ -6,6 +6,7 @@ import tech.cryptonomic.cloud.nautilus.model.{User, UserRegistration}
 import doobie.implicits._
 
 trait UserDao {
+
   /** Creates user */
   def createUserQuery(userReg: UserRegistration): Update0 =
     sql"""INSERT INTO users (username, useremail, userrole, registrationdate, accountsource, accountdescription)

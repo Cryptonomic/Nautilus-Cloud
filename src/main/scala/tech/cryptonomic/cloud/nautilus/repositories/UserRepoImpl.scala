@@ -9,7 +9,10 @@ import tech.cryptonomic.cloud.nautilus.repositories.dao.UserDao
 import scala.language.higherKinds
 
 /** Trait representing User repo queries */
-class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable]) extends UserRepo[F] with UserDao {
+class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable])
+    extends UserRepo[F]
+    with UserDao {
+
   /** Creates user */
   override def createUser(userReg: UserRegistration): F[Unit] =
     createUserQuery(userReg).run.map(_ => ()).transact(transactor)

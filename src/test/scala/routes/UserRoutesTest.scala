@@ -4,6 +4,7 @@ import java.sql.Timestamp
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import cats.Id
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
@@ -11,7 +12,7 @@ import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserRegistration}
 import tech.cryptonomic.cloud.nautilus.routes.UserRoutes
 import tech.cryptonomic.cloud.nautilus.services.UserService
 
-class UserRoutesSpec extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers {
+class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers {
 
   "The API Keys route" should {
 

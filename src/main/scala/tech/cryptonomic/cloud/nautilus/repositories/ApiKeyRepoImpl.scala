@@ -9,7 +9,10 @@ import tech.cryptonomic.cloud.nautilus.repositories.dao.ApiKeyDao
 import scala.language.higherKinds
 
 /** Trait representing API Key repo queries */
-class ApiKeyRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable]) extends ApiKeyRepo[F] with ApiKeyDao {
+class ApiKeyRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable])
+    extends ApiKeyRepo[F]
+    with ApiKeyDao {
+
   /** Query returning all API keys from the DB */
   override def getAllApiKeys: F[List[ApiKey]] =
     getAllApiKeysQuery.to[List].transact(transactor)

@@ -5,6 +5,7 @@ import tech.cryptonomic.cloud.nautilus.model.{UsageLeft, User, UserRegistration}
 
 /** Schemas used for User endpoints */
 trait UserSchemas extends algebra.JsonSchemas with ApiKeySchemas {
+
   /** User registration schema */
   implicit lazy val userRegSchema: JsonSchema[UserRegistration] =
     genericJsonSchema[UserRegistration]
