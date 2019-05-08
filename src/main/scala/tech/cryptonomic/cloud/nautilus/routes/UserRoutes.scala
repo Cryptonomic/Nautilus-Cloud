@@ -1,6 +1,6 @@
 package tech.cryptonomic.cloud.nautilus.routes
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, ResponseEntity, StatusCodes}
 import akka.http.scaladsl.server.Route
 import endpoints.akkahttp.server
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.UserEndpoints
@@ -55,7 +55,7 @@ class UserRoutes(userService: UserService[IO])
     getUserKeysRoute
   )
 
-  override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { _ =>
-    complete(HttpResponse(StatusCodes.Created))
+  override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>
+    complete(HttpResponse(StatusCodes.Created, entity = HttpEntity(entity.toString)))
   }
 }

@@ -14,10 +14,10 @@ import tech.cryptonomic.cloud.nautilus.services.UserService
 
 class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
 
-  "The API Keys route" should {
+  "The User route" should {
 
     val userService = new UserService[IO] {
-      override def createUser(userReg: UserWithoutId): IO[Unit] = IO.pure(())
+      override def createUser(userReg: UserWithoutId): IO[Int] = IO.pure(1)
 
       override def updateUser(user: User): IO[Unit] = IO.pure(())
 
@@ -36,6 +36,7 @@ class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with
       )
       postRequest ~> sut.createUserRoute ~> check {
         status shouldEqual StatusCodes.Created
+        responseAs[String].toInt shouldBe 1
       }
     }
 

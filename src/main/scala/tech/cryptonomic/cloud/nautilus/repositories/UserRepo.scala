@@ -8,7 +8,7 @@ import tech.cryptonomic.cloud.nautilus.model.{User, UserWithoutId}
 trait UserRepo[F[_]] {
 
   /** Creates user */
-  def createUser(userReg: UserWithoutId): F[Unit]
+  def createUser(userReg: UserWithoutId): F[Int]
 
   /** Updates user */
   def updateUser(user: User): F[Unit]

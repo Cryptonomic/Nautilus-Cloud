@@ -8,7 +8,7 @@ import scala.language.higherKinds
 trait UserService[F[_]] {
 
   /** Creates user */
-  def createUser(userWithoutId: UserWithoutId): F[Unit]
+  def createUser(userWithoutId: UserWithoutId): F[Int]
 
   /** Updated user */
   def updateUser(user: User): F[Unit]

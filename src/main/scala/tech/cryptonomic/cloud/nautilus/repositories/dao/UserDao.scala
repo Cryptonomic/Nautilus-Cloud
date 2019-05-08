@@ -11,7 +11,7 @@ trait UserDao {
   def createUserQuery(userReg: UserWithoutId): Update0 =
     sql"""INSERT INTO users (username, useremail, userrole, registrationdate, accountsource, accountdescription)
          |VALUES (${userReg.userName}, ${userReg.userEmail}, ${userReg.userRole},
-         |${userReg.registrationDate}, ${userReg.accountSource}, ${userReg.accountDescription}) """.stripMargin.update
+         |${userReg.registrationDate}, ${userReg.accountSource}, ${userReg.accountDescription})""".stripMargin.update
 
   /** Updates user */
   def updateUserQuery(user: User): Update0 =

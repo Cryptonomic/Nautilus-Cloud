@@ -2,7 +2,7 @@ package tech.cryptonomic.cloud.nautilus.routes.endpoint
 
 import endpoints.algebra.Documentation
 import endpoints.openapi
-import endpoints.openapi.model.{Info, OpenApi}
+import endpoints.openapi.model.{Info, MediaType, OpenApi, Schema}
 
 /** OpenAPI documentation definition */
 object OpenApiDoc
@@ -30,6 +30,8 @@ object OpenApiDoc
     response :+ OpenApiDoc.DocumentedResponse(
           status = 201,
           documentation = invalidDocs.getOrElse(""),
-          content = Map.empty
+          content = Map(
+            "application/json" -> MediaType(schema = Some(Schema.Array(Schema.simpleInteger, None)))
+          )
         )
 }

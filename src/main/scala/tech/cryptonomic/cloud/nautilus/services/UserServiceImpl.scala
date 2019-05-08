@@ -9,7 +9,7 @@ import scala.language.higherKinds
 class UserServiceImpl[F[_]](userRepo: UserRepo[F], apiKeyRepo: ApiKeyRepo[F]) extends UserService[F] {
 
   /** Creates user */
-  override def createUser(userWithoutId: UserWithoutId): F[Unit] =
+  override def createUser(userWithoutId: UserWithoutId): F[Int] =
     userRepo.createUser(userWithoutId)
 
   /** Updated user */

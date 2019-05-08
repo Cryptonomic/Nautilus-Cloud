@@ -20,7 +20,7 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures {
   }
 
   val userRepo = new UserRepo[Id] {
-    override def createUser(userReg: UserWithoutId): Id[Unit] = ()
+    override def createUser(userReg: UserWithoutId): Id[Int] = 1
 
     override def updateUser(user: User): Id[Unit] = ()
 
@@ -31,7 +31,7 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures {
 
   "UserService" should {
     "createUser" in {
-      sut.createUser(exampleUserWithoutId) shouldBe ()
+      sut.createUser(exampleUserWithoutId) shouldBe 1
     }
     "getUser" in {
       sut.getUser(1) shouldBe Some(exampleUser)

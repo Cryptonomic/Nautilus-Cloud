@@ -14,8 +14,8 @@ class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F,
     with UserDao {
 
   /** Creates user */
-  override def createUser(userReg: UserWithoutId): F[Unit] =
-    createUserQuery(userReg).run.map(_ => ()).transact(transactor)
+  override def createUser(userReg: UserWithoutId): F[Int] =
+    createUserQuery(userReg).withUniqueGeneratedKeys[Int]("userid").transact(transactor)
 
   /** Updates user */
   override def updateUser(user: User): F[Unit] =
