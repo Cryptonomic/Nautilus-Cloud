@@ -1,14 +1,13 @@
 package services
 
 import cats.Id
+import fixtures.Fixtures
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.cloud.nautilus.model.ApiKey
 import tech.cryptonomic.cloud.nautilus.repositories.ApiKeyRepo
 import tech.cryptonomic.cloud.nautilus.services.ApiKeyServiceImpl
 
-class ApiKeyServiceTest extends WordSpec with Matchers {
-
-  val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
+class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {
 
   val apiKeyRepo = new ApiKeyRepo[Id] {
     override def getAllApiKeys: Id[List[ApiKey]] = List(exampleApiKey)

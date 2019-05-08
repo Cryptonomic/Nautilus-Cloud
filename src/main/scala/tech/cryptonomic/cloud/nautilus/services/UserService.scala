@@ -1,6 +1,6 @@
 package tech.cryptonomic.cloud.nautilus.services
 
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
 
 import scala.language.higherKinds
 
@@ -8,7 +8,7 @@ import scala.language.higherKinds
 trait UserService[F[_]] {
 
   /** Creates user */
-  def createUser(userReg: UserRegistration): F[Unit]
+  def createUser(userWithoutId: UserWithoutId): F[Unit]
 
   /** Updated user */
   def updateUser(user: User): F[Unit]

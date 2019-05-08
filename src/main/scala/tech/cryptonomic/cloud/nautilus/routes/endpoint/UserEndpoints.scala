@@ -1,28 +1,25 @@
 package tech.cryptonomic.cloud.nautilus.routes.endpoint
 
 import endpoints.algebra
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, UsageLeft, User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, UsageLeft, User, UserWithoutId}
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas.UserSchemas
 
-// TODO:
-//  users/{user}/usage	  GET	Gets the number of queries used by the given user
-
 /** User relevant endpoints */
-trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas {
+trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsUtil {
 
   /** User creation endpoint definition */
-  def createUser: Endpoint[UserRegistration, Unit] =
+  def createUser: Endpoint[UserWithoutId, Unit] =
     endpoint(
-      request = post(url = path / "users", jsonRequest[UserRegistration]()),
-      response = emptyResponse(Some("User created!")),
+      request = post(url = path / "users", jsonRequest[UserWithoutId]()),
+      response = emptyResponse().withCreatedStatus(Some("User created!")),
       tags = List("User")
     )
 
   /** User update endpoint definition */
-  def updateUser: Endpoint[User, Unit] =
+  def updateUser: Endpoint[(Int, UserWithoutId), Unit] =
     endpoint(
-      request = put(url = path / "users", jsonRequest[User]()),
-      response = emptyResponse(Some("User updated!")),
+      request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UserWithoutId]()),
+      response = emptyResponse().withCreatedStatus(Some("User updated!")),
       tags = List("User")
     )
 

@@ -3,30 +3,24 @@ package services
 import java.sql.Timestamp
 
 import cats.Id
-import cats.effect.IO
+import fixtures.Fixtures
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
 import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepo, UserRepo}
 import tech.cryptonomic.cloud.nautilus.services.UserServiceImpl
 
-class UserServiceTest extends WordSpec with Matchers {
-
-  val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
-
-  val exampleUser = User(1, "someUserName", "email@example.com", "user", new Timestamp(1), None, None)
-
-  val exampleUserRegistration = UserRegistration("someUserName", "email@example.com", "user", new Timestamp(1), None, None)
+class UserServiceTest extends WordSpec with Matchers with Fixtures {
 
   val apiKeyRepo = new ApiKeyRepo[Id] {
     override def getAllApiKeys: Id[List[ApiKey]] = List(exampleApiKey)
 
     override def validateApiKey(apiKey: String): Id[Boolean] = ???
 
-    override def getUserApiKeys(userId: Int): Id[List[ApiKey]] = ???
+    override def getUserApiKeys(userId: Int): Id[List[ApiKey]] = List(exampleApiKey)
   }
 
   val userRepo = new UserRepo[Id] {
-    override def createUser(userReg: UserRegistration): Id[Unit] = ()
+    override def createUser(userReg: UserWithoutId): Id[Unit] = ()
 
     override def updateUser(user: User): Id[Unit] = ()
 
@@ -37,7 +31,7 @@ class UserServiceTest extends WordSpec with Matchers {
 
   "UserService" should {
     "createUser" in {
-      sut.createUser(exampleUserRegistration) shouldBe ()
+      sut.createUser(exampleUserWithoutId) shouldBe ()
     }
     "getUser" in {
       sut.getUser(1) shouldBe Some(exampleUser)
@@ -45,8 +39,8 @@ class UserServiceTest extends WordSpec with Matchers {
     "updateUser" in {
       sut.updateUser(exampleUser) shouldBe ()
     }
-    "" in {
-      sut.getUserApiKeys(0) shouldBe List()
+    "getUserApiKeys" in {
+      sut.getUserApiKeys(0) shouldBe List(exampleApiKey)
     }
 
   }

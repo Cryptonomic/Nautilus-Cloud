@@ -29,5 +29,4 @@ class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     getAllApiKeysRoute,
     validateApiKeyRoute
   )
-
 }

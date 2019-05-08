@@ -2,13 +2,13 @@ package tech.cryptonomic.cloud.nautilus.repositories.dao
 
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.cloud.nautilus.model.{User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{User, UserWithoutId}
 import doobie.implicits._
 
 trait UserDao {
 
   /** Creates user */
-  def createUserQuery(userReg: UserRegistration): Update0 =
+  def createUserQuery(userReg: UserWithoutId): Update0 =
     sql"""INSERT INTO users (username, useremail, userrole, registrationdate, accountsource, accountdescription)
          |VALUES (${userReg.userName}, ${userReg.userEmail}, ${userReg.userRole},
          |${userReg.registrationDate}, ${userReg.accountSource}, ${userReg.accountDescription}) """.stripMargin.update

@@ -1,6 +1,6 @@
 package tech.cryptonomic.cloud.nautilus.services
 
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
 import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepo, UserRepo}
 
 import scala.language.higherKinds
@@ -9,8 +9,8 @@ import scala.language.higherKinds
 class UserServiceImpl[F[_]](userRepo: UserRepo[F], apiKeyRepo: ApiKeyRepo[F]) extends UserService[F] {
 
   /** Creates user */
-  override def createUser(userReg: UserRegistration): F[Unit] =
-    userRepo.createUser(userReg)
+  override def createUser(userWithoutId: UserWithoutId): F[Unit] =
+    userRepo.createUser(userWithoutId)
 
   /** Updated user */
   override def updateUser(user: User): F[Unit] =

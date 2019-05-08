@@ -3,7 +3,7 @@ package tech.cryptonomic.cloud.nautilus.repositories
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.cloud.nautilus.model.{User, UserRegistration}
+import tech.cryptonomic.cloud.nautilus.model.{User, UserWithoutId}
 import tech.cryptonomic.cloud.nautilus.repositories.dao.UserDao
 
 import scala.language.higherKinds
@@ -14,7 +14,7 @@ class UserRepoImpl[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F,
     with UserDao {
 
   /** Creates user */
-  override def createUser(userReg: UserRegistration): F[Unit] =
+  override def createUser(userReg: UserWithoutId): F[Unit] =
     createUserQuery(userReg).run.map(_ => ()).transact(transactor)
 
   /** Updates user */
