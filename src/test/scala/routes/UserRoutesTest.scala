@@ -1,6 +1,5 @@
 package routes
 
-import java.sql.Timestamp
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
