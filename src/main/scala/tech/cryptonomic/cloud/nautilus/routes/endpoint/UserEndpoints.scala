@@ -8,10 +8,10 @@ import tech.cryptonomic.cloud.nautilus.routes.endpoint.schemas.UserSchemas
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsUtil {
 
   /** User creation endpoint definition */
-  def createUser: Endpoint[UserWithoutId, Int] =
+  def createUser: Endpoint[UserWithoutId, String] =
     endpoint(
       request = post(url = path / "users", jsonRequest[UserWithoutId]()),
-      response = jsonResponse[Int]().withCreatedStatus(Some("User created!")),
+      response = textResponse(Some("User created!")).withCreatedStatus(),
       tags = List("User")
     )
 
@@ -19,7 +19,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
   def updateUser: Endpoint[(Int, UserWithoutId), Unit] =
     endpoint(
       request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UserWithoutId]()),
-      response = emptyResponse().withCreatedStatus(Some("User updated!")),
+      response = emptyResponse(Some("User updated!")).withCreatedStatus(),
       tags = List("User")
     )
 

@@ -21,7 +21,7 @@ class UserRoutes(userService: UserService[IO])
 
   /** User creation route implementation */
   val createUserRoute: Route = createUser.implementedByAsync { userReg =>
-    userService.createUser(userReg).unsafeToFuture()
+    userService.createUser(userReg).map(_.toString).unsafeToFuture()
   }
 
   /** User update route implementation */

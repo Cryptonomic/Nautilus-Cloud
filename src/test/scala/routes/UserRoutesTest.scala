@@ -35,7 +35,7 @@ class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with
       )
       postRequest ~> sut.createUserRoute ~> check {
         status shouldEqual StatusCodes.Created
-        responseAs[String].toInt shouldBe 1
+        responseAs[String] shouldBe "1"
       }
     }
 
