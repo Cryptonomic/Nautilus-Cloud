@@ -9,7 +9,7 @@ import io.circe.parser._
 
 import scala.language.higherKinds
 
-class CirceOauthService[F[_]: Monad](config: AuthProviderConfig)(implicit sttpBackend: SttpBackend[F, Nothing]) extends OauthService[F] {
+class SttpOauthService[F[_]: Monad](config: AuthProviderConfig)(implicit sttpBackend: SttpBackend[F, Nothing]) extends OauthService[F] {
 
   type Result[T] = Either[Throwable, T]
 
