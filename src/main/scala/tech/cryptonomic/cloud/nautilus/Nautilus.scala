@@ -10,6 +10,7 @@ import cats.effect.{ContextShift, IO}
 import com.softwaremill.session.SessionDirectives.setSession
 import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
 import com.softwaremill.session.{SessionConfig, SessionDirectives, SessionManager}
+import com.softwaremill.sttp.SttpBackendOptions.connectionTimeout
 import com.softwaremill.sttp.asynchttpclient.cats.AsyncHttpClientCatsBackend
 import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
@@ -18,22 +19,24 @@ import pureconfig.loadConfig
 import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepoImpl, DoobieConfig, UserRepoImpl}
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
 import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, SttpOauthService, Github, Session}
+import tech.cryptonomic.cloud.nautilus.security.Provider.Github
+import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, Provider, Session, SttpOauthService}
 import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceImpl}
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.duration._
 import scala.util.Success
 
 object Nautilus extends App with StrictLogging {
 
-  implicit val system: ActorSystem = ActorSystem("nautilus-system")
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO]()
-
   lazy val githubConfig = loadConfig[AuthProviderConfig](namespace = "security.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val xa = Transactor.fromDriverManager[IO]("org.postgresql.Driver", doobieConfig.url, doobieConfig.user, doobieConfig.password)
+
+  implicit val system: ActorSystem = ActorSystem("nautilus-system")
+  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout.milliseconds))
 
   lazy val apiKeysRepo = new ApiKeyRepoImpl(xa)
   lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo)
@@ -61,6 +64,9 @@ object Nautilus extends App with StrictLogging {
     path("") {
       redirect("/site", Found)
     },
+    path("github-login") {
+      redirect(oauthService.loginUrl, Found)
+    },
     path("github-callback") {
       parameters('code) { code =>
         onComplete(oauthService.resolveAuthCode(code).unsafeToFuture()) {
@@ -81,15 +87,14 @@ object Nautilus extends App with StrictLogging {
         userRoutes.routes,
         path("logout") {
           post {
-            invalidateSession { ctx =>
-              ctx.complete("ok")
+            invalidateSession {
+              complete("ok")
             }
           }
         },
         path("current_login") {
-          get { ctx =>
-            logger.info("Current session: " + session)
-            ctx.complete(session.email)
+          get {
+            complete(session.email)
           }
         }
       ).reduce(_ ~ _)
