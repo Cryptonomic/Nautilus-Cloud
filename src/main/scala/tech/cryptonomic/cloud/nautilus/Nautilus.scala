@@ -20,7 +20,7 @@ import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepoImpl, DoobieConfi
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
 import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
 import tech.cryptonomic.cloud.nautilus.security.Provider.Github
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, Provider, Session, SttpOauthService}
+import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, OauthService, Provider, Session, SttpOauthRepository}
 import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceImpl}
 
 import scala.concurrent.ExecutionContext
@@ -44,7 +44,8 @@ object Nautilus extends App with StrictLogging {
   lazy val userRepo = new UserRepoImpl(xa)
   lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo)
   lazy val userRoutes = new UserRoutes(userService)
-  lazy val oauthService = new SttpOauthService[IO](githubConfig)
+  lazy val githubOauthRepository = new SttpOauthRepository[IO](githubConfig)
+  lazy val oauthService = new OauthService[IO](githubConfig, githubOauthRepository)
 
   implicit val sessionManager = new SessionManager[Session](SessionConfig.fromConfig())
 

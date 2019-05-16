@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import fixtures.Fixtures
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, SttpOauthService, SttpOauthServiceException}
+import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, OauthService, SttpOauthRepository, SttpOauthServiceException}
 
 import scala.language.postfixOps
 
@@ -20,17 +20,16 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
-  val oauthService = new SttpOauthService[Id](
-    AuthProviderConfig(
-      "clientId",
-      "clientSecret",
-      "http://localhost:8089/login/oauth/access_token",
-      "http://localhost:8089/login/oauth/authorize",
-      "http://localhost:8089/user",
-      100,
-      100
-    )
+  private val config = AuthProviderConfig(
+    "clientId",
+    "clientSecret",
+    "http://localhost:8089/login/oauth/access_token",
+    "http://localhost:8089/login/oauth/authorize",
+    "http://localhost:8089/user",
+    100,
+    100
   )
+  val oauthService = new OauthService[Id](config, new SttpOauthRepository[Id](config))
 
   override def beforeEach {
     wireMockServer.start()
