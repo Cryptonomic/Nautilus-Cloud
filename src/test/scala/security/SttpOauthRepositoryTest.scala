@@ -7,18 +7,16 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import fixtures.Fixtures
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, OauthService, SttpOauthRepository, SttpOauthServiceException}
+import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, SttpOauthRepository, SttpOauthServiceException}
 
 import scala.language.postfixOps
 
-class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
+class SttpOauthRepositoryTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
 
   val port = 8089
   val host = "localhost"
 
   val wireMockServer = new WireMockServer(port)
-
-  implicit val sttpBackend = HttpURLConnectionBackend()
 
   private val config = AuthProviderConfig(
     "clientId",
@@ -29,7 +27,8 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
     100,
     100
   )
-  val oauthService = new OauthService[Id](config, new SttpOauthRepository[Id](config))
+  implicit val sttpBackend = HttpURLConnectionBackend()
+  val oauthRepository = new SttpOauthRepository[Id](config)
 
   override def beforeEach {
     wireMockServer.start()
@@ -37,13 +36,10 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
     wireMockServer.resetAll()
   }
 
-  "SttpOauthService" should {
-      "return proper login url" in {
-        oauthService.loginUrl shouldBe "http://localhost:8089/login/oauth/authorize?client_id=clientId"
-      }
+  "SttpOauthRepository" should {
 
       // given
-      "resolve auth code" in {
+      "exchange code for an access token" in {
         stubFor(
           post(urlEqualTo("/login/oauth/access_token"))
             .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
@@ -52,26 +48,18 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
                 .withBody("""{"access_token": "stubbed-access-token"}""")
             )
         )
-        stubFor(
-          get(urlEqualTo("/user"))
-            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
-            .willReturn(
-              aResponse()
-                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
-            )
-        )
 
         // expect
-        oauthService.resolveAuthCode("authCode").right.value shouldBe "dorian.sarnowski@gmail.com"
+        oauthRepository.exchangeCodeForAccessToken("authCode").right.value shouldBe "stubbed-access-token"
       }
 
       // given
-      "return a SttpOauthServiceException when oauth server is not accessible" in {
+      "return a SttpOauthServiceException when oauth server is not accessible when fetching access token" in {
         //when
         wireMockServer.stop()
 
         // when
-        val result = oauthService.resolveAuthCode("authCode")
+        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
 
         // then
         result.left.value shouldBe a[SttpOauthServiceException]
@@ -90,41 +78,13 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
         )
 
         // when
-        val result = oauthService.resolveAuthCode("authCode")
+        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
 
         // then
         result.left.value shouldBe a[SttpOauthServiceException]
       }
 
-      "return a SttpOauthServiceException when request for user data times out" in {
-        // given
-        stubFor(
-          post(urlEqualTo("/login/oauth/access_token"))
-            .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
-            .willReturn(
-              aResponse()
-                .withBody("""{"access_token": "stubbed-access-token"}""")
-            )
-        )
-
-        stubFor(
-          get(urlEqualTo("/user"))
-            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
-            .willReturn(
-              aResponse()
-                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
-                .withFixedDelay(100000)
-            )
-        )
-
-        // when
-        val result = oauthService.resolveAuthCode("authCode")
-
-        // then
-        result.left.value shouldBe a[SttpOauthServiceException]
-      }
-
-      "return a SttpOauthServiceException when oauth server returns other response code" in {
+      "return a SttpOauthServiceException when oauth server returns other response code when fetching access token" in {
         // given
         stubFor(
           post(urlEqualTo("/login/oauth/access_token"))
@@ -136,7 +96,71 @@ class SttpOauthServiceTest extends WordSpec with Matchers with Fixtures with Eit
         )
 
         // when
-        val result = oauthService.resolveAuthCode("authCode")
+        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
+
+        // then
+        result.left.value shouldBe a[SttpOauthServiceException]
+      }
+
+      // given
+      "fetch email" in {
+        stubFor(
+          get(urlEqualTo("/user"))
+            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
+            .willReturn(
+              aResponse()
+                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
+            )
+        )
+
+        // expect
+        oauthRepository.fetchEmail("stubbed-access-token").right.value shouldBe "dorian.sarnowski@gmail.com"
+      }
+
+      // given
+      "return a SttpOauthServiceException when oauth server is not accessible when fetching email" in {
+        //when
+        wireMockServer.stop()
+
+        // when
+        val result = oauthRepository.fetchEmail("access-token")
+
+        // then
+        result.left.value shouldBe a[SttpOauthServiceException]
+      }
+
+      "return a SttpOauthServiceException when request for email times out" in {
+        // given
+        stubFor(
+          get(urlEqualTo("/user"))
+            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
+            .willReturn(
+              aResponse()
+                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
+                .withFixedDelay(100000)
+            )
+        )
+
+        // when
+        val result = oauthRepository.fetchEmail("stubbed-access-token")
+
+        // then
+        result.left.value shouldBe a[SttpOauthServiceException]
+      }
+
+      "return a SttpOauthServiceException when oauth server returns other response code when fetching email" in {
+        // given
+        stubFor(
+          get(urlEqualTo("/user"))
+            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
+            .willReturn(
+              aResponse()
+                .withStatus(503)
+            )
+        )
+
+        // when
+        val result = oauthRepository.fetchEmail("stubbed-access-token")
 
         // then
         result.left.value shouldBe a[SttpOauthServiceException]
