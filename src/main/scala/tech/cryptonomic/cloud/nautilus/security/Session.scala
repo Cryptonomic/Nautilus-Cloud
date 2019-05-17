@@ -17,9 +17,9 @@ final case class Session(provider: Provider, email: String)
 object Session {
   implicit def serializer: SessionSerializer[Session, String] = new MultiValueSessionSerializer(serialize, deserialize)
 
-  private def deserialize: Map[String, String] => Try[Session] =
-    map => Try(Session(Provider.fromString(map("provider")).get, map("email")))
-
   private def serialize: Session => Map[String, String] =
     session => Map("provider" -> session.provider.name, "email" -> session.email)
+
+  private def deserialize: Map[String, String] => Try[Session] =
+    map => Try(Session(Provider.fromString(map("provider")).get, map("email")))
 }
