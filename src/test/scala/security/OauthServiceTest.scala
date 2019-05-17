@@ -34,7 +34,7 @@ class OauthServiceTest extends WordSpec with Matchers with Fixtures with EitherV
 
   "OauthService" should {
       "return proper login url" in {
-        oauthService.loginUrl shouldBe "http://localhost:8089/login/oauth/authorize?client_id=clientId"
+        oauthService.loginUrl shouldBe "http://localhost:8089/login/oauth/authorize?scope=user:email&client_id=clientId"
       }
 
       "resolve an auth code" in {
