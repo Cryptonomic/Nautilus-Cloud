@@ -25,7 +25,7 @@ import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceI
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object Nautilus extends App with StrictLogging {
 
@@ -75,7 +75,12 @@ object Nautilus extends App with StrictLogging {
             setSession(oneOff, usingCookies, Session(Github, email)) { ctx =>
               ctx.redirect("/", SeeOther)
             }
-          case _ => complete(Unauthorized)
+          case Failure(exception) =>
+            logger.debug(exception.getMessage, exception)
+            complete(Unauthorized)
+          case Success(Left(exception)) =>
+            logger.debug(exception.getMessage, exception)
+            complete(Unauthorized)
         }
       }
     },
