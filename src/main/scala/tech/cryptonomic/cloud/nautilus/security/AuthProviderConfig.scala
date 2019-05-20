@@ -5,7 +5,7 @@ case class AuthProviderConfig(
     clientSecret: String,
     accessTokenUrl: String,
     loginUrl: String,
-    getUserUrl: String,
+    getEmailsUrl: String,
     connectionTimeout: Int,
     readTimeout: Int
 )

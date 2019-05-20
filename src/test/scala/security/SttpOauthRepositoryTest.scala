@@ -23,7 +23,7 @@ class SttpOauthRepositoryTest extends WordSpec with Matchers with Fixtures with 
     "clientSecret",
     "http://localhost:8089/login/oauth/access_token",
     "http://localhost:8089/login/oauth/authorize",
-    "http://localhost:8089/user",
+    "http://localhost:8089/user/emails",
     100,
     100
   )
@@ -105,11 +105,18 @@ class SttpOauthRepositoryTest extends WordSpec with Matchers with Fixtures with 
       // given
       "fetch email" in {
         stubFor(
-          get(urlEqualTo("/user"))
+          get(urlEqualTo("/user/emails"))
             .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
             .willReturn(
               aResponse()
-                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
+                .withBody("""[
+                            |    {
+                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "primary": true,
+                            |        "verified": true,
+                            |        "visibility": "public"
+                            |    }
+                            |]""".stripMargin)
             )
         )
 
@@ -132,12 +139,19 @@ class SttpOauthRepositoryTest extends WordSpec with Matchers with Fixtures with 
       "return a SttpOauthServiceException when request for email times out" in {
         // given
         stubFor(
-          get(urlEqualTo("/user"))
+          get(urlEqualTo("/user/emails"))
             .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
             .willReturn(
               aResponse()
-                .withBody("""{"email": "dorian.sarnowski@gmail.com"}""")
-                .withFixedDelay(100000)
+                .withBody("""[
+                            |    {
+                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "primary": true,
+                            |        "verified": true,
+                            |        "visibility": "public"
+                            |    }
+                            |]""".stripMargin)
+                .withFixedDelay(10000)
             )
         )
 
@@ -151,11 +165,36 @@ class SttpOauthRepositoryTest extends WordSpec with Matchers with Fixtures with 
       "return a SttpOauthServiceException when oauth server returns other response code when fetching email" in {
         // given
         stubFor(
-          get(urlEqualTo("/user"))
+          get(urlEqualTo("/user/emails"))
             .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
             .willReturn(
               aResponse()
                 .withStatus(503)
+            )
+        )
+
+        // when
+        val result = oauthRepository.fetchEmail("stubbed-access-token")
+
+        // then
+        result.left.value shouldBe a[SttpOauthServiceException]
+      }
+
+      "return a SttpOauthServiceException when oauth server returns no valid email" in {
+        // given
+        stubFor(
+          get(urlEqualTo("/user/emails"))
+            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
+            .willReturn(
+              aResponse()
+                .withBody("""[
+                            |    {
+                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "primary": true,
+                            |        "verified": false,
+                            |        "visibility": "public"
+                            |    }
+                            |]""".stripMargin)
             )
         )
 

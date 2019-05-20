@@ -13,11 +13,10 @@ class OauthService[F[_]](config: AuthProviderConfig, repository: OauthRepository
 
   def loginUrl: String = config.loginUrl + s"?scope=${scopes.mkString(",")}&client_id=" + config.clientId
 
-  def resolveAuthCode(code: String): F[Result[String]] = {
+  def resolveAuthCode(code: String): F[Result[String]] =
     exchangeCodeForAccessToken(code)
       .flatMap(fetchEmail)
       .value
-  }
 
   private def exchangeCodeForAccessToken(code: String): EitherT[F, Throwable, String] =
     EitherT(repository.exchangeCodeForAccessToken(code))
