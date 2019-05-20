@@ -2,7 +2,7 @@ package tech.cryptonomic.cloud.nautilus
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.StatusCodes.{Found, SeeOther, Unauthorized}
+import akka.http.scaladsl.model.StatusCodes.{Found, NoContent, SeeOther, Unauthorized}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
@@ -94,7 +94,7 @@ object Nautilus extends App with StrictLogging {
         path("logout") {
           post {
             invalidateSession {
-              complete("ok")
+              complete(NoContent)
             }
           }
         },
