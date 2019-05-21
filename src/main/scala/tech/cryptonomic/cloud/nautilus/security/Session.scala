@@ -7,7 +7,7 @@ import scala.util.Try
 sealed abstract class Provider(val name: String) extends Product with Serializable
 
 object Provider {
-  def fromString(name: String): Option[Provider] = Seq(Github).find(_.name == name)
+  def byName(name: String): Option[Provider] = Seq(Github).find(_.name == name)
 
   case object Github extends Provider("github")
 }
@@ -21,5 +21,5 @@ object Session {
     session => Map("provider" -> session.provider.name, "email" -> session.email)
 
   private def deserialize: Map[String, String] => Try[Session] =
-    map => Try(Session(Provider.fromString(map("provider")).get, map("email")))
+    map => Try(Session(Provider.byName(map("provider")).get, map("email")))
 }

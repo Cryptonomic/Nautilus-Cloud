@@ -11,7 +11,7 @@ class OauthService[F[_]](config: AuthProviderConfig, repository: OauthRepository
 
   val scopes = List("user:email")
 
-  def loginUrl: String = config.loginUrl + s"?scope=${scopes.mkString(",")}&client_id=" + config.clientId
+  def loginUrl: String = config.loginUrl + s"?scope=${scopes.mkString(",")}&client_id=${config.clientId}"
 
   def resolveAuthCode(code: String): F[Result[String]] =
     exchangeCodeForAccessToken(code)
