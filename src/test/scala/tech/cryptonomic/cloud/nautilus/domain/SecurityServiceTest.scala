@@ -3,12 +3,13 @@ package tech.cryptonomic.cloud.nautilus.domain
 import cats.Id
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.softwaremill.sttp.HttpURLConnectionBackend
-import tech.cryptonomic.cloud.nautilus.fixtures.Fixtures
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
 import tech.cryptonomic.cloud.nautilus.adapters.sttp.GithubConfig
 import tech.cryptonomic.cloud.nautilus.domain.security.GithubRepository
+import tech.cryptonomic.cloud.nautilus.fixtures.Fixtures
 
+import scala.concurrent.duration._
 import scala.language.postfixOps
 
 class SecurityServiceTest extends WordSpec with Matchers with Fixtures with EitherValues with MockFactory with BeforeAndAfterEach {
@@ -21,13 +22,13 @@ class SecurityServiceTest extends WordSpec with Matchers with Fixtures with Eith
   implicit val sttpBackend = HttpURLConnectionBackend()
 
   private val config = GithubConfig(
-    "clientId",
-    "clientSecret",
-    "http://localhost:8089/login/oauth/access_token",
-    "http://localhost:8089/login/oauth/authorize",
-    "http://localhost:8089/user",
-    100,
-    100
+    clientId = "clientId",
+    clientSecret = "clientSecret",
+    accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
+    loginUrl = "http://localhost:8089/login/oauth/authorize",
+    getEmailsUrl = "http://localhost:8089/user",
+    connectionTimeout = 100 milliseconds,
+    readTimeout = 100 milliseconds
   )
 
   val oauthRepositoryStub = stub[GithubRepository[Id]]

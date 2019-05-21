@@ -8,6 +8,8 @@ import com.softwaremill.sttp.HttpURLConnectionBackend
 import tech.cryptonomic.cloud.nautilus.fixtures.Fixtures
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
 
+import scala.concurrent.duration._
+
 import scala.language.postfixOps
 
 class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
@@ -18,13 +20,13 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
   val wireMockServer = new WireMockServer(port)
 
   private val config = GithubConfig(
-    "clientId",
-    "clientSecret",
-    "http://localhost:8089/login/oauth/access_token",
-    "http://localhost:8089/login/oauth/authorize",
-    "http://localhost:8089/user/emails",
-    100,
-    100
+    clientId = "clientId",
+    clientSecret = "clientSecret",
+    accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
+    loginUrl = "http://localhost:8089/login/oauth/authorize",
+    getEmailsUrl = "http://localhost:8089/user/emails",
+    connectionTimeout = 100 milliseconds,
+    readTimeout = 100 milliseconds
   )
   implicit val sttpBackend = HttpURLConnectionBackend()
   val oauthRepository = new SttpGithubRepository[Id](config)

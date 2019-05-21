@@ -30,7 +30,7 @@ class SttpGithubRepository[F[_]](config: GithubConfig)(
         )
       )
       .post(uri"${config.accessTokenUrl}")
-      .readTimeout(config.readTimeout.milliseconds)
+      .readTimeout(config.readTimeout)
       .header("Accept", "application/json")
       .send()
       .map(
@@ -43,7 +43,7 @@ class SttpGithubRepository[F[_]](config: GithubConfig)(
   override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = safeCall(
     sttp
       .get(uri"${config.getEmailsUrl}")
-      .readTimeout(config.readTimeout.milliseconds)
+      .readTimeout(config.readTimeout)
       .header("Authorization", s"Bearer $accessToken")
       .send()
       .map(

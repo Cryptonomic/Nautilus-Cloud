@@ -37,7 +37,7 @@ object Nautilus extends App with StrictLogging {
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout.milliseconds))
+  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout))
 
   lazy val apiKeysRepo = new DoobieApiKeyRepository(xa)
   lazy val apiKeysService = new ApiKeyService[IO](apiKeysRepo)
