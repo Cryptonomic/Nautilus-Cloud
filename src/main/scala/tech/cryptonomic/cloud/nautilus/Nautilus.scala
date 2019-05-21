@@ -16,12 +16,13 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto._
 import pureconfig.loadConfig
-import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepoImpl, DoobieConfig, UserRepoImpl}
-import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
+import tech.cryptonomic.cloud.nautilus.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
+import tech.cryptonomic.cloud.nautilus.adapters.endpoints.Docs
+import tech.cryptonomic.cloud.nautilus.adapters.sttp.{GithubConfig, SttpGithubRepository}
+import tech.cryptonomic.cloud.nautilus.domain.{ApiKeyService, SecurityService, UserService}
 import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
-import tech.cryptonomic.cloud.nautilus.security.Provider.Github
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, OauthService, Provider, Session, SttpOauthRepository}
-import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceImpl}
+import tech.cryptonomic.cloud.nautilus.infrasctructure.Provider.Github
+import tech.cryptonomic.cloud.nautilus.infrasctructure.{Provider, Session}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -29,7 +30,7 @@ import scala.util.{Failure, Success}
 
 object Nautilus extends App with StrictLogging {
 
-  lazy val githubConfig = loadConfig[AuthProviderConfig](namespace = "security.github").toOption.get
+  lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val xa = Transactor.fromDriverManager[IO]("org.postgresql.Driver", doobieConfig.url, doobieConfig.user, doobieConfig.password)
 
@@ -38,14 +39,14 @@ object Nautilus extends App with StrictLogging {
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout.milliseconds))
 
-  lazy val apiKeysRepo = new ApiKeyRepoImpl(xa)
-  lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo)
+  lazy val apiKeysRepo = new DoobieApiKeyRepository(xa)
+  lazy val apiKeysService = new ApiKeyService[IO](apiKeysRepo)
   lazy val apiKeysRoutes = new ApiKeyRoutes(apiKeysService)
-  lazy val userRepo = new UserRepoImpl(xa)
-  lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo)
+  lazy val userRepo = new DoobieUserRepository(xa)
+  lazy val userService = new UserService[IO](userRepo, apiKeysRepo)
   lazy val userRoutes = new UserRoutes(userService)
-  lazy val githubOauthRepository = new SttpOauthRepository[IO](githubConfig)
-  lazy val oauthService = new OauthService[IO](githubConfig, githubOauthRepository)
+  lazy val githubOauthRepository = new SttpGithubRepository[IO](githubConfig)
+  lazy val oauthService = new SecurityService[IO](githubConfig, githubOauthRepository)
 
   implicit val sessionManager = new SessionManager[Session](SessionConfig.fromConfig())
 
