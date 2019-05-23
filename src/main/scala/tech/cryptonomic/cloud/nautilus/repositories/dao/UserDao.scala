@@ -5,6 +5,7 @@ import doobie.util.update.Update0
 import tech.cryptonomic.cloud.nautilus.model.{User, UserWithoutId}
 import doobie.implicits._
 
+/** Trait containing User related queries */
 trait UserDao {
 
   /** Creates user */

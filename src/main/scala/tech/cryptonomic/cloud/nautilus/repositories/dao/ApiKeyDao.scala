@@ -4,6 +4,7 @@ import doobie.util.query.Query0
 import tech.cryptonomic.cloud.nautilus.model.ApiKey
 import doobie.implicits._
 
+/** Trait containing API Key related queries */
 trait ApiKeyDao {
 
   /** Query returning all API keys from the DB */

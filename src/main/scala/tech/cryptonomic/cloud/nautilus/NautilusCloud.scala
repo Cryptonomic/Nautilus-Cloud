@@ -7,25 +7,26 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import cats.effect.{ContextShift, IO}
 import doobie.util.transactor.Transactor
+import tech.cryptonomic.cloud.nautilus.model.{DoobieConfig, HttpConfig}
 import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepoImpl, UserRepoImpl}
 import tech.cryptonomic.cloud.nautilus.routes.endpoint.Docs
 import tech.cryptonomic.cloud.nautilus.routes.{ApiKeyRoutes, UserRoutes}
 import tech.cryptonomic.cloud.nautilus.services.{ApiKeyServiceImpl, UserServiceImpl}
+import pureconfig.loadConfig
+import pureconfig.generic.auto._
+
 
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
-object Nautilus extends App {
+object NautilusCloud extends App {
 
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  val xa = Transactor.fromDriverManager[IO](
-    "org.postgresql.Driver",
-    "jdbc:postgresql://localhost:5433/nautilus-local",
-    "nautilususer",
-    "p@ssw0rd"
-  )
+  lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
+  lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
+  lazy val xa = Transactor.fromDriverManager[IO]("org.postgresql.Driver", doobieConfig.url, doobieConfig.user, doobieConfig.password)
   lazy val apiKeysRepo = new ApiKeyRepoImpl(xa)
   lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo)
   lazy val apiKeysRoutes = new ApiKeyRoutes(apiKeysService)
@@ -46,6 +47,6 @@ object Nautilus extends App {
         } ~
         Docs.route
 
-  Http().bindAndHandle(route, "0.0.0.0", 1234)
+  Http().bindAndHandle(route, httpConfig.host, httpConfig.port)
 
 }
