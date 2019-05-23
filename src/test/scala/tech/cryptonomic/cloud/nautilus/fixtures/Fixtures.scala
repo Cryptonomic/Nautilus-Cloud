@@ -8,9 +8,9 @@ import tech.cryptonomic.cloud.nautilus.domain.apiKey.ApiKey
 trait Fixtures {
   val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
 
-  val exampleUser = User(1, "someUserName", "email@example.com", "user", new Timestamp(1), None, None)
+  val exampleUser = User(1, "email@example.com", "user", new Timestamp(1), None, None)
 
-  val exampleUserWithoutId = UserWithoutId("someUserName", "email@example.com", "user", new Timestamp(1), None, None)
+  val exampleUserWithoutId = UserWithoutId("email@example.com", "user", new Timestamp(1), None, None)
 
   val exampleApiKeyAsJson =
     """

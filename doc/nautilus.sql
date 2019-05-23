@@ -17,7 +17,6 @@ CREATE TABLE tiers(
 );
 CREATE TABLE users(
     userid serial PRIMARY KEY,
-    username text NOT NULL,
     useremail text NOT NULL,
     userrole text NOT NULL DEFAULT 'user',
     registrationdate timestamp NOT NULL,

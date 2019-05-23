@@ -150,7 +150,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": true,
                             |        "verified": true,
                             |        "visibility": "public"
@@ -194,7 +194,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": true,
                             |        "verified": false,
                             |        "visibility": "public"
@@ -219,7 +219,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": false,
                             |        "verified": true,
                             |        "visibility": "public"

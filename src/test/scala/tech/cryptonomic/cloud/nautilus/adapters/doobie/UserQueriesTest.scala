@@ -17,10 +17,10 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
 
   "UserRepo" should {
     "check creation of user" in {
-      check(sut.createUserQuery(UserWithoutId("", "", "", new Timestamp(0), None, None)))
+      check(sut.createUserQuery(UserWithoutId("", "", new Timestamp(0), None, None)))
     }
     "check updating of user " in {
-      check(sut.updateUserQuery(User(0, "", "", "", new Timestamp(0), None, None)))
+      check(sut.updateUserQuery(User(0, "", "", new Timestamp(0), None, None)))
     }
     "check getUser" in {
       check(sut.getUserQuery(0))
