@@ -7,9 +7,9 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import fixtures.Fixtures
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
-import tech.cryptonomic.cloud.nautilus.routes.UserRoutes
-import tech.cryptonomic.cloud.nautilus.services.UserService
+import tech.cryptonomic.nautilus.cloud.routes.UserRoutes
+import tech.cryptonomic.nautilus.cloud.services.UserService
+import tech.cryptonomic.nautilus.cloud.model.{ApiKey, User, UserWithoutId}
 
 class UserRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
 
