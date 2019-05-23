@@ -37,6 +37,10 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
     wireMockServer.resetAll()
   }
 
+  override def afterEach {
+    wireMockServer.stop()
+  }
+
   "SttpOauthRepository" should {
 
       // given
@@ -112,7 +116,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": true,
                             |        "verified": true,
                             |        "visibility": "public"
@@ -122,7 +126,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         )
 
         // expect
-        oauthRepository.fetchEmail("stubbed-access-token").right.value shouldBe "dorian.sarnowski@gmail.com"
+        oauthRepository.fetchEmail("stubbed-access-token").right.value shouldBe "name@domain.com"
       }
 
       // given
@@ -181,7 +185,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         result.left.value shouldBe a[SttpOauthServiceException]
       }
 
-      "return a SttpOauthServiceException when oauth server returns no valid email" in {
+      "return a SttpOauthServiceException when oauth server returns no verified email" in {
         // given
         stubFor(
           get(urlEqualTo("/user/emails"))
@@ -193,6 +197,31 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
                             |        "email": "dorian.sarnowski@gmail.com",
                             |        "primary": true,
                             |        "verified": false,
+                            |        "visibility": "public"
+                            |    }
+                            |]""".stripMargin)
+            )
+        )
+
+        // when
+        val result = oauthRepository.fetchEmail("stubbed-access-token")
+
+        // then
+        result.left.value shouldBe a[SttpOauthServiceException]
+      }
+
+      "return a SttpOauthServiceException when oauth server returns no primary email" in {
+        // given
+        stubFor(
+          get(urlEqualTo("/user/emails"))
+            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
+            .willReturn(
+              aResponse()
+                .withBody("""[
+                            |    {
+                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "primary": false,
+                            |        "verified": true,
                             |        "visibility": "public"
                             |    }
                             |]""".stripMargin)
