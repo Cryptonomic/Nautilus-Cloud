@@ -1,0 +1,15 @@
+version: "3.1"
+
+services:
+  nautilus-postgres:
+    image: postgres:10.3-alpine
+    ports:
+    - 5433:5432
+    environment:
+      POSTGRES_USER: "nautilususer"
+      POSTGRES_PASSWORD: "p@ssw0rd"
+      POSTGRES_DB: "nautilus-local"
+      POSTGRES_INITDB_ARGS: "--nosync --lc-collate=C"
+    volumes:
+    - "./pgdata:/var/lib/postgresql/data"
+    - "./doc/nautilus.sql:/docker-entrypoint-initdb.d/nautilus.sql"
