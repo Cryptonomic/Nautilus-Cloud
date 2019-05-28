@@ -1,13 +1,17 @@
 package tech.cryptonomic.cloud.nautilus.domain.user
 
-import java.sql.Timestamp
+import java.time.Instant
+
+import tech.cryptonomic.cloud.nautilus.domain.security.Session
 
 /** Class representing User */
 case class User(
     userId: Int,
     userEmail: String,
-    userRole: String,
-    registrationDate: Timestamp,
-    accountSource: Option[String],
-    accountDescription: Option[String]
-)
+    userRole: Role,
+    registrationDate: Instant,
+    accountSource: AuthenticationProvider,
+    accountDescription: Option[String] = None
+) {
+  def asSession = Session(userEmail, accountSource, userRole)
+}

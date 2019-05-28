@@ -77,10 +77,9 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
     super.afterAll()
   }
 
-  override protected def beforeEach(): Unit = {
+  protected def truncate(): Unit = {
     allTables.map { table =>
-      Fragment.const(s"TRUNCATE $table CASCADE").update.run.transact(testTransactor).unsafeRunSync()
+      Fragment.const(s"TRUNCATE $table RESTART IDENTITY CASCADE").update.run.transact(testTransactor).unsafeRunSync()
     }
-    super.beforeEach()
   }
 }

@@ -7,7 +7,6 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import tech.cryptonomic.cloud.nautilus.domain.security.GithubRepository
 
-import scala.concurrent.duration._
 import scala.language.higherKinds
 import scala.util.Try
 

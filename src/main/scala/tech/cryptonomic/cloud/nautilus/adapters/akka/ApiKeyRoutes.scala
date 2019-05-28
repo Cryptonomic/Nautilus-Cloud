@@ -1,4 +1,4 @@
-package tech.cryptonomic.cloud.nautilus.routes
+package tech.cryptonomic.cloud.nautilus.adapters.akka
 
 import akka.http.scaladsl.server.Route
 import endpoints.akkahttp.server

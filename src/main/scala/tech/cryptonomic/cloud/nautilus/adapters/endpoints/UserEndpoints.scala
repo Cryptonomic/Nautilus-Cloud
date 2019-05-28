@@ -1,25 +1,25 @@
 package tech.cryptonomic.cloud.nautilus.adapters.endpoints
 
 import endpoints.algebra
-import tech.cryptonomic.cloud.nautilus.domain.apiKey.{ApiKey}
+import tech.cryptonomic.cloud.nautilus.domain.apiKey.ApiKey
 import tech.cryptonomic.cloud.nautilus.adapters.endpoints.schemas.UserSchemas
-import tech.cryptonomic.cloud.nautilus.domain.user.{User, UserWithoutId}
+import tech.cryptonomic.cloud.nautilus.domain.user.{CreateUser, UpdateUser, User}
 
 /** User relevant endpoints */
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsUtil {
 
   /** User creation endpoint definition */
-  def createUser: Endpoint[UserWithoutId, String] =
+  def createUser: Endpoint[CreateUser, Option[String]] =
     endpoint(
-      request = post(url = path / "users", jsonRequest[UserWithoutId]()),
-      response = textResponse(Some("User created!")).withCreatedStatus(),
+      request = post(url = path / "users", jsonRequest[CreateUser]()),
+      response = textResponse(Some("User created!")).withCreatedStatus().orConflict(),
       tags = List("User")
     )
 
   /** User update endpoint definition */
-  def updateUser: Endpoint[(Int, UserWithoutId), Unit] =
+  def updateUser: Endpoint[(Int, UpdateUser), Unit] =
     endpoint(
-      request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UserWithoutId]()),
+      request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UpdateUser]()),
       response = emptyResponse(Some("User updated!")).withCreatedStatus(),
       tags = List("User")
     )

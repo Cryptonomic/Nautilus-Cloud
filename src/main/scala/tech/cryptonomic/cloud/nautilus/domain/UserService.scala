@@ -1,7 +1,7 @@
 package tech.cryptonomic.cloud.nautilus.domain
 
 import tech.cryptonomic.cloud.nautilus.domain.apiKey.{ApiKey, ApiKeyRepository}
-import tech.cryptonomic.cloud.nautilus.domain.user.{User, UserRepository, UserWithoutId}
+import tech.cryptonomic.cloud.nautilus.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.language.higherKinds
 
@@ -9,12 +9,12 @@ import scala.language.higherKinds
 class UserService[F[_]](userRepo: UserRepository[F], apiKeyRepo: ApiKeyRepository[F]) {
 
   /** Creates user */
-  def createUser(userWithoutId: UserWithoutId): F[Int] =
+  def createUser(userWithoutId: CreateUser): F[Either[Throwable, Int]] =
     userRepo.createUser(userWithoutId)
 
   /** Updated user */
-  def updateUser(user: User): F[Unit] =
-    userRepo.updateUser(user)
+  def updateUser(id: Int, user: UpdateUser): F[Unit] =
+    userRepo.updateUser(id, user)
 
   /** Returns user with given ID */
   def getUser(userId: Int): F[Option[User]] =

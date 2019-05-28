@@ -6,11 +6,14 @@ import scala.language.higherKinds
 trait UserRepository[F[_]] {
 
   /** Creates user */
-  def createUser(userReg: UserWithoutId): F[Int]
+  def createUser(userReg: CreateUser): F[Either[Throwable, Int]]
 
   /** Updates user */
-  def updateUser(user: User): F[Unit]
+  def updateUser(id: Int, user: UpdateUser): F[Unit]
 
   /** Returns user */
   def getUser(userId: Int): F[Option[User]]
+
+  /** Returns user by email address */
+  def getUserByEmailAddress(email: String): F[Option[User]]
 }

@@ -1,12 +1,9 @@
 package tech.cryptonomic.cloud.nautilus.domain.user
 
-import java.sql.Timestamp
-
 /** Class used in user registration and update */
-case class UserWithoutId(
+case class UpdateUser(
     userEmail: String,
-    userRole: String,
-    registrationDate: Timestamp,
-    accountSource: Option[String],
+    userRole: Role,
+    accountSource: AuthenticationProvider,
     accountDescription: Option[String]
 )

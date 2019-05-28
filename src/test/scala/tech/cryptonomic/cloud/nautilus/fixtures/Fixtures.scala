@@ -1,16 +1,21 @@
 package tech.cryptonomic.cloud.nautilus.fixtures
 
-import java.sql.Timestamp
+import java.time.ZonedDateTime
 
-import tech.cryptonomic.cloud.nautilus.domain.user.{User, UserWithoutId}
 import tech.cryptonomic.cloud.nautilus.domain.apiKey.ApiKey
+import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.cloud.nautilus.domain.user.{CreateUser, Role, UpdateUser, User}
 
 trait Fixtures {
+  val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
+
   val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
 
-  val exampleUser = User(1, "email@example.com", "user", new Timestamp(1), None, None)
+  val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 
-  val exampleUserWithoutId = UserWithoutId("email@example.com", "user", new Timestamp(1), None, None)
+  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, None)
+
+  val exampleUpdateUser = UpdateUser("email@example.com", Role.User, Github, None)
 
   val exampleApiKeyAsJson =
     """
@@ -28,8 +33,8 @@ trait Fixtures {
       |{
       |  "userRole": "user",
       |  "userEmail": "email@example.com",
-      |  "registrationDate": 1,
-      |  "userName": "someUserName"
+      |  "registrationDate": "2019-05-27T18:03:48.081+01:00",
+      |  "accountSource": "github"
       |}
     """.stripMargin
 
@@ -39,8 +44,8 @@ trait Fixtures {
       |  "userId": 1,
       |  "userRole": "user",
       |  "userEmail": "email@example.com",
-      |  "registrationDate": 1,
-      |  "userName": "someUserName"
+      |  "registrationDate": "2019-05-27T18:03:48.081+01:00",
+      |  "accountSource": "github"
       |}
     """.stripMargin
 

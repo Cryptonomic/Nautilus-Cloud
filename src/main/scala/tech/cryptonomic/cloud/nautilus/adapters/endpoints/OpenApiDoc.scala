@@ -33,4 +33,8 @@ object OpenApiDoc
             "application/json" -> MediaType(schema = Some(Schema.Array(Schema.simpleInteger, None)))
           )
         )
+
+  /** Extension for using Conflict status code */
+  override def conflict[A](response: Response[A], notFoundDocs: Documentation): Response[Option[A]] =
+    DocumentedResponse(409, notFoundDocs.getOrElse(""), content = Map.empty) :: response
 }

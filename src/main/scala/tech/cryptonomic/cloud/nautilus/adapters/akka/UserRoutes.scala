@@ -1,6 +1,6 @@
-package tech.cryptonomic.cloud.nautilus.routes
+package tech.cryptonomic.cloud.nautilus.adapters.akka
 
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, ResponseEntity, StatusCodes}
+import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
 import endpoints.akkahttp.server
 import tech.cryptonomic.cloud.nautilus.adapters.endpoints.{UsageLeft, UserEndpoints}
@@ -21,15 +21,13 @@ class UserRoutes(userService: UserService[IO])
 
   /** User creation route implementation */
   val createUserRoute: Route = createUser.implementedByAsync { userReg =>
-    userService.createUser(userReg).map(_.toString).unsafeToFuture()
+    userService.createUser(userReg).map(_.toOption.map(_.toString)).unsafeToFuture()
   }
 
   /** User update route implementation */
   val updateUserRoute: Route = updateUser.implementedByAsync {
-    case (userId, userReg) =>
-      import io.scalaland.chimney.dsl._
-      val user = userReg.into[User].withFieldConst(_.userId, userId).transform
-      userService.updateUser(user).unsafeToFuture()
+    case (userId, user) =>
+      userService.updateUser(userId, user).unsafeToFuture()
   }
 
   /** User route implementation */
@@ -58,4 +56,9 @@ class UserRoutes(userService: UserService[IO])
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>
     complete(HttpResponse(StatusCodes.Created, entity = HttpEntity(entity.toString)))
   }
+
+  /** Extension for using Conflict status code */
+  override def conflict[A](response: A => Route, invalidDocs: Documentation): Option[A] => Route =
+    _.map(response)
+      .getOrElse(complete(HttpResponse(StatusCodes.Conflict)))
 }

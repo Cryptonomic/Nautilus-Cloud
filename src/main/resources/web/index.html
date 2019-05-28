@@ -9,6 +9,9 @@
     Logged in as: <span id="current_login"></span>
 </p>
 <p>
+    Role: <span id="current_role"></span>
+</p>
+<p>
     Get login request status: <span id="current_login_status_code"></span>
 </p>
 
@@ -24,6 +27,7 @@
     var $loginForm = $('#login_form');
     var $logoutForm = $('#logout_form');
     var $currentLogin = $('#current_login');
+    var $currentRole = $('#current_role');
     var $currentLoginStatus = $('#current_login_status_code');
     $loginForm.hide();
     $logoutForm.hide();
@@ -33,13 +37,17 @@
             $loginForm.hide();
             $logoutForm.show();
 
-            $currentLogin.text(data);
+            var parsedJson = JSON.parse(data);
+
+            $currentLogin.text(parsedJson.email);
+            $currentRole.text(parsedJson.role);
             $currentLoginStatus.text(status);
         } else {
             $loginForm.show();
             $logoutForm.hide();
 
             $currentLogin.text('');
+            $currentRole.text('');
             $currentLoginStatus.text(status + ' (' + data.status + ')');
         }
     }
