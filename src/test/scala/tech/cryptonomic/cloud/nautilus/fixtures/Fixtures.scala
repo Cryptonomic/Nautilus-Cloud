@@ -1,6 +1,6 @@
 package tech.cryptonomic.cloud.nautilus.fixtures
 
-import java.time.ZonedDateTime
+import java.time.{Instant, ZonedDateTime}
 
 import tech.cryptonomic.cloud.nautilus.domain.apiKey.ApiKey
 import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
@@ -44,9 +44,8 @@ trait Fixtures {
       |  "userId": 1,
       |  "userRole": "user",
       |  "userEmail": "email@example.com",
-      |  "registrationDate": "2019-05-27T18:03:48.081+01:00",
+      |  "registrationDate": "2019-05-27T17:03:48.081Z",
       |  "accountSource": "github"
       |}
     """.stripMargin
-
 }

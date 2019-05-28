@@ -17,8 +17,8 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
   val UNIQUE_VIOLATION = SqlState("23505")
 
   /** Creates user */
-  override def createUser(userReg: CreateUser): F[Either[Throwable, Int]] =
-    createUserQuery(userReg)
+  override def createUser(user: CreateUser): F[Either[Throwable, Int]] =
+    createUserQuery(user)
       .withUniqueGeneratedKeys[Int]("userid")
       .attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueViolationException("UNIQUE_VIOLATION"): Throwable
@@ -30,12 +30,12 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     updateUserQuery(id, user).run.map(_ => ()).transact(transactor)
 
   /** Returns user */
-  override def getUser(userId: Int): F[Option[User]] =
-    getUserQuery(userId).option.transact(transactor)
+  override def getUser(id: Int): F[Option[User]] =
+    getUserQuery(id).option.transact(transactor)
 
   /** Returns user by email address */
   override def getUserByEmailAddress(email: String): F[Option[User]] =
     getUserByEmailQuery(email).option.transact(transactor)
 }
 
-final case class DoobieUniqueViolationException(message: String = "") extends Exception(message)
+final case class DoobieUniqueViolationException(message: String) extends Exception(message)

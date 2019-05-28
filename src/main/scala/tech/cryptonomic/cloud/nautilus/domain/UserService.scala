@@ -9,8 +9,8 @@ import scala.language.higherKinds
 class UserService[F[_]](userRepo: UserRepository[F], apiKeyRepo: ApiKeyRepository[F]) {
 
   /** Creates user */
-  def createUser(userWithoutId: CreateUser): F[Either[Throwable, Int]] =
-    userRepo.createUser(userWithoutId)
+  def createUser(createUser: CreateUser): F[Either[Throwable, Int]] =
+    userRepo.createUser(createUser)
 
   /** Updated user */
   def updateUser(id: Int, user: UpdateUser): F[Unit] =

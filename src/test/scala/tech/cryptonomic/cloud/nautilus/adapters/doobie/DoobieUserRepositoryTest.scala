@@ -7,7 +7,7 @@ import doobie.scalatest._
 import org.scalatest._
 import tech.cryptonomic.cloud.nautilus.InMemoryDatabase
 import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.cloud.nautilus.domain.user._
 
 class DoobieUserRepositoryTest
     extends WordSpec

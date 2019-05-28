@@ -7,7 +7,6 @@ import tech.cryptonomic.cloud.nautilus.adapters.endpoints.{UsageLeft, UserEndpoi
 import akka.http.scaladsl.server.Directives._
 import cats.effect.IO
 import endpoints.algebra.Documentation
-import tech.cryptonomic.cloud.nautilus.domain.user.User
 import tech.cryptonomic.cloud.nautilus.domain.UserService
 
 // TODO:

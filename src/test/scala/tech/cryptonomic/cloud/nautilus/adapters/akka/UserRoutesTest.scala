@@ -17,7 +17,6 @@ class UserRoutesTest
     with ScalatestRouteTest
     with JsonMatchers
     with Fixtures
-    with BeforeAndAfterEach
     with MockFactory {
 
   val userRepository = stub[UserRepository[IO]]

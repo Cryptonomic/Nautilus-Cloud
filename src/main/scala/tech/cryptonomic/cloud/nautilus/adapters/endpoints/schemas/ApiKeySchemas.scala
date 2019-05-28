@@ -1,8 +1,6 @@
 package tech.cryptonomic.cloud.nautilus.adapters.endpoints.schemas
 
 import java.time.{Instant, ZonedDateTime}
-import java.time.ZoneId.systemDefault
-import java.time.format.DateTimeFormatter
 
 import endpoints.generic
 import tech.cryptonomic.cloud.nautilus.domain.apiKey.ApiKey
@@ -20,7 +18,7 @@ trait ApiKeySchemas extends generic.JsonSchemas {
     xmapJsonSchema[String, Instant](
       implicitly[JsonSchema[String]],
       it => ZonedDateTime.parse(it).toInstant,
-      _.atZone(systemDefault()).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+      _.toString
     )
 
   /** Authentication provider */
