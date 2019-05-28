@@ -5,7 +5,7 @@ import doobie.scalatest._
 import doobie.util.transactor.Transactor
 import org.scalatest._
 import repositories.InMemoryDatabase
-import tech.cryptonomic.cloud.nautilus.repositories.dao.ApiKeyDao
+import tech.cryptonomic.nautilus.cloud.repositories.dao.ApiKeyDao
 
 class ApiKeyDaoTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
 

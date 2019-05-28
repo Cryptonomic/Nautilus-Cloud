@@ -4,9 +4,9 @@ package services
 import cats.Id
 import fixtures.Fixtures
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
-import tech.cryptonomic.cloud.nautilus.repositories.{ApiKeyRepo, UserRepo}
-import tech.cryptonomic.cloud.nautilus.services.UserServiceImpl
+import tech.cryptonomic.nautilus.cloud.repositories.{ApiKeyRepo, UserRepo}
+import tech.cryptonomic.nautilus.cloud.services.UserServiceImpl
+import tech.cryptonomic.nautilus.cloud.model.{ApiKey, User, UserWithoutId}
 
 class UserServiceTest extends WordSpec with Matchers with Fixtures {
 

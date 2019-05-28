@@ -7,8 +7,8 @@ import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
 import repositories.InMemoryDatabase
-import tech.cryptonomic.cloud.nautilus.model.{User, UserWithoutId}
-import tech.cryptonomic.cloud.nautilus.repositories.dao.UserDao
+import tech.cryptonomic.nautilus.cloud.repositories.dao.UserDao
+import tech.cryptonomic.nautilus.cloud.model.{User, UserWithoutId}
 
 class UserDaoTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
 

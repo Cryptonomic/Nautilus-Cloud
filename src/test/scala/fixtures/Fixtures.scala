@@ -2,7 +2,7 @@ package fixtures
 
 import java.sql.Timestamp
 
-import tech.cryptonomic.cloud.nautilus.model.{ApiKey, User, UserWithoutId}
+import tech.cryptonomic.nautilus.cloud.model.{ApiKey, User, UserWithoutId}
 
 trait Fixtures {
   val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)

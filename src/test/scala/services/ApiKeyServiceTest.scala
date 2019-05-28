@@ -3,9 +3,9 @@ package services
 import cats.Id
 import fixtures.Fixtures
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.model.ApiKey
-import tech.cryptonomic.cloud.nautilus.repositories.ApiKeyRepo
-import tech.cryptonomic.cloud.nautilus.services.ApiKeyServiceImpl
+import tech.cryptonomic.nautilus.cloud.repositories.ApiKeyRepo
+import tech.cryptonomic.nautilus.cloud.services.ApiKeyServiceImpl
+import tech.cryptonomic.nautilus.cloud.model.ApiKey
 
 class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {
 
