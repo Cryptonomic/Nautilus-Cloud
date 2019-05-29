@@ -9,8 +9,7 @@ object OpenApiDoc
     extends ApiKeyEndpoints
     with UserEndpoints
     with openapi.model.OpenApiSchemas
-    with openapi.JsonSchemaEntities
-    with openapi.BasicAuthentication {
+    with openapi.JsonSchemaEntities {
 
   /** OpenAPI definition */
   def openApi: OpenApi = openApi(Info("Nautilus-Cloud API", "0.0.1"))(

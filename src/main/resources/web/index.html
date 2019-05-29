@@ -1,60 +1,94 @@
-<!-- HTML for static distribution bundle build -->
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Swagger UI</title>
-    <link rel="stylesheet" type="text/css" href="./swagger-ui/swagger-ui.css" >
-    <link rel="icon" type="image/png" href="./swagger-ui/favicon-32x32.png" sizes="32x32" />
-    <link rel="icon" type="image/png" href="./swagger-ui/favicon-16x16.png" sizes="16x16" />
-    <style>
-      html
-      {
-        box-sizing: border-box;
-        overflow: -moz-scrollbars-vertical;
-        overflow-y: scroll;
-      }
+<html>
+<head>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 
-      *,
-      *:before,
-      *:after
-      {
-        box-sizing: inherit;
-      }
+<p>
+    Logged in as: <span id="current_login"></span>
+</p>
+<p>
+    Get login request status: <span id="current_login_status_code"></span>
+</p>
 
-      body
-      {
-        margin:0;
-        background: #fafafa;
-      }
-    </style>
-  </head>
+<form id="login_form">
+    <a href="/github-login">login with github</a>
+</form>
 
-  <body>
-    <div id="swagger-ui"></div>
+<form id="logout_form">
+    <input type="submit" value="Logout" id="do_logout" />
+</form>
 
-    <script src="./swagger-ui/swagger-ui-bundle.js"> </script>
-    <script src="./swagger-ui/swagger-ui-standalone-preset.js"> </script>
-    <script>
-    window.onload = function() {
-      // Begin Swagger UI call region
-      const ui = SwaggerUIBundle({
-        url: "/openapi.json",
-        dom_id: '#swagger-ui',
-        deepLinking: true,
-        presets: [
-          SwaggerUIBundle.presets.apis,
-          SwaggerUIStandalonePreset
-        ],
-        plugins: [
-          SwaggerUIBundle.plugins.DownloadUrl
-        ],
-        layout: "StandaloneLayout"
-      })
-      // End Swagger UI call region
+<script>
+    var $loginForm = $('#login_form');
+    var $logoutForm = $('#logout_form');
+    var $currentLogin = $('#current_login');
+    var $currentLoginStatus = $('#current_login_status_code');
+    $loginForm.hide();
+    $logoutForm.hide();
 
-      window.ui = ui
+    function handleResponse(data, status) {
+        if (status == 'success') {
+            $loginForm.hide();
+            $logoutForm.show();
+
+            $currentLogin.text(data);
+            $currentLoginStatus.text(status);
+        } else {
+            $loginForm.show();
+            $logoutForm.hide();
+
+            $currentLogin.text('');
+            $currentLoginStatus.text(status + ' (' + data.status + ')');
+        }
     }
-  </script>
-  </body>
+
+    function getCurrentLogin() {
+        $.ajax(addCsrfHeader({
+            url: '/current_login',
+            type: 'GET',
+            success: handleResponse,
+            error: handleResponse
+        }));
+    }
+
+    getCurrentLogin();
+
+    $('#do_login').click(function(e) {
+        $.ajax(addCsrfHeader({
+            url: '/login',
+            type: 'POST',
+            data: $('#login').val(),
+            success: getCurrentLogin
+        }));
+        e.preventDefault();
+        return false;
+    });
+
+    $('#do_logout').click(function(e) {
+        $.ajax(addCsrfHeader({
+            url: '/logout',
+            type: 'POST',
+            success: getCurrentLogin
+        }));
+        e.preventDefault();
+        return false;
+    });
+
+    function addCsrfHeader(opts) {
+        var token = Cookies.get('XSRF-TOKEN');
+        if (token) {
+            console.log('Setting csrf token: ' + token);
+            opts['headers'] = {
+                'X-XSRF-TOKEN': token
+            }
+        } else {
+            console.log('No csrf token');
+        }
+
+        return opts;
+    }
+</script>
+</body>
 </html>
