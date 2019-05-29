@@ -6,6 +6,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role
 
 import scala.util.Try
 
+/* session serializer */
 object CustomSessionSerializer {
   implicit def serializer: SessionSerializer[Session, String] = new MultiValueSessionSerializer(serialize, deserialize)
 

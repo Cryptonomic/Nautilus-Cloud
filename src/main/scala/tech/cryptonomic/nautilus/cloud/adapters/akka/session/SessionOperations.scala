@@ -8,6 +8,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.session.CustomSessionSerial
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
+/* wrapper for akka-session */
 class SessionOperations(config: SessionConfig) {
 
   implicit val sessionManager: SessionManager[Session] = new SessionManager[Session](config)

@@ -7,6 +7,7 @@ case class GithubAuthenticationConfiguration(config: GithubConfig) extends Authe
 
   private val scopes = List("user:email")
 
+  /* return login url for authentication */
   override def loginUrl: String = config.loginUrl + s"?scope=${scopes.mkString(",")}&client_id=${config.clientId}"
 
 }
