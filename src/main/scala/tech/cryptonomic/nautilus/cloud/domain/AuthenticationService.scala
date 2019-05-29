@@ -10,6 +10,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.{
 
 import scala.language.higherKinds
 
+/** Authentication service */
 class AuthenticationService[F[_]: Monad](
     config: AuthenticationConfiguration,
     repository: AuthenticationProviderRepository[F]
@@ -17,8 +18,10 @@ class AuthenticationService[F[_]: Monad](
 
   type Result[T] = Either[Throwable, T]
 
+  /* return login url for authentication */
   def loginUrl: Uri = config.loginUrl
 
+  /* resolve auth code */
   def resolveAuthCode(code: String): F[Result[String]] =
     exchangeCodeForAccessToken(code)
       .flatMap(fetchEmail)

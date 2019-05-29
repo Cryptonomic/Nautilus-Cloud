@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.authentication.github
 
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationConfiguration
 
+/* Github authentication configuration */
 case class GithubAuthenticationConfiguration(config: GithubConfig) extends AuthenticationConfiguration {
 
   private val scopes = List("user:email")

@@ -11,15 +11,18 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProvi
 import scala.language.higherKinds
 import scala.util.Try
 
+/* Github authentication provider */
 class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
     implicit monad: Monad[F],
     sttpBackend: SttpBackend[F, Nothing]
 ) extends AuthenticationProviderRepository[F] {
 
-  private val unknownError: F[Result[String]] = monad.pure(Left(SttpGithubAuthenticationProviderException("Unknown error")))
+  private val unknownError: F[Result[String]] =
+    monad.pure(Left(SttpGithubAuthenticationProviderException("Unknown error")))
   private val embeddedError: Throwable => F[Result[String]] = error =>
     monad.pure(Left(SttpGithubAuthenticationProviderException(cause = error)))
 
+  /* exchange code for an access token */
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = safeCall(
     sttp
       .body(
@@ -40,6 +43,7 @@ class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
       )
   )
 
+  /* fetch an email using an access token */
   override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = safeCall(
     sttp
       .get(uri"${config.emailsUrl}")
@@ -66,11 +70,12 @@ class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
       case error: Throwable => embeddedError(error)
       case _ => unknownError
     }.get
+
+  private final case class EmailResponse(email: String, primary: Boolean, verified: Boolean)
+
+  private final case class TokenResponse(access_token: String)
 }
 
-final case class EmailResponse(email: String, primary: Boolean, verified: Boolean)
-
-final case class TokenResponse(access_token: String)
-
+/* Exception for errors realated to Sttp */
 final case class SttpGithubAuthenticationProviderException(message: String = "", cause: Throwable = null)
     extends Exception(message, cause)
