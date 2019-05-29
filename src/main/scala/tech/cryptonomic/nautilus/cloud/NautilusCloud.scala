@@ -23,15 +23,17 @@ import tech.cryptonomic.nautilus.cloud.adapters.sttp.{GithubConfig, SttpGithubRe
 import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, SecurityService, UserService}
 import tech.cryptonomic.nautilus.cloud.infrasctructure.Provider.Github
 import tech.cryptonomic.nautilus.cloud.infrasctructure.Session
+import tech.cryptonomic.nautilus.cloud.model.HttpConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-object Nautilus extends App with StrictLogging {
+object NautilusCloud extends App with StrictLogging {
 
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
-  lazy val xa = Transactor.fromDriverManager[IO]("org.postgresql.Driver", doobieConfig.url, doobieConfig.user, doobieConfig.password)
+  lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
+  lazy val xa = Transactor.fromDriverManager[IO](doobieConfig.driver, doobieConfig.url, doobieConfig.user, doobieConfig.password)
 
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -84,6 +86,7 @@ object Nautilus extends App with StrictLogging {
         }
       }
     },
+    // @TODO should be removed when a proper login page is created
     pathPrefix("site") {
       getFromResource("web/index.html")
     },
@@ -107,5 +110,5 @@ object Nautilus extends App with StrictLogging {
     }
   ).reduce(_ ~ _)
 
-  Http().bindAndHandle(route, "0.0.0.0", 1234)
+  Http().bindAndHandle(route, httpConfig.host, httpConfig.port)
 }

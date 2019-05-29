@@ -9,7 +9,6 @@ import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
-
 class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
 
   "The API Keys route" should {
