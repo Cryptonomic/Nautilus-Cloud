@@ -5,8 +5,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.adapters.akka.UserRoutes
+import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository

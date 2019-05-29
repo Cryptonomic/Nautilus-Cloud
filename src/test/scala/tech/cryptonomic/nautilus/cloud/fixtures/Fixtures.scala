@@ -2,11 +2,10 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 
 import java.time.{Instant, ZonedDateTime}
 
-import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.cloud.nautilus.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 
 import scala.concurrent.duration._
 

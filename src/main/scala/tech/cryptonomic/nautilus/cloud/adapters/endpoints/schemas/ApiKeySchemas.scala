@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 import java.time.{Instant, ZonedDateTime}
 
 import endpoints.generic
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
 
 /** Schemas used for ApiKey endpoints */
 trait ApiKeySchemas extends generic.JsonSchemas {

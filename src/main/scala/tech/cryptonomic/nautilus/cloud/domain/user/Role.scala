@@ -1,4 +1,4 @@
-package tech.cryptonomic.cloud.nautilus.domain.user
+package tech.cryptonomic.nautilus.cloud.domain.user
 
 sealed abstract class Role(val name: String) extends Product with Serializable
 

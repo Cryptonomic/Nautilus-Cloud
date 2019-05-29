@@ -1,12 +1,12 @@
-package tech.cryptonomic.cloud.nautilus.adapters.akka.session
+package tech.cryptonomic.nautilus.cloud.adapters.akka.session
 
 import akka.http.scaladsl.server.Directives.{pass, reject}
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive0, Directive1}
 import com.softwaremill.session.SessionOptions.{oneOff, usingCookies}
 import com.softwaremill.session._
-import tech.cryptonomic.cloud.nautilus.adapters.akka.session.CustomSessionSerializer._
-import tech.cryptonomic.cloud.nautilus.domain.security.Session
-import tech.cryptonomic.cloud.nautilus.domain.user.Role
+import tech.cryptonomic.nautilus.cloud.adapters.akka.session.CustomSessionSerializer._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
 class SessionOperations(config: SessionConfig) {
 

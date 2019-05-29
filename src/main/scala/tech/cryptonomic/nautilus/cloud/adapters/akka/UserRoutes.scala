@@ -1,4 +1,4 @@
-package tech.cryptonomic.cloud.nautilus.adapters.akka
+package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._

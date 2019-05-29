@@ -6,9 +6,9 @@ import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.InMemoryDatabase
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser}
 
 class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
 

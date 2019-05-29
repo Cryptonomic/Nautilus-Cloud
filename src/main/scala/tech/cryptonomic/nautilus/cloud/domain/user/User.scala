@@ -2,8 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 
 import java.time.Instant
 
-import tech.cryptonomic.cloud.nautilus.domain.security.Session
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** Class representing User */
 case class User(

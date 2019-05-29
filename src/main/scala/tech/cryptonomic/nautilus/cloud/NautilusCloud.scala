@@ -14,14 +14,13 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto._
 import pureconfig.loadConfig
-import tech.cryptonomic.cloud.nautilus.adapters.akka.UserRoutes
-import tech.cryptonomic.cloud.nautilus.adapters.akka.session.SessionOperations
-import tech.cryptonomic.cloud.nautilus.domain.user.Role.Administrator
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.session.SessionOperations
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
+import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, UserService}
 
 import scala.concurrent.ExecutionContext

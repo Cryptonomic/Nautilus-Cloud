@@ -4,8 +4,7 @@ import doobie._
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
 
 /** Trait containing User related queries */
 trait UserQueries {

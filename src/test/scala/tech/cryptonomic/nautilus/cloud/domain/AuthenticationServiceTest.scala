@@ -7,12 +7,10 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.cloud.nautilus.domain.security.Session
-import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.cloud.nautilus.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository}
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, User, UserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 import scala.concurrent.duration._

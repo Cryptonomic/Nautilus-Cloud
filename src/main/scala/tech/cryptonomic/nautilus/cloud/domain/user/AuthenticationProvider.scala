@@ -1,4 +1,4 @@
-package tech.cryptonomic.cloud.nautilus.domain.user
+package tech.cryptonomic.nautilus.cloud.domain.user
 
 sealed abstract class AuthenticationProvider(val name: String) extends Product with Serializable
 

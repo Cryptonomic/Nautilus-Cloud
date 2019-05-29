@@ -1,8 +1,8 @@
-package tech.cryptonomic.cloud.nautilus.adapters.akka.session
+package tech.cryptonomic.nautilus.cloud.adapters.akka.session
 
 import com.softwaremill.session.{MultiValueSessionSerializer, SessionSerializer}
-import tech.cryptonomic.cloud.nautilus.domain.security.Session
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
 
 import scala.util.Try
 

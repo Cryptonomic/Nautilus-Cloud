@@ -3,7 +3,6 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 import java.time.Instant
 
 import io.scalaland.chimney.dsl._
-import tech.cryptonomic.cloud.nautilus.domain.user.{AuthenticationProvider, Role}
 
 /** Class used in user registration and update */
 case class CreateUser(

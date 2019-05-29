@@ -5,11 +5,10 @@ import java.time.Instant
 import cats.effect.IO
 import doobie.scalatest._
 import org.scalatest._
-import tech.cryptonomic.cloud.nautilus.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.cloud.nautilus.domain.user._
 import tech.cryptonomic.nautilus.cloud.InMemoryDatabase
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUserRepository
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
 
 class DoobieUserRepositoryTest
     extends WordSpec
