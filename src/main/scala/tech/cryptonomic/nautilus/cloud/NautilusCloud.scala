@@ -16,21 +16,22 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto._
 import pureconfig.loadConfig
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, UserRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, UserRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.adapters.sttp.{GithubConfig, SttpGithubRepository}
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, SecurityService, UserService}
+import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, UserService}
 import tech.cryptonomic.nautilus.cloud.infrasctructure.Provider.Github
 import tech.cryptonomic.nautilus.cloud.infrasctructure.Session
-import tech.cryptonomic.nautilus.cloud.model.HttpConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 object NautilusCloud extends App with StrictLogging {
 
-  lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.github").toOption.get
+  lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
+  lazy val authConfig = GithubAuthenticationConfiguration(githubConfig)
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
   lazy val xa = Transactor.fromDriverManager[IO](doobieConfig.driver, doobieConfig.url, doobieConfig.user, doobieConfig.password)
@@ -46,8 +47,8 @@ object NautilusCloud extends App with StrictLogging {
   lazy val userRepo = new DoobieUserRepository(xa)
   lazy val userService = new UserService[IO](userRepo, apiKeysRepo)
   lazy val userRoutes = new UserRoutes(userService)
-  lazy val githubOauthRepository = new SttpGithubRepository[IO](githubConfig)
-  lazy val oauthService = new SecurityService[IO](githubConfig, githubOauthRepository)
+  lazy val authRepository = new SttpGithubAuthenticationProviderRepository[IO](githubConfig)
+  lazy val oauthService = new AuthenticationService[IO](authConfig, authRepository)
 
   implicit val sessionManager = new SessionManager[Session](SessionConfig.fromConfig())
 

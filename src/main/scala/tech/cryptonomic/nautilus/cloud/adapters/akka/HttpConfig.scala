@@ -1,4 +1,4 @@
-package tech.cryptonomic.nautilus.cloud.model
+package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 /** Represents http server configuration */
 case class HttpConfig(host: String, port: Int)

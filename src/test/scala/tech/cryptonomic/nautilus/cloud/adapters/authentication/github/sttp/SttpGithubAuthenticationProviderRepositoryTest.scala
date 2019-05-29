@@ -1,4 +1,4 @@
-package tech.cryptonomic.nautilus.cloud.adapters.sttp
+package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp
 
 import cats.Id
 import com.github.tomakehurst.wiremock.WireMockServer
@@ -6,12 +6,13 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
-class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
+class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
 
   val port = 8089
   val host = "localhost"
@@ -23,12 +24,12 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
     clientSecret = "clientSecret",
     accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
     loginUrl = "http://localhost:8089/login/oauth/authorize",
-    getEmailsUrl = "http://localhost:8089/user/emails",
+    emailsUrl = "http://localhost:8089/user/emails",
     connectionTimeout = 100 milliseconds,
     readTimeout = 100 milliseconds
   )
   implicit val sttpBackend = HttpURLConnectionBackend()
-  val oauthRepository = new SttpGithubRepository[Id](config)
+  val oauthRepository = new SttpGithubAuthenticationProviderRepository[Id](config)
 
   override def beforeEach {
     wireMockServer.start()
@@ -42,8 +43,8 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
 
   "SttpOauthRepository" should {
 
-      // given
       "exchange code for an access token" in {
+        // given
         stubFor(
           post(urlEqualTo("/login/oauth/access_token"))
             .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
@@ -66,7 +67,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.exchangeCodeForAccessToken("authCode")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when request for access token times out" in {
@@ -85,7 +86,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.exchangeCodeForAccessToken("authCode")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns other response code when fetching access token" in {
@@ -103,7 +104,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.exchangeCodeForAccessToken("authCode")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       // given
@@ -137,7 +138,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.fetchEmail("access-token")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when request for email times out" in {
@@ -163,7 +164,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns other response code when fetching email" in {
@@ -181,7 +182,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns no verified email" in {
@@ -206,7 +207,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns no primary email" in {
@@ -231,7 +232,7 @@ class SttpGithubRepositoryTest extends WordSpec with Matchers with Fixtures with
         val result = oauthRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpOauthServiceException]
+        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
     }
 }

@@ -1,19 +1,23 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
+import akka.http.scaladsl.model.Uri
 import cats.Monad
 import cats.data.EitherT
-import tech.cryptonomic.nautilus.cloud.adapters.sttp.GithubConfig
-import tech.cryptonomic.nautilus.cloud.domain.security.GithubRepository
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationConfiguration,
+  AuthenticationProviderRepository
+}
 
 import scala.language.higherKinds
 
-class SecurityService[F[_]](config: GithubConfig, repository: GithubRepository[F])(implicit monad: Monad[F]) {
+class AuthenticationService[F[_]: Monad](
+    config: AuthenticationConfiguration,
+    repository: AuthenticationProviderRepository[F]
+) {
 
   type Result[T] = Either[Throwable, T]
 
-  val scopes = List("user:email")
-
-  def loginUrl: String = config.loginUrl + s"?scope=${scopes.mkString(",")}&client_id=${config.clientId}"
+  def loginUrl: Uri = config.loginUrl
 
   def resolveAuthCode(code: String): F[Result[String]] =
     exchangeCodeForAccessToken(code)

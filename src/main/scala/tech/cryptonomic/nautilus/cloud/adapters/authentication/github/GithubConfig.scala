@@ -1,4 +1,4 @@
-package tech.cryptonomic.nautilus.cloud.adapters.sttp
+package tech.cryptonomic.nautilus.cloud.adapters.authentication.github
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -7,7 +7,7 @@ case class GithubConfig(
     clientSecret: String,
     accessTokenUrl: String,
     loginUrl: String,
-    getEmailsUrl: String,
+    emailsUrl: String,
     connectionTimeout: FiniteDuration,
     readTimeout: FiniteDuration
 )

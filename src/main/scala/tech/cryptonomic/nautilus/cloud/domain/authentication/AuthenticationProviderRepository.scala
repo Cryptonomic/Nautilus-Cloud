@@ -1,8 +1,8 @@
-package tech.cryptonomic.nautilus.cloud.domain.security
+package tech.cryptonomic.nautilus.cloud.domain.authentication
 
 import scala.language.higherKinds
 
-trait GithubRepository[F[_]] {
+trait AuthenticationProviderRepository[F[_]] {
 
   type Result[T] = Either[Throwable, T]
 
