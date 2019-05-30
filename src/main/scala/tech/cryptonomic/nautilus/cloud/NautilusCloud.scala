@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.StatusCodes.{Found, NoContent, SeeOther, Unauthorized}
-import akka.http.scaladsl.server.Directives.{getFromResource, getFromResourceDirectory, pathEndOrSingleSlash, pathPrefix, _}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 import cats.effect.{ContextShift, IO}
@@ -16,22 +16,22 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto._
 import pureconfig.loadConfig
-import tech.cryptonomic.cloud.nautilus.repositories.DoobieConfig
-import tech.cryptonomic.cloud.nautilus.security.Provider.Github
-import tech.cryptonomic.cloud.nautilus.security.{AuthProviderConfig, OauthService, Session, SttpOauthRepository}
-import tech.cryptonomic.nautilus.cloud.model.HttpConfig
-import tech.cryptonomic.nautilus.cloud.repositories.{ApiKeyRepoImpl, UserRepoImpl}
-import tech.cryptonomic.nautilus.cloud.routes.endpoint.Docs
-import tech.cryptonomic.nautilus.cloud.routes.{ApiKeyRoutes, UserRoutes}
-import tech.cryptonomic.nautilus.cloud.services.{ApiKeyServiceImpl, UserServiceImpl}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, UserRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
+import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, UserService}
+import tech.cryptonomic.nautilus.cloud.infrasctructure.Provider.Github
+import tech.cryptonomic.nautilus.cloud.infrasctructure.Session
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 object NautilusCloud extends App with StrictLogging {
 
-  lazy val githubConfig = loadConfig[AuthProviderConfig](namespace = "security.auth.github").toOption.get
+  lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
+  lazy val authConfig = GithubAuthenticationConfiguration(githubConfig)
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
   lazy val xa = Transactor.fromDriverManager[IO](doobieConfig.driver, doobieConfig.url, doobieConfig.user, doobieConfig.password)
@@ -39,17 +39,16 @@ object NautilusCloud extends App with StrictLogging {
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout))
 
-  implicit val sttpBackend = AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout.milliseconds))
-
-  lazy val apiKeysRepo = new ApiKeyRepoImpl(xa)
-  lazy val apiKeysService = new ApiKeyServiceImpl[IO](apiKeysRepo)
+  lazy val apiKeysRepo = new DoobieApiKeyRepository(xa)
+  lazy val apiKeysService = new ApiKeyService[IO](apiKeysRepo)
   lazy val apiKeysRoutes = new ApiKeyRoutes(apiKeysService)
-  lazy val userRepo = new UserRepoImpl(xa)
-  lazy val userService = new UserServiceImpl[IO](userRepo, apiKeysRepo)
+  lazy val userRepo = new DoobieUserRepository(xa)
+  lazy val userService = new UserService[IO](userRepo, apiKeysRepo)
   lazy val userRoutes = new UserRoutes(userService)
-  lazy val githubOauthRepository = new SttpOauthRepository[IO](githubConfig)
-  lazy val oauthService = new OauthService[IO](githubConfig, githubOauthRepository)
+  lazy val authRepository = new SttpGithubAuthenticationProviderRepository[IO](githubConfig)
+  lazy val oauthService = new AuthenticationService[IO](authConfig, authRepository)
 
   implicit val sessionManager = new SessionManager[Session](SessionConfig.fromConfig())
 
