@@ -5,7 +5,6 @@ import java.time.Instant
 import cats.Monad
 import cats.implicits._
 import cats.data.EitherT
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 
@@ -31,6 +30,11 @@ class AuthenticationService[F[_]: Monad](
       .map(_.asSession)
       .value
 
+  private def exchangeCodeForAccessToken(code: String) =
+    EitherT(authenticationRepository.exchangeCodeForAccessToken(code))
+
+  private def fetchEmail(accessToken: String) = EitherT(authenticationRepository.fetchEmail(accessToken))
+
   private def getOrCreateUser(email: String): EitherT[F, Throwable, User] = getUserByEmailAddress(email).flatMap {
     case Some(user) => EitherT.rightT(user)
     case None => createUser(email)
@@ -40,13 +44,8 @@ class AuthenticationService[F[_]: Monad](
     EitherT(userRepository.getUserByEmailAddress(email).map(Right(_)))
 
   private def createUser(email: String): EitherT[F, Throwable, User] = {
-    val userWithoutId = CreateUser(email, Role.User, Instant.now(), AuthenticationProvider.Github, None)
-    EitherT(userRepository.createUser(userWithoutId))
-      .map(userWithoutId.toUser)
+    val createUser = CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
+    EitherT(userRepository.createUser(createUser))
+      .map(createUser.toUser)
   }
-
-  private def exchangeCodeForAccessToken(code: String) =
-    EitherT(authenticationRepository.exchangeCodeForAccessToken(code))
-
-  private def fetchEmail(accessToken: String) = EitherT(authenticationRepository.fetchEmail(accessToken))
 }

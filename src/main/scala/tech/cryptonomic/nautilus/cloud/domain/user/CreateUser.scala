@@ -10,7 +10,7 @@ case class CreateUser(
     userRole: Role,
     registrationDate: Instant,
     accountSource: AuthenticationProvider,
-    accountDescription: Option[String]
+    accountDescription: Option[String] = None
 ) {
   def toUser(id: Int): User = this.into[User].withFieldConst(_.userId, id).transform
 }
