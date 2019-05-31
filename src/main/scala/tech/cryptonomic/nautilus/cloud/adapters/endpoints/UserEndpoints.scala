@@ -41,10 +41,10 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
     )
 
   /** Api keys endpoint definition */
-  def getApiKeyUsage: Endpoint[String, Option[UsageLeft]] =
+  def getApiKeyUsage: Endpoint[Int, List[UsageLeft]] =
     endpoint(
-      request = get(url = path / "users" / segment[String]("apiKey") / "usage"),
-      response = jsonResponse[UsageLeft]().orNotFound(),
+      request = get(url = path / "users" / segment[Int]("user") / "usage"),
+      response = jsonResponse[List[UsageLeft]](),
       tags = List("User")
     )
 }

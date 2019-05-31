@@ -71,9 +71,9 @@ class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
       case _ => unknownError
     }.get
 
-  private final case class EmailResponse(email: String, primary: Boolean, verified: Boolean)
+  final private case class EmailResponse(email: String, primary: Boolean, verified: Boolean)
 
-  private final case class TokenResponse(access_token: String)
+  final private case class TokenResponse(access_token: String)
 }
 
 /* Exception for errors realated to Sttp */

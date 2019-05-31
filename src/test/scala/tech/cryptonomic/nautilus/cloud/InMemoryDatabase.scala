@@ -54,7 +54,8 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
     "users",
     "tiers",
     "api_keys",
-    "resources"
+    "resources",
+    "usage_left"
   )
 
   override protected def beforeAll(): Unit = {

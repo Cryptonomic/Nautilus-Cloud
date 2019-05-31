@@ -34,7 +34,8 @@ object NautilusCloud extends App with StrictLogging {
   lazy val authConfig = GithubAuthenticationConfiguration(githubConfig)
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
-  lazy val xa = Transactor.fromDriverManager[IO](doobieConfig.driver, doobieConfig.url, doobieConfig.user, doobieConfig.password)
+  lazy val xa =
+    Transactor.fromDriverManager[IO](doobieConfig.driver, doobieConfig.url, doobieConfig.user, doobieConfig.password)
 
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
@@ -72,19 +73,20 @@ object NautilusCloud extends App with StrictLogging {
       redirect(oauthService.loginUrl, Found)
     },
     path("github-callback") {
-      parameters('code) { code =>
-        onComplete(oauthService.resolveAuthCode(code).unsafeToFuture()) {
-          case Success(Right(email)) =>
-            setSession(oneOff, usingCookies, Session(Github, email)) { ctx =>
-              ctx.redirect("/", SeeOther)
-            }
-          case Failure(exception) =>
-            logger.debug(exception.getMessage, exception)
-            complete(Unauthorized)
-          case Success(Left(exception)) =>
-            logger.debug(exception.getMessage, exception)
-            complete(Unauthorized)
-        }
+      parameters('code) {
+        code =>
+          onComplete(oauthService.resolveAuthCode(code).unsafeToFuture()) {
+            case Success(Right(email)) =>
+              setSession(oneOff, usingCookies, Session(Github, email)) { ctx =>
+                ctx.redirect("/", SeeOther)
+              }
+            case Failure(exception) =>
+              logger.debug(exception.getMessage, exception)
+              complete(Unauthorized)
+            case Success(Left(exception)) =>
+              logger.debug(exception.getMessage, exception)
+              complete(Unauthorized)
+          }
       }
     },
     // @TODO should be removed when a proper login page is created

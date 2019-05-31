@@ -43,5 +43,12 @@ CREATE TABLE api_keys(
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
 
-
+CREATE TABLE usage_left(
+    keyid integer NOT NULL,
+    daily integer NOT NULL,
+    monthly integer NOT NULL,
+    CONSTRAINT keyid_fk FOREIGN KEY (keyid)
+      REFERENCES api_keys (keyid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
 

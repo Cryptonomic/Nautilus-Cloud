@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 import java.sql.Timestamp
 
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.user.{User, UserWithoutId}
 
@@ -14,6 +15,8 @@ trait Fixtures {
   val exampleUser = User(1, "someUserName", "email@example.com", "user", new Timestamp(1), None, None)
 
   val exampleUserWithoutId = UserWithoutId("someUserName", "email@example.com", "user", new Timestamp(1), None, None)
+
+  val examleUsageLeft = UsageLeft("apikey", 500, 15000)
 
   val exampleApiKeyAsJson =
     """
@@ -46,6 +49,15 @@ trait Fixtures {
       |  "userName": "someUserName"
       |}
     """.stripMargin
+
+    val exampleUsageJson =
+      """
+        |[{
+        |  "key":"apikey",
+        |  "daily":500,
+        |  "monthly":15000
+        |}]
+      """.stripMargin
 
   val githubConfig = GithubConfig(
     clientId = "clientId",

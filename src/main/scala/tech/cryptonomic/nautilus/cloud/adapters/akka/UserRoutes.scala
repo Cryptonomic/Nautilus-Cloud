@@ -43,8 +43,8 @@ class UserRoutes(userService: UserService[IO])
   }
 
   /** ApiKey usage route implementation */
-  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedBy { apiKey =>
-    Some(UsageLeft("dummyKey", 500, 15000))
+  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedByAsync { userId =>
+    userService.getUserApiKeysUsage(userId).unsafeToFuture()
   }
 
   /** Concatenated User routes */

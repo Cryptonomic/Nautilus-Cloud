@@ -1,5 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import tech.cryptonomic.nautilus.cloud.domain.user.{User, UserRepository, UserWithoutId}
 
@@ -23,4 +24,7 @@ class UserService[F[_]](userRepo: UserRepository[F], apiKeyRepo: ApiKeyRepositor
   /** Returns API Keys for user with given ID */
   def getUserApiKeys(userId: Int): F[List[ApiKey]] =
     apiKeyRepo.getUserApiKeys(userId)
+
+  def getUserApiKeysUsage(userId: Int): F[List[UsageLeft]] =
+    apiKeyRepo.getKeysUsageForUser(userId)
 }
