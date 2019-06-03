@@ -18,5 +18,5 @@ case class User(
 }
 
 object User {
-  type UserId = Long
+  type UserId = Int
 }
