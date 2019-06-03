@@ -12,6 +12,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
 
   val sut = new ApiKeyQueries {}
 
+  // check if all queries are valid
   "ApiKeyRepo" should {
     "check getAllApiKeys" in  {
       check(sut.getAllApiKeysQuery)

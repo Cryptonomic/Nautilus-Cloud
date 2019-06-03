@@ -6,6 +6,7 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
@@ -41,7 +42,7 @@ class UserRoutesTest
       }
 
       "receive 409 Conflict response code when given email is already used" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Left(new RuntimeException("error"))))
+        (userRepository.createUser _).when(*).returns(IO.pure(Left(new DoobieUniqueViolationException("error"))))
 
         val postRequest = HttpRequest(
           HttpMethods.POST,

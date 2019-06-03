@@ -16,6 +16,7 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
 
   val sut = new UserQueries {}
 
+  // check if all queries are valid
   "UserRepo" should {
     "check creation of user" in {
       check(sut.createUserQuery(CreateUser("name@domain.com", Role.User, Instant.now(), AuthenticationProvider.Github, None)))
