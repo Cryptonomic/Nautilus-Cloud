@@ -5,6 +5,7 @@ import cats.effect.Bracket
 import doobie.enum.SqlState
 import doobie.implicits._
 import doobie.util.transactor.Transactor
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.language.higherKinds
@@ -17,20 +18,20 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
   val UNIQUE_VIOLATION = SqlState("23505")
 
   /** Creates user */
-  override def createUser(user: CreateUser): F[Either[Throwable, Int]] =
+  override def createUser(user: CreateUser): F[Either[Throwable, UserId]] =
     createUserQuery(user)
-      .withUniqueGeneratedKeys[Int]("userid")
+      .withUniqueGeneratedKeys[UserId]("userid")
       .attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueViolationException("UNIQUE_VIOLATION"): Throwable
       }
       .transact(transactor)
 
   /** Updates user */
-  override def updateUser(id: Int, user: UpdateUser): F[Unit] =
+  override def updateUser(id: UserId, user: UpdateUser): F[Unit] =
     updateUserQuery(id, user).run.map(_ => ()).transact(transactor)
 
   /** Returns user */
-  override def getUser(id: Int): F[Option[User]] =
+  override def getUser(id: UserId): F[Option[User]] =
     getUserQuery(id).option.transact(transactor)
 
   /** Returns user by email address */

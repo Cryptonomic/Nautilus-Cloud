@@ -4,6 +4,7 @@ import doobie._
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
 
 /** Trait containing User related queries */
@@ -22,13 +23,13 @@ trait UserQueries {
          |${userReg.accountDescription})""".stripMargin.update
 
   /** Updates user */
-  def updateUserQuery(id: Int, user: UpdateUser): Update0 =
+  def updateUserQuery(id: UserId, user: UpdateUser): Update0 =
     sql"""UPDATE users SET useremail = ${user.userEmail}, userrole = ${user.userRole},
          |accountsource = ${user.accountSource},accountdescription = ${user.accountDescription}
          |WHERE userid = $id""".stripMargin.update
 
   /** Returns user */
-  def getUserQuery(userId: Int): Query0[User] =
+  def getUserQuery(userId: UserId): Query0[User] =
     sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE userid = $userId"
       .query[User]
 

@@ -52,12 +52,12 @@ class UserRoutes(userService: UserService[IO])
     getUserKeysRoute
   )
 
+  /** Extension for using Created status code */
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>
     complete(HttpResponse(StatusCodes.Created, entity = HttpEntity(entity.toString)))
   }
 
   /** Extension for using Conflict status code */
   override def conflict[A](response: A => Route, invalidDocs: Documentation): Option[A] => Route =
-    _.map(response)
-      .getOrElse(complete(HttpResponse(StatusCodes.Conflict)))
+    _.map(response).getOrElse(complete(HttpResponse(StatusCodes.Conflict)))
 }
