@@ -3,54 +3,40 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Id
-import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, Session}
+import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, OptionValues, WordSpec}
+import tech.cryptonomic.nautilus.cloud.NautilusContext
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-
-import scala.concurrent.duration._
-import scala.language.postfixOps
 
 class AuthenticationServiceTest
     extends WordSpec
     with Matchers
     with Fixtures
     with EitherValues
+    with OptionValues
     with MockFactory
     with BeforeAndAfterEach {
 
-  implicit val sttpBackend = HttpURLConnectionBackend()
-
-  private val config = GithubConfig(
-    clientId = "clientId",
-    clientSecret = "clientSecret",
-    accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
-    loginUrl = "http://localhost:8089/login/oauth/authorize",
-    emailsUrl = "http://localhost:8089/user",
-    connectionTimeout = 100 milliseconds,
-    readTimeout = 100 milliseconds
+  val authRepositoryStub = new InMemoryAuthenticationProviderRepository(
+    List(("authCode", "accessToken", "name@domain.com"))
   )
+  val userRepository = new InMemoryUserRepository()
 
-  val authRepositoryStub = stub[AuthenticationProviderRepository[Id]]
-  val authConfig = GithubAuthenticationConfiguration(config)
-  val userRepositoryStub = stub[UserRepository[Id]]
+  val authenticationService =
+    new AuthenticationService[Id](NautilusContext.authConfig, authRepositoryStub, userRepository)
 
-  val authenticationService = new AuthenticationService[Id](authConfig, authRepositoryStub, userRepositoryStub)
+  override protected def afterEach(): Unit = {
+    super.afterEach()
+    userRepository.clear()
+  }
 
   "AuthenticationService" should {
       "resolve an auth code when user exists" in {
         // given
-        (authRepositoryStub.exchangeCodeForAccessToken _).when("authCode").returns(Right("accessToken"))
-        (authRepositoryStub.fetchEmail _)
-          .when("accessToken")
-          .returns(Right("name@domain.com"))
-        (userRepositoryStub.getUserByEmailAddress _)
-          .when("name@domain.com")
-          .returns(Some(User(1, "name@domain.com", Role.User, Instant.now(), Github, None)))
+        userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, None))
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -60,22 +46,37 @@ class AuthenticationServiceTest
         )
       }
 
-      "resolve an auth code when user doesn't exist" in {
+      "resolve an auth code when user exists with administrator role" in {
         // given
-        (authRepositoryStub.exchangeCodeForAccessToken _).when("authCode").returns(Right("accessToken"))
-        (authRepositoryStub.fetchEmail _)
-          .when("accessToken")
-          .returns(Right("name@domain.com"))
-        (userRepositoryStub.getUserByEmailAddress _).when("name@domain.com").returns(None)
-        (userRepositoryStub.createUser _)
-          .when(argThat((it: CreateUser) => it.userEmail == "name@domain.com" && it.userRole == Role.User))
-          .returns(Right(1))
+        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, Instant.now(), Github, None))
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
           "name@domain.com",
           Github,
+          Role.Administrator
+        )
+      }
+
+      "resolve an auth code when user doesn't exist" in {
+        // expect
+        authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
+          "name@domain.com",
+          Github,
           Role.User
+        )
+      }
+
+      "create an user when user with a given email doesn't exist" in {
+        // when
+        authenticationService.resolveAuthCode("authCode")
+
+        // then
+        userRepository.getUser(1).value should have(
+          'userId (1),
+          'userEmail ("name@domain.com"),
+          'userRole (Role.User),
+          'accountSource (Github)
         )
       }
     }

@@ -1,4 +1,4 @@
-package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.doobie
+package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
