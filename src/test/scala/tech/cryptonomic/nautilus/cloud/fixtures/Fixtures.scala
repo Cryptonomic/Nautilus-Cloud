@@ -1,13 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.fixtures
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.ZonedDateTime
 
-import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
+import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
-
-import scala.concurrent.duration._
 
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
@@ -52,13 +50,32 @@ trait Fixtures {
       |}
     """.stripMargin
 
-  val githubConfig = GithubConfig(
-    clientId = "clientId",
-    clientSecret = "clientSecret",
-    accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
-    loginUrl = "http://localhost:8089/login/oauth/authorize",
-    emailsUrl = "http://localhost:8089/user/emails",
-    connectionTimeout = 100 milliseconds,
-    readTimeout = 100 milliseconds
-  )
+  def stubAuthServiceFor(authCode: String, email: String): Unit = {
+    val accessToken = """stubbed-access-token"""
+
+    stubFor(
+      post(urlEqualTo("/login/oauth/access_token"))
+        .withRequestBody(equalTo(s"client_id=client-id&client_secret=client-secret&code=$authCode"))
+        .willReturn(
+          aResponse()
+            .withBody("""{"access_token": """" + accessToken + """"}""")
+        )
+    )
+
+    stubFor(
+      get(urlEqualTo("/user/emails"))
+        .withHeader("Authorization", equalTo("Bearer " + accessToken))
+        .willReturn(
+          aResponse()
+            .withBody(s"""[
+                         |    {
+                         |        "email": "$email",
+                         |        "primary": true,
+                         |        "verified": true,
+                         |        "visibility": "public"
+                         |    }
+                         |]""".stripMargin)
+        )
+    )
+  }
 }
