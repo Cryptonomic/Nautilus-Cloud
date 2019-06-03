@@ -2,43 +2,43 @@ package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.doobie
 
 import java.time.Instant
 
-import cats.effect.IO
-import doobie.scalatest._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.InMemoryDatabase
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUserRepository
+import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class DoobieUserRepositoryTest
     extends WordSpec
     with Matchers
-    with IOChecker
     with EitherValues
     with OptionValues
     with InMemoryDatabase {
 
-  override def transactor: doobie.Transactor[IO] = testTransactor
-
   val now: Instant = Instant.now()
 
-  val sut = new DoobieUserRepository[IO](transactor)
+  val sut = NautilusContext.userRepository
 
   "ApiKeyRepo" should {
-      "save user" in {
+      "save and receive user" in {
         // when
         val id =
-          sut
-            .createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None))
-            .unsafeRunSync()
-            .right
-            .value
+          sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
 
         // then
-        id should equal(1)
+        id.right.value should equal(1)
+
+        // when
+        val fetchedUser = sut.getUser(1).unsafeRunSync()
+
+        // then
+        fetchedUser.value should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
       }
 
       "shouldn't save user when user with a given email address already exists" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+
         // when
         val id = sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync
 
@@ -46,33 +46,37 @@ class DoobieUserRepositoryTest
         id.isLeft shouldBe true
       }
 
-      "fetch user" in {
+      "fetch user by email" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+
         // when
-        val fetchedUser = sut.getUser(1).unsafeRunSync().value
+        val fetchedUser = sut.getUserByEmailAddress("login@domain.com").unsafeRunSync()
 
         // then
-        fetchedUser should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
+        fetchedUser.value should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
       }
 
-      "fetch user by email" in {
-        // when
-        val fetchedUser = sut.getUserByEmailAddress("login@domain.com").unsafeRunSync().value
-
-        // then
-        fetchedUser should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
+      "return None when fetching non existing user" in {
+        // expect
+        sut.getUser(1).unsafeRunSync() shouldBe None
+        sut.getUserByEmailAddress("login@domain.com").unsafeRunSync() shouldBe None
       }
 
       "update user" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+
         // when
         sut
           .updateUser(1, UpdateUser("different-login@domain.com", Role.User, AuthenticationProvider.Github, None))
           .unsafeRunSync()
 
-        // when
-        val fetchedUser = sut.getUser(1).unsafeRunSync().value
+        // and
+        val fetchedUser = sut.getUser(1).unsafeRunSync()
 
         // then
-        fetchedUser should equal(User(1, "different-login@domain.com", Role.User, now, Github, None))
+        fetchedUser.value should equal(User(1, "different-login@domain.com", Role.User, now, Github, None))
       }
     }
 }

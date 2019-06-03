@@ -3,16 +3,11 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Id
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{
-  AuthenticationConfiguration,
-  AuthenticationProviderRepository,
-  Session
-}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, Session}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -27,11 +22,6 @@ class AuthenticationServiceTest
     with EitherValues
     with MockFactory
     with BeforeAndAfterEach {
-
-  val port = 8089
-  val host = "localhost"
-
-  val wireMockServer = new WireMockServer(port)
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 

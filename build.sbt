@@ -9,6 +9,7 @@ val circeVersion = "0.11.0"
 val endpointsVersion = "0.9.0"
 val catsVersion = "1.6.0"
 val doobieVersion = "0.7.0-M4"
+val macwireVersion = "2.3.2"
 
 parallelExecution in Test := false
 
@@ -34,6 +35,9 @@ libraryDependencies ++= Seq(
   "io.circe"                           %% "circe-parser"                   % circeVersion,
   "io.circe"                           %% "circe-generic"                  % circeVersion,
   "io.circe"                           %% "circe-generic-extras"           % circeVersion,
+  "com.softwaremill.macwire"           %% "macros"                         % macwireVersion % "provided",
+  "com.softwaremill.macwire"           %% "util"                           % macwireVersion,
+  "com.softwaremill.macwire"           %% "proxy"                          % macwireVersion,
   "com.softwaremill.sttp"              % "core_2.12"                       % "1.5.16",
   "com.softwaremill.sttp"              %% "async-http-client-backend-cats" % "1.5.16",
   "de.heikoseeberger"                  %% "akka-http-circe"                % "1.23.0" exclude ("com.typesafe.akka", "akka-http"),

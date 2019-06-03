@@ -53,50 +53,36 @@
     }
 
     function getCurrentLogin() {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/current_login',
             type: 'GET',
             success: handleResponse,
             error: handleResponse
-        }));
+        });
     }
 
     getCurrentLogin();
 
     $('#do_login').click(function(e) {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/login',
             type: 'POST',
             data: $('#login').val(),
             success: getCurrentLogin
-        }));
+        });
         e.preventDefault();
         return false;
     });
 
     $('#do_logout').click(function(e) {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/logout',
             type: 'POST',
             success: getCurrentLogin
-        }));
+        });
         e.preventDefault();
         return false;
     });
-
-    function addCsrfHeader(opts) {
-        var token = Cookies.get('XSRF-TOKEN');
-        if (token) {
-            console.log('Setting csrf token: ' + token);
-            opts['headers'] = {
-                'X-XSRF-TOKEN': token
-            }
-        } else {
-            console.log('No csrf token');
-        }
-
-        return opts;
-    }
 </script>
 </body>
 </html>
