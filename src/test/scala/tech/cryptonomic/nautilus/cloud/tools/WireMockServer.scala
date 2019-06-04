@@ -8,13 +8,17 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestSuite}
 trait WireMockServer extends BeforeAndAfterAll with BeforeAndAfterEach with StrictLogging {
   self: TestSuite =>
 
-  val wireMockServer = new wiremock.WireMockServer(4235)
+  private val port = 4235
+
+  val wireMockServer = new wiremock.WireMockServer(port)
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
+    logger.info(s"Starting wiremock on port $port")
     wireMockServer.start()
-    WireMock.configureFor("localhost", 4235)
+    WireMock.configureFor("localhost", port)
+    logger.info("Wiremock started successfully")
   }
 
   override protected def afterAll(): Unit = {

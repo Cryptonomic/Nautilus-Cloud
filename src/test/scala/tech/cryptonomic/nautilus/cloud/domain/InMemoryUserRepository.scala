@@ -4,19 +4,28 @@ import cats.Id
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
+import scala.collection.mutable
+
 class InMemoryUserRepository extends UserRepository[Id] {
-  val users = new scala.collection.mutable.MutableList[User]()
+
+  /** list of all users
+    *
+    * in order to be consistent with a real database we adjust reads and writes to keep indexing starting from 1 not
+    * from 0
+    */
+  val users = new mutable.MutableList[User]()
 
   /** Creates user */
   override def createUser(user: CreateUser): Either[Throwable, UserId] = this.synchronized {
-    users.+=(user.toUser(users.size + 1))
-    Right(users.size)
+    val userId = users.size + 1
+    users.+=(user.toUser(userId))
+    Right(userId)
   }
 
   /** Updates user */
   override def updateUser(id: UserId, user: UpdateUser): Unit = this.synchronized {
     users
-      .find(_.userId == id + 1) // indexing starts with 1 instead of 0
+      .find(_.userId == id)
       .map(
         _.copy(
           userEmail = user.userEmail,
@@ -29,7 +38,7 @@ class InMemoryUserRepository extends UserRepository[Id] {
 
   /** Returns user */
   override def getUser(id: UserId): Option[User] = this.synchronized {
-    users.get(id.toInt - 1) // indexing starts with 1 instead of 0
+    users.find(_.userId == id)
   }
 
   /** Returns user by email address */
@@ -37,5 +46,8 @@ class InMemoryUserRepository extends UserRepository[Id] {
     users.find(_.userEmail == email)
   }
 
-  def clear(): Unit = users.clear()
+  /** Clears repository */
+  def clear(): Unit = this.synchronized {
+    users.clear()
+  }
 }

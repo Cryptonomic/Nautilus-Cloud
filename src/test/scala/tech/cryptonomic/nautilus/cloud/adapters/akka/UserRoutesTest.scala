@@ -42,7 +42,7 @@ class UserRoutesTest
       }
 
       "receive 409 Conflict response code when given email is already used" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Left(new DoobieUniqueViolationException("error"))))
+        (userRepository.createUser _).when(*).returns(IO.pure(Left(DoobieUniqueViolationException("error"))))
 
         val postRequest = HttpRequest(
           HttpMethods.POST,

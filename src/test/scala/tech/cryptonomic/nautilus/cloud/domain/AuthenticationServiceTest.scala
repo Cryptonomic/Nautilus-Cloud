@@ -3,39 +3,35 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Id
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
-import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 class AuthenticationServiceTest
     extends WordSpec
     with Matchers
-    with Fixtures
     with EitherValues
     with OptionValues
-    with MockFactory
     with BeforeAndAfterEach {
 
-  val authRepositoryStub = new InMemoryAuthenticationProviderRepository(
-    List(("authCode", "accessToken", "name@domain.com"))
-  )
+  val authRepository = new InMemoryAuthenticationProviderRepository()
   val userRepository = new InMemoryUserRepository()
 
   val authenticationService =
-    new AuthenticationService[Id](NautilusContext.authConfig, authRepositoryStub, userRepository)
+    new AuthenticationService[Id](NautilusContext.authConfig, authRepository, userRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()
+    authRepository.clear()
     userRepository.clear()
   }
 
   "AuthenticationService" should {
       "resolve an auth code when user exists" in {
         // given
+        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, None))
 
         // expect
@@ -48,6 +44,7 @@ class AuthenticationServiceTest
 
       "resolve an auth code when user exists with administrator role" in {
         // given
+        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, Instant.now(), Github, None))
 
         // expect
@@ -59,6 +56,9 @@ class AuthenticationServiceTest
       }
 
       "resolve an auth code when user doesn't exist" in {
+        // given
+        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
           "name@domain.com",
@@ -67,7 +67,10 @@ class AuthenticationServiceTest
         )
       }
 
-      "create an user when user with a given email doesn't exist" in {
+      "create an user when the user with a given email doesn't exist" in {
+        // given
+        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+
         // when
         authenticationService.resolveAuthCode("authCode")
 
@@ -78,6 +81,11 @@ class AuthenticationServiceTest
           'userRole (Role.User),
           'accountSource (Github)
         )
+      }
+
+      "return Left when a given auth code shouldn't be resolved" in {
+        // expect
+        authenticationService.resolveAuthCode("authCode").left.value
       }
     }
 }

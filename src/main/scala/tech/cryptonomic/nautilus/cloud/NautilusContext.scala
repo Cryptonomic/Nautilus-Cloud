@@ -10,8 +10,8 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
-import tech.cryptonomic.nautilus.cloud.adapters.akka.session.SessionOperations
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, UserRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, Routes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
@@ -21,14 +21,14 @@ import scala.concurrent.ExecutionContext
 
 object NautilusContext extends StrictLogging {
 
-  logger.info("Starting to load application config")
+  logger.info("Starting to initialize application config")
 
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
 
-  implicit val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-  implicit val sttpBackend: SttpBackend[IO, Nothing] =
+  implicit lazy val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+  implicit lazy val sttpBackend: SttpBackend[IO, Nothing] =
     AsyncHttpClientCatsBackend[IO](connectionTimeout(githubConfig.connectionTimeout))
 
   lazy val transactor: Transactor[IO] =
@@ -48,6 +48,8 @@ object NautilusContext extends StrictLogging {
 
   lazy val apiKeysRoutes = wire[ApiKeyRoutes]
   lazy val userRoutes = wire[UserRoutes]
+  lazy val sessionRoutes = wire[SessionRoutes]
+  lazy val routes = wire[Routes]
 
-  logger.info("Application config loaded successfully")
+  logger.info("Application config initialized successfully")
 }

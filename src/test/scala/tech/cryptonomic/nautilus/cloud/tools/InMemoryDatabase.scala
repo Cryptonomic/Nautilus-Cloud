@@ -49,6 +49,7 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
+    logger.info(s"Starting embedded PostgreSQL on port ${config.port}")
     dbInstance.start(
       EmbeddedPostgres.cachedRuntimeConfig(cachedRuntimePath),
       config.host,
@@ -60,6 +61,7 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
       pgConfigs.asJava)
 
     Fragment.const(dbSchema).update.run.transact(testTransactor).unsafeRunSync()
+    logger.info("Embedded PostgreSQL started successfully")
   }
 
   override protected def afterAll(): Unit = {
