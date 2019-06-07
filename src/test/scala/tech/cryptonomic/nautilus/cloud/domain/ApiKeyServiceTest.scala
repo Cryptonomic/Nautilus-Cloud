@@ -2,8 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {

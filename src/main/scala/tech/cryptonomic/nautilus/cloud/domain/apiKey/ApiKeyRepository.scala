@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
-
 import scala.language.higherKinds
 
 /** Trait representing API Key repo queries */

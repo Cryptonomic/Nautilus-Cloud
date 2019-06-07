@@ -3,8 +3,7 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 import java.sql.Timestamp
 
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.user.{User, UserWithoutId}
 
 import scala.concurrent.duration._

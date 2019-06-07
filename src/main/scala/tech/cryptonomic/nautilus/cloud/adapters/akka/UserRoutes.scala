@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import endpoints.akkahttp.server
 import endpoints.algebra.Documentation
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{UsageLeft, UserEndpoints}
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.user.User
 

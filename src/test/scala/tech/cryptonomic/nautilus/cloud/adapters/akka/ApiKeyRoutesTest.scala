@@ -5,9 +5,8 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {

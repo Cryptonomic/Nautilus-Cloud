@@ -3,8 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
 
 /** Trait containing api key related queries */
 trait ApiKeyQueries {

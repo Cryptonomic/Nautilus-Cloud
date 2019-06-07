@@ -3,8 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 
 import scala.language.higherKinds
 
