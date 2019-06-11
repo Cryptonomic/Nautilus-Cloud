@@ -9,35 +9,36 @@ import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
+
 class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
 
   "The API Keys route" should {
 
-    val apiKeyRepository = new ApiKeyRepository[IO]() {
-      override def getAllApiKeys: IO[List[ApiKey]] = IO.pure(List(exampleApiKey))
+      val apiKeyRepository = new ApiKeyRepository[IO]() {
+        override def getAllApiKeys: IO[List[ApiKey]] = IO.pure(List(exampleApiKey))
 
-      override def validateApiKey(apiKey: String): IO[Boolean] = IO.pure(true)
+        override def validateApiKey(apiKey: String): IO[Boolean] = IO.pure(true)
 
-      override def getUserApiKeys(userId: Int): IO[List[ApiKey]] = ???
-    }
+        override def getUserApiKeys(userId: Int): IO[List[ApiKey]] = ???
+      }
 
-    val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepository))
+      val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepository))
 
-    "return list containing one api key" in {
-      Get("/apiKeys") ~> sut.getAllApiKeysRoute ~> check {
-        status shouldEqual StatusCodes.OK
-        contentType shouldBe ContentTypes.`application/json`
-        responseAs[String] should matchJson(exampleApiKeyAsJson)
+      "return list containing one api key" in {
+        Get("/apiKeys") ~> sut.getAllApiKeysRoute ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson(exampleApiKeyAsJson)
+        }
+      }
+
+      "return correctly validated api key" in {
+        Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] shouldBe "true"
+        }
       }
     }
-
-    "return correctly validated api key" in {
-      Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
-        status shouldEqual StatusCodes.OK
-        contentType shouldBe ContentTypes.`application/json`
-        responseAs[String] shouldBe "true"
-      }
-    }
-  }
 
 }

@@ -4,7 +4,7 @@ import cats.effect.IO
 import doobie.scalatest._
 import doobie.util.transactor.Transactor
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.InMemoryDatabase
+import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
 
@@ -12,6 +12,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
 
   val sut = new ApiKeyQueries {}
 
+  // check if all queries are valid
   "ApiKeyRepo" should {
     "check getAllApiKeys" in  {
       check(sut.getAllApiKeysQuery)

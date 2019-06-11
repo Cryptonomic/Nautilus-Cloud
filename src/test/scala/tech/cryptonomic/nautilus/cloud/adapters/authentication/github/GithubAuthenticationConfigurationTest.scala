@@ -1,16 +1,14 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github
 
-import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-
-import scala.concurrent.duration._
+import org.scalatest.{Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.NautilusContext
 import scala.language.postfixOps
 
-class GithubAuthenticationConfigurationTest extends WordSpec with Matchers with Fixtures {
+class GithubAuthenticationConfigurationTest extends WordSpec with Matchers {
 
   "GithubAuthenticationConfiguration" should {
 
-      val config = githubConfig.copy(
+      val config = NautilusContext.githubConfig.copy(
         clientId = "clientId",
         loginUrl = "http://localhost:8089/login/oauth/authorize"
       )

@@ -9,6 +9,9 @@
     Logged in as: <span id="current_login"></span>
 </p>
 <p>
+    Role: <span id="current_role"></span>
+</p>
+<p>
     Get login request status: <span id="current_login_status_code"></span>
 </p>
 
@@ -24,6 +27,7 @@
     var $loginForm = $('#login_form');
     var $logoutForm = $('#logout_form');
     var $currentLogin = $('#current_login');
+    var $currentRole = $('#current_role');
     var $currentLoginStatus = $('#current_login_status_code');
     $loginForm.hide();
     $logoutForm.hide();
@@ -33,62 +37,52 @@
             $loginForm.hide();
             $logoutForm.show();
 
-            $currentLogin.text(data);
+            var parsedJson = JSON.parse(data);
+
+            $currentLogin.text(parsedJson.email);
+            $currentRole.text(parsedJson.role);
             $currentLoginStatus.text(status);
         } else {
             $loginForm.show();
             $logoutForm.hide();
 
             $currentLogin.text('');
+            $currentRole.text('');
             $currentLoginStatus.text(status + ' (' + data.status + ')');
         }
     }
 
     function getCurrentLogin() {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/current_login',
             type: 'GET',
             success: handleResponse,
             error: handleResponse
-        }));
+        });
     }
 
     getCurrentLogin();
 
     $('#do_login').click(function(e) {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/login',
             type: 'POST',
             data: $('#login').val(),
             success: getCurrentLogin
-        }));
+        });
         e.preventDefault();
         return false;
     });
 
     $('#do_logout').click(function(e) {
-        $.ajax(addCsrfHeader({
+        $.ajax({
             url: '/logout',
             type: 'POST',
             success: getCurrentLogin
-        }));
+        });
         e.preventDefault();
         return false;
     });
-
-    function addCsrfHeader(opts) {
-        var token = Cookies.get('XSRF-TOKEN');
-        if (token) {
-            console.log('Setting csrf token: ' + token);
-            opts['headers'] = {
-                'X-XSRF-TOKEN': token
-            }
-        } else {
-            console.log('No csrf token');
-        }
-
-        return opts;
-    }
 </script>
 </body>
 </html>
