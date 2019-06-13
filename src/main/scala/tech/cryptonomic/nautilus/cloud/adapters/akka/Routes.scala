@@ -1,7 +1,15 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.model.StatusCodes.Found
-import akka.http.scaladsl.server.Directives.{getFromResource, getFromResourceDirectory, path, pathEndOrSingleSlash, pathPrefix, redirect, _}
+import akka.http.scaladsl.server.Directives.{
+  getFromResource,
+  getFromResourceDirectory,
+  path,
+  pathEndOrSingleSlash,
+  pathPrefix,
+  redirect,
+  _
+}
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
@@ -36,9 +44,12 @@ class Routes(
       sessionRoutes.routes,
       sessionOperations.requiredSession { session =>
         List(
-          apiKeysRoutes.routes,
+          apiKeysRoutes.validateApiKeyRoute,
           sessionOperations.requiredRole(Administrator) {
-            userRoutes.routes
+            List(
+              apiKeysRoutes.getAllApiKeysRoute,
+              userRoutes.routes
+            ).reduce(_ ~ _)
           }
         ).reduce(_ ~ _)
       }

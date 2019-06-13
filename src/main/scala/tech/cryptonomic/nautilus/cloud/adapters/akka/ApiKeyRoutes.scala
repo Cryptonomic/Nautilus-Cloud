@@ -23,10 +23,4 @@ class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     validateApiKey.implementedByAsync { apiKey =>
       apiKeysService.validateApiKey(apiKey).unsafeToFuture()
     }
-
-  /** Concatenated API keys routes */
-  val routes: Route = concat(
-    getAllApiKeysRoute,
-    validateApiKeyRoute
-  )
 }
