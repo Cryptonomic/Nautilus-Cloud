@@ -1,12 +1,13 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Id
+import cats.Monad
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.collection.mutable
+import scala.language.higherKinds
 
-class InMemoryUserRepository extends UserRepository[Id] {
+class InMemoryUserRepository[F[_]](implicit monad: Monad[F]) extends UserRepository[F] {
 
   /** list of all users
     *
@@ -16,34 +17,36 @@ class InMemoryUserRepository extends UserRepository[Id] {
   val users = new mutable.MutableList[User]()
 
   /** Creates user */
-  override def createUser(user: CreateUser): Either[Throwable, UserId] = this.synchronized {
+  override def createUser(user: CreateUser): F[Either[Throwable, UserId]] = this.synchronized {
     val userId = users.size + 1
     users.+=(user.toUser(userId))
-    Right(userId)
+    monad.pure(Right(userId))
   }
 
   /** Updates user */
-  override def updateUser(id: UserId, user: UpdateUser): Unit = this.synchronized {
-    users
-      .find(_.userId == id)
-      .map(
-        _.copy(
-          userEmail = user.userEmail,
-          userRole = user.userRole,
-          accountSource = user.accountSource,
-          accountDescription = user.accountDescription
+  override def updateUser(id: UserId, user: UpdateUser): F[Unit] = this.synchronized {
+    monad.pure(
+      users
+        .find(_.userId == id)
+        .map(
+          _.copy(
+            userEmail = user.userEmail,
+            userRole = user.userRole,
+            accountSource = user.accountSource,
+            accountDescription = user.accountDescription
+          )
         )
-      )
+    )
   }
 
   /** Returns user */
-  override def getUser(id: UserId): Option[User] = this.synchronized {
-    users.find(_.userId == id)
+  override def getUser(id: UserId): F[Option[User]] = this.synchronized {
+    monad.pure(users.find(_.userId == id))
   }
 
   /** Returns user by email address */
-  override def getUserByEmailAddress(email: String): Option[User] = this.synchronized {
-    users.find(_.userEmail == email)
+  override def getUserByEmailAddress(email: String): F[Option[User]] = this.synchronized {
+    monad.pure(users.find(_.userEmail == email))
   }
 
   /** Clears repository */
