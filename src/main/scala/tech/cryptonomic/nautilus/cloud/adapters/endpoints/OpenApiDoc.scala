@@ -15,7 +15,6 @@ object OpenApiDoc
   def openApi: OpenApi = openApi(Info("Nautilus-Cloud API", "0.0.1"))(
     getAllKeys,
     validateApiKey,
-    createUser,
     updateUser,
     getUser,
     getUserKeys,

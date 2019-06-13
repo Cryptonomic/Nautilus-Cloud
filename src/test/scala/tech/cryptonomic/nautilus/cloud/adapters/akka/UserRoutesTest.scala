@@ -27,33 +27,6 @@ class UserRoutesTest
 
   "The User route" should {
 
-      "successfully create user" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Right(1)))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
-        )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Created
-          responseAs[String] shouldBe "1"
-        }
-      }
-
-      "receive 409 Conflict response code when given email is already used" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Left(DoobieUniqueViolationException("error"))))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
-        )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Conflict
-        }
-      }
-
       "successfully update user" in {
         (userRepository.updateUser _).when(*, *).returns(IO.pure())
 

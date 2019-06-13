@@ -30,9 +30,6 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures with EitherVa
   val sut = new UserService[Id](userRepo, apiKeyRepo)
 
   "UserService" should {
-    "createUser" in {
-      sut.createUser(exampleCreateUser).right.value shouldBe 1
-    }
     "getUser" in {
       sut.getUser(1) shouldBe Some(exampleUser)
     }

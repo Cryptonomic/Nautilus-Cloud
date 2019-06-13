@@ -18,11 +18,6 @@ class UserRoutes(userService: UserService[IO])
     with server.Endpoints
     with server.JsonSchemaEntities {
 
-  /** User creation route implementation */
-  val createUserRoute: Route = createUser.implementedByAsync { userReg =>
-    userService.createUser(userReg).map(_.toOption.map(_.toString)).unsafeToFuture()
-  }
-
   /** User update route implementation */
   val updateUserRoute: Route = updateUser.implementedByAsync {
     case (userId, user) =>
@@ -46,7 +41,6 @@ class UserRoutes(userService: UserService[IO])
 
   /** Concatenated User routes */
   val routes: Route = concat(
-    createUserRoute,
     updateUserRoute,
     getUserRoute,
     getUserKeysRoute

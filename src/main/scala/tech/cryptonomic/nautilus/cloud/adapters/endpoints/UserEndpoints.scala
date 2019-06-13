@@ -8,14 +8,6 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User
 /** User relevant endpoints */
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsUtil {
 
-  /** User creation endpoint definition */
-  def createUser: Endpoint[CreateUser, Option[String]] =
-    endpoint(
-      request = post(url = path / "users", jsonRequest[CreateUser]()),
-      response = textResponse(Some("User created!")).withCreatedStatus().orConflict(),
-      tags = List("User")
-    )
-
   /** User update endpoint definition */
   def updateUser: Endpoint[(Int, UpdateUser), Unit] =
     endpoint(
