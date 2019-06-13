@@ -16,7 +16,7 @@ trait Fixtures {
 
   val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, None)
 
-  val exampleUpdateUser = UpdateUser("email@example.com", Role.User, Github, None)
+  val exampleUpdateUser = UpdateUser(Role.User, None)
 
   val exampleApiKeyAsJson =
     """

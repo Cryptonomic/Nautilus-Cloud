@@ -41,7 +41,7 @@ class NautilusCloudStarterE2ETest
 
         // update role for that user
         nautilusContext.userRepository
-          .updateUser(1, UpdateUser("name@domain.com", Role.Administrator, AuthenticationProvider.Github, None))
+          .updateUser(1, UpdateUser(Role.Administrator, None))
           .unsafeRunSync()
 
         // log-in again with administrator role

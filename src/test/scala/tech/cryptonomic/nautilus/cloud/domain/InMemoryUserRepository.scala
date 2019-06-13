@@ -30,9 +30,7 @@ class InMemoryUserRepository[F[_]](implicit monad: Monad[F]) extends UserReposit
         .find(_.userId == id)
         .map(
           _.copy(
-            userEmail = user.userEmail,
             userRole = user.userRole,
-            accountSource = user.accountSource,
             accountDescription = user.accountDescription
           )
         )
