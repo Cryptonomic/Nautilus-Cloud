@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.server.Route
 import endpoints.akkahttp.server
+import akka.http.scaladsl.server.Directives._
 import cats.effect.IO
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ApiKeyEndpoints
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
@@ -22,4 +23,10 @@ class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     validateApiKey.implementedByAsync { apiKey =>
       apiKeysService.validateApiKey(apiKey).unsafeToFuture()
     }
+
+  /** Concatenated API keys routes */
+  val routes: Route = concat(
+    getAllApiKeysRoute,
+    validateApiKeyRoute
+  )
 }

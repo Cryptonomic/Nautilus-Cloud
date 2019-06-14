@@ -6,7 +6,6 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
@@ -35,7 +34,7 @@ class UserRoutesTest
           uri = "/users/1",
           entity = HttpEntity(MediaTypes.`application/json`, exampleUserJson)
         )
-        putRequest ~> sut.updateUserRoute ~> check {
+        putRequest ~> sut.updateUserRoute(userSession) ~> check {
           status shouldEqual StatusCodes.Created
         }
       }
@@ -43,7 +42,7 @@ class UserRoutesTest
       "get user" in {
         (userRepository.getUser _).when(*).returns(IO.pure(Some(exampleUser)))
 
-        Get("/users/1") ~> sut.getUserRoute ~> check {
+        Get("/users/1") ~> sut.getUserRoute(userSession) ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson(exampleUserJson)

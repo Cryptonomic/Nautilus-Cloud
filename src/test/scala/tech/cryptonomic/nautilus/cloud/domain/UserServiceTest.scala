@@ -45,13 +45,13 @@ class UserServiceTest
   }
 
   "UserService" should {
-      "getUser" in {
+      "get existing user" in {
         // given
         userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, now, AuthenticationProvider.Github))
 
         // expect
         sut
-          .getUser(1)
+          .getUser(adminSession)(1)
           .value shouldBe User(1, "user@domain.com", Role.Administrator, now, AuthenticationProvider.Github, None)
       }
 
@@ -60,10 +60,10 @@ class UserServiceTest
         userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, now, AuthenticationProvider.Github))
 
         // when
-        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))
+        sut.updateUser(adminSession)(1, UpdateUser(Role.User, Some("some description")))
 
         // then
-        sut.getUser(1).value shouldBe User(
+        sut.getUser(userSession)(1).value shouldBe User(
           1,
           "user@domain.com",
           Role.User,

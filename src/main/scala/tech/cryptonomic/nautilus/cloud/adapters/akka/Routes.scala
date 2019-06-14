@@ -14,7 +14,6 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 
 class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
@@ -44,13 +43,8 @@ class Routes(
       sessionRoutes.routes,
       sessionOperations.requiredSession { session =>
         List(
-          apiKeysRoutes.validateApiKeyRoute,
-          sessionOperations.requiredRole(Administrator) {
-            List(
-              apiKeysRoutes.getAllApiKeysRoute,
-              userRoutes.routes
-            ).reduce(_ ~ _)
-          }
+          apiKeysRoutes.routes, // @todo secure access (getAll only for admin)
+          userRoutes.routes(session)
         ).reduce(_ ~ _)
       }
     ).reduce(_ ~ _)

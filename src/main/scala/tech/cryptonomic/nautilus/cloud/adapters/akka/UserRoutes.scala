@@ -8,6 +8,7 @@ import endpoints.akkahttp.server
 import endpoints.algebra.Documentation
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{UsageLeft, UserEndpoints}
 import tech.cryptonomic.nautilus.cloud.domain.UserService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 // TODO:
 //   users/{user}/usage	  GET	Gets the number of queries used by the given user
@@ -19,14 +20,14 @@ class UserRoutes(userService: UserService[IO])
     with server.JsonSchemaEntities {
 
   /** User update route implementation */
-  val updateUserRoute: Route = updateUser.implementedByAsync {
+  def updateUserRoute(session: Session): Route = updateUser.implementedByAsync {
     case (userId, user) =>
-      userService.updateUser(userId, user).unsafeToFuture()
+      userService.updateUser(session)(userId, user).unsafeToFuture()
   }
 
   /** User route implementation */
-  val getUserRoute: Route = getUser.implementedByAsync { userId =>
-    userService.getUser(userId).unsafeToFuture()
+  def getUserRoute(session: Session): Route = getUser.implementedByAsync { userId =>
+    userService.getUser(session)(userId).unsafeToFuture()
   }
 
   /** User keys route implementation */
@@ -40,9 +41,9 @@ class UserRoutes(userService: UserService[IO])
   }
 
   /** Concatenated User routes */
-  val routes: Route = concat(
-    updateUserRoute,
-    getUserRoute,
+  def routes(session: Session): Route = concat(
+    updateUserRoute(session),
+    getUserRoute(session),
     getUserKeysRoute
   )
 

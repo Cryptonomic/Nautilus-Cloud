@@ -1,15 +1,18 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
+import endpoints.algebra.Endpoints
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.UserSchemas
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
 
 /** User relevant endpoints */
 trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsUtil {
 
   /** User update endpoint definition */
-  def updateUser: Endpoint[(Int, UpdateUser), Unit] =
+  def updateUser: Endpoint[(UserId, UpdateUser), Unit] =
     endpoint(
       request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UpdateUser]()),
       response = emptyResponse().withCreatedStatus(),
@@ -17,9 +20,9 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
     )
 
   /** User endpoint definition */
-  def getUser: Endpoint[Int, Option[User]] =
+  def getUser: Endpoint[UserId, Option[User]] =
     endpoint(
-      request = get(url = path / "users" / segment[Int]("userId")),
+      request = get(url = path / "users" / segment[UserId]("userId")),
       response = jsonResponse[User]().orNotFound(),
       tags = List("User")
     )
