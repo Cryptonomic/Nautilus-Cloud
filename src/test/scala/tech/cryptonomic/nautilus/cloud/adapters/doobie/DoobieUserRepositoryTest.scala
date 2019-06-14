@@ -5,7 +5,7 @@ import java.time.Instant
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class DoobieUserRepositoryTest

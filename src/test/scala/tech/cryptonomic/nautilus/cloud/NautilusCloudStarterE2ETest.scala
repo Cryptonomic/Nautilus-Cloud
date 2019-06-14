@@ -4,7 +4,7 @@ import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
 
 import com.softwaremill.sttp._
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{InMemoryDatabase, WireMockServer}
 
