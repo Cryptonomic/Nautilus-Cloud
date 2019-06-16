@@ -66,7 +66,7 @@ class NautilusCloudStarterE2ETest
           sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/1").send()
+        val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
 
         // then
         response.code shouldBe HTTP_FORBIDDEN
