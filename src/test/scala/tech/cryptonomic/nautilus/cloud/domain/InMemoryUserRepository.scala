@@ -13,12 +13,12 @@ class InMemoryUserRepository[F[_]](implicit monad: Monad[F]) extends UserReposit
     * in order to be consistent with a real database we adjust reads and writes to keep indexing starting from 1 not
     * from 0
     */
-  var users = List[User]()
+  var users: List[User] = List.empty
 
   /** Creates user */
   override def createUser(user: CreateUser): F[Either[Throwable, UserId]] = this.synchronized {
     val userId = users.size + 1
-    users = users.+:(user.toUser(userId))
+    users = users :+ user.toUser(userId)
     monad.pure(Right(userId))
   }
 

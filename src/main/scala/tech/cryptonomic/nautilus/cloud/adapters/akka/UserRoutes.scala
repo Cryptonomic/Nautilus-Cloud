@@ -45,14 +45,6 @@ class UserRoutes(userService: UserService[IO])
     Some(UsageLeft("dummyKey", 500, 15000))
   }
 
-  /** Concatenated User routes */
-  def routes(session: Session): Route = concat(
-    getCurrentUserRoute(session),
-    updateUserRoute,
-    getUserRoute,
-    getUserKeysRoute
-  )
-
   /** Extension for using Created status code */
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>
     complete(HttpResponse(StatusCodes.Created, entity = HttpEntity(entity.toString)))
