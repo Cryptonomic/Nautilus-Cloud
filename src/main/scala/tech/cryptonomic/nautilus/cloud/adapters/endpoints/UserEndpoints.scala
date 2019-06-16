@@ -1,10 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
-import endpoints.algebra.Endpoints
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.UserSchemas
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
 
@@ -16,6 +14,14 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
     endpoint(
       request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UpdateUser]()),
       response = emptyResponse().withCreatedStatus(),
+      tags = List("User")
+    )
+
+  /** Current user endpoint definition */
+  def getCurrentUser: Endpoint[Unit, Option[User]] =
+    endpoint(
+      request = get(url = path / "users" / "me"),
+      response = jsonResponse[User]().orNotFound(),
       tags = List("User")
     )
 

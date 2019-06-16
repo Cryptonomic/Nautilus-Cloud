@@ -9,12 +9,15 @@ import scala.language.higherKinds
 /** User service implementation */
 class UserService[F[_]](userRepo: UserRepository[F], apiKeyRepo: ApiKeyRepository[F]) {
 
+  /** Get current user */
+  def getCurrentUser(session: Session): F[Option[User]] = userRepo.getUserByEmailAddress(session.email)
+
   /** Updated user */
-  def updateUser(session: Session)(id: Int, user: UpdateUser): F[Unit] =
+  def updateUser(id: Int, user: UpdateUser): F[Unit] =
     userRepo.updateUser(id, user)
 
   /** Returns user with given ID */
-  def getUser(session: Session)(userId: Int): F[Option[User]] =
+  def getUser(userId: Int): F[Option[User]] =
     userRepo.getUser(userId)
 
   /** Returns API Keys for user with given ID */

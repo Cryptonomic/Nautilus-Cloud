@@ -34,7 +34,7 @@ class UserRoutesTest
           uri = "/users/1",
           entity = HttpEntity(MediaTypes.`application/json`, exampleUserJson)
         )
-        putRequest ~> sut.updateUserRoute(userSession) ~> check {
+        putRequest ~> sut.updateUserRoute ~> check {
           status shouldEqual StatusCodes.Created
         }
       }
@@ -42,7 +42,7 @@ class UserRoutesTest
       "get user" in {
         (userRepository.getUser _).when(*).returns(IO.pure(Some(exampleUser)))
 
-        Get("/users/1") ~> sut.getUserRoute(userSession) ~> check {
+        Get("/users/1") ~> sut.getUserRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson(exampleUserJson)

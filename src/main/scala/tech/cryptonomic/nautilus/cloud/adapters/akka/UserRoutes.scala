@@ -20,14 +20,19 @@ class UserRoutes(userService: UserService[IO])
     with server.JsonSchemaEntities {
 
   /** User update route implementation */
-  def updateUserRoute(session: Session): Route = updateUser.implementedByAsync {
+  val updateUserRoute: Route = updateUser.implementedByAsync {
     case (userId, user) =>
-      userService.updateUser(session)(userId, user).unsafeToFuture()
+      userService.updateUser(userId, user).unsafeToFuture()
   }
 
   /** User route implementation */
-  def getUserRoute(session: Session): Route = getUser.implementedByAsync { userId =>
-    userService.getUser(session)(userId).unsafeToFuture()
+  val getUserRoute: Route = getUser.implementedByAsync { userId =>
+    userService.getUser(userId).unsafeToFuture()
+  }
+
+  /** Current user route implementation */
+  def getCurrentUserRoute(session: Session): Route = getCurrentUser.implementedByAsync { _ =>
+    userService.getCurrentUser(session).unsafeToFuture()
   }
 
   /** User keys route implementation */
@@ -42,8 +47,9 @@ class UserRoutes(userService: UserService[IO])
 
   /** Concatenated User routes */
   def routes(session: Session): Route = concat(
-    updateUserRoute(session),
-    getUserRoute(session),
+    getCurrentUserRoute(session),
+    updateUserRoute,
+    getUserRoute,
     getUserKeysRoute
   )
 

@@ -4,7 +4,6 @@ import cats.Monad
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
-import scala.collection.mutable
 import scala.language.higherKinds
 
 class InMemoryUserRepository[F[_]](implicit monad: Monad[F]) extends UserRepository[F] {

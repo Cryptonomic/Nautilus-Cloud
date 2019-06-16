@@ -6,6 +6,7 @@ import com.softwaremill.sttp._
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.JsonMatchers
 import tech.cryptonomic.nautilus.cloud.tools.{InMemoryDatabase, WireMockServer}
 
 class NautilusCloudStarterE2ETest
@@ -15,6 +16,7 @@ class NautilusCloudStarterE2ETest
     with EitherValues
     with OptionValues
     with InMemoryDatabase
+    with JsonMatchers
     with WireMockServer {
 
   implicit val sttpBackend = HttpURLConnectionBackend()
@@ -24,6 +26,7 @@ class NautilusCloudStarterE2ETest
   NautilusCloud.main(Array.empty)
 
   "users API" should {
+
       "return HTTP 403 FORBIDDEN when user is not logged-in" in {
         // when
         val response = sttp.get(uri"http://localhost:1235/users/1").send()
@@ -70,11 +73,11 @@ class NautilusCloudStarterE2ETest
       }
     }
 
-  "current_login endpoint" should {
+  "/users/me endpoint" should {
 
       "return HTTP 403 FORBIDDEN when user is not logged-in" in {
         // when
-        val request = sttp.get(uri"http://localhost:1235/current_login").send()
+        val request = sttp.get(uri"http://localhost:1235/users/me").send()
 
         // then
         request.code shouldBe HTTP_FORBIDDEN
@@ -87,11 +90,11 @@ class NautilusCloudStarterE2ETest
           sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/current_login").cookies(authCodeResult.cookies).send()
+        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCodeResult.cookies).send()
 
         // and
         response.code shouldBe HTTP_OK
-        response.body.right.value shouldBe "{\"email\": \"name@domain.com\", \"role\": \"User\"}"
+        response.body.right.value should matchJson("{\"userEmail\": \"name@domain.com\", \"userRole\": \"user\"}")
       }
     }
 

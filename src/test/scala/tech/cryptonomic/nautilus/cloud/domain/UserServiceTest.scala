@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import java.time.Instant
-
 import cats.Id
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
@@ -10,6 +8,7 @@ import org.scalatest.Matchers
 import org.scalatest.WordSpec
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
@@ -33,8 +32,6 @@ class UserServiceTest
     override def getUserApiKeys(userId: Int): List[ApiKey] = List(exampleApiKey)
   }
 
-  val now = Instant.now
-
   val userRepository = new InMemoryUserRepository[Id]()
 
   val sut = new UserService[Id](userRepository, apiKeyRepo)
@@ -47,27 +44,47 @@ class UserServiceTest
   "UserService" should {
       "get existing user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, now, AuthenticationProvider.Github))
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
 
         // expect
         sut
-          .getUser(adminSession)(1)
-          .value shouldBe User(1, "user@domain.com", Role.Administrator, now, AuthenticationProvider.Github, None)
+          .getUser(1)
+          .value shouldBe User(1, "user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, None)
+      }
+
+      "get None when there is no existing user" in {
+        // expect
+        sut.getUser(1) shouldBe None
+      }
+
+      "get current user" in {
+        // given
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
+
+        // expect
+        sut
+          .getCurrentUser(Session("user@domain.com", AuthenticationProvider.Github, Role.User))
+          .value shouldBe User(1, "user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, None)
+      }
+
+      "get None when there is no current user" in {
+        // expect
+        sut.getCurrentUser(Session("user@domain.com", AuthenticationProvider.Github, Role.User)) shouldBe None
       }
 
       "updateUser" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, now, AuthenticationProvider.Github))
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
 
         // when
-        sut.updateUser(adminSession)(1, UpdateUser(Role.User, Some("some description")))
+        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))
 
         // then
-        sut.getUser(userSession)(1).value shouldBe User(
+        sut.getUser(1).value shouldBe User(
           1,
           "user@domain.com",
           Role.User,
-          now,
+          time,
           AuthenticationProvider.Github,
           Some("some description")
         )
