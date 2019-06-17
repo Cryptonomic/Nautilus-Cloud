@@ -21,8 +21,6 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
 
         override def getUserApiKeys(userId: Int): IO[List[ApiKey]] = ???
 
-        override def getUserApiKeys(userId: Int): IO[List[ApiKey]] = ???
-
         override def getKeysUsageForUser(userId: Int): IO[List[UsageLeft]] = ???
 
         override def getKeyUsage(key: String): IO[Option[UsageLeft]] = ???

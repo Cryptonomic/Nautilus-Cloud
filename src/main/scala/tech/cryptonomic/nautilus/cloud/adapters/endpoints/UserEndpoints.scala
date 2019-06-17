@@ -20,7 +20,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
   def updateUser: Endpoint[(Int, UpdateUser), Unit] =
     endpoint(
       request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UpdateUser]()),
-      response = emptyResponse(Some("User updated!")).withCreatedStatus(),
+      response = emptyResponse(Some("User updated!")),
       tags = List("User")
     )
 

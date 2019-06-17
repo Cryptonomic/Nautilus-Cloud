@@ -19,7 +19,7 @@ trait Fixtures {
 
   val exampleUpdateUser = UpdateUser("email@example.com", Role.User, Github, None)
 
-  val examleUsageLeft = UsageLeft("apikey", 500, 15000)
+  val exampleUsageLeft = UsageLeft("apikey", 500, 15000)
 
   val exampleApiKeyAsJson =
     """

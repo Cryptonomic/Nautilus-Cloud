@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import endpoints.algebra
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.UsageLeft
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User}
 
 /** Schemas used for User endpoints */

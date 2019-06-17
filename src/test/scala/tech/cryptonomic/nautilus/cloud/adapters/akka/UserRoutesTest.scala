@@ -63,7 +63,7 @@ class UserRoutesTest
           entity = HttpEntity(MediaTypes.`application/json`, exampleUserJson)
         )
         putRequest ~> sut.updateUserRoute ~> check {
-          status shouldEqual StatusCodes.Created
+          status shouldEqual StatusCodes.OK
         }
       }
 
@@ -88,12 +88,13 @@ class UserRoutesTest
       }
 
       "get user API keys usage" in {
+        (apiKeyRepo.getKeysUsageForUser _).when(*).returns(IO.pure(List(exampleUsageLeft)))
         Get("/users/1/usage") ~> sut.getApiKeyUsageRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson(exampleUsageJson)
         }
       }
-    }
   }
+
 }

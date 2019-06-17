@@ -5,7 +5,11 @@ import java.time.Instant
 import cats.Monad
 import cats.implicits._
 import cats.data.EitherT
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationConfiguration,
+  AuthenticationProviderRepository,
+  Session
+}
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 
 import scala.language.higherKinds

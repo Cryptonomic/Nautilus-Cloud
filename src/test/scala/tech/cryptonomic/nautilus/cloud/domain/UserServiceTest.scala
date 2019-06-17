@@ -16,9 +16,9 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures with EitherVa
 
     override def getUserApiKeys(userId: Int): List[ApiKey] = List(exampleApiKey)
 
-    override def getKeysUsageForUser(userId: Int): Id[List[UsageLeft]] = List(examleUsageLeft)
+    override def getKeysUsageForUser(userId: Int): Id[List[UsageLeft]] = List(exampleUsageLeft)
 
-    override def getKeyUsage(key: String): Id[Option[UsageLeft]] = Some(examleUsageLeft)
+    override def getKeyUsage(key: String): Id[Option[UsageLeft]] = Some(exampleUsageLeft)
 
     override def updateKeyUsage(usage: UsageLeft): Id[Unit] = ()
   }
@@ -49,7 +49,7 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures with EitherVa
       sut.getUserApiKeys(0) shouldBe List(exampleApiKey)
     }
     "getKeyUsage" in {
-      sut.getUserApiKeysUsage(1) shouldBe List(examleUsageLeft)
+      sut.getUserApiKeysUsage(1) shouldBe List(exampleUsageLeft)
     }
   }
 }
