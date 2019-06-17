@@ -2,21 +2,16 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 
 import java.time.Instant
 
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import io.scalaland.chimney.dsl._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
-/** Class representing User */
-case class User(
-    userId: UserId,
+/** Class used in user registration and update */
+case class CreateUser(
     userEmail: String,
     userRole: Role,
     registrationDate: Instant,
     accountSource: AuthenticationProvider,
     accountDescription: Option[String] = None
 ) {
-  val asSession = Session(userEmail, accountSource, userRole)
-}
-
-object User {
-  type UserId = Int
+  def toUser(id: UserId): User = this.into[User].withFieldConst(_.userId, id).transform
 }

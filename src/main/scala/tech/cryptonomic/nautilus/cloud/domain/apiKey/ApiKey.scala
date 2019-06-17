@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
-import java.sql.Timestamp
+import java.time.Instant
 
 /** Class representing API Key */
 case class ApiKey(
@@ -9,6 +9,6 @@ case class ApiKey(
     resourceId: Int,
     userId: Int,
     tierId: Int,
-    dateIssued: Option[Timestamp],
-    dateSuspended: Option[Timestamp]
+    dateIssued: Option[Instant],
+    dateSuspended: Option[Instant]
 )

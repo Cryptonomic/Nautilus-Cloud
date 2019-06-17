@@ -1,53 +1,32 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp
 
-import cats.Id
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
+import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.WireMockServer
 
-import scala.concurrent.duration._
-import scala.language.postfixOps
+class SttpGithubAuthenticationProviderRepositoryTest
+    extends WordSpec
+    with Matchers
+    with Fixtures
+    with EitherValues
+    with BeforeAndAfterEach
+    with WireMockServer {
 
-class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Matchers with Fixtures with EitherValues with BeforeAndAfterEach {
+  val context = NautilusContext
+  val authRepository = context.authRepository
 
-  val port = 8089
-  val host = "localhost"
-
-  val wireMockServer = new WireMockServer(port)
-
-  private val config = GithubConfig(
-    clientId = "clientId",
-    clientSecret = "clientSecret",
-    accessTokenUrl = "http://localhost:8089/login/oauth/access_token",
-    loginUrl = "http://localhost:8089/login/oauth/authorize",
-    emailsUrl = "http://localhost:8089/user/emails",
-    connectionTimeout = 100 milliseconds,
-    readTimeout = 100 milliseconds
-  )
   implicit val sttpBackend = HttpURLConnectionBackend()
-  val oauthRepository = new SttpGithubAuthenticationProviderRepository[Id](config)
 
-  override def beforeEach {
-    wireMockServer.start()
-    WireMock.configureFor(host, port)
-    wireMockServer.resetAll()
-  }
-
-  override def afterEach {
-    wireMockServer.stop()
-  }
-
-  "SttpOauthRepository" should {
+  "SttpGithubAuthenticationProviderRepository" should {
 
       "exchange code for an access token" in {
         // given
         stubFor(
           post(urlEqualTo("/login/oauth/access_token"))
-            .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
+            .withRequestBody(equalTo("client_id=client-id&client_secret=client-secret&code=authCode"))
             .willReturn(
               aResponse()
                 .withBody("""{"access_token": "stubbed-access-token"}""")
@@ -55,45 +34,18 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // expect
-        oauthRepository.exchangeCodeForAccessToken("authCode").right.value shouldBe "stubbed-access-token"
-      }
-
-      // given
-      "return a SttpOauthServiceException when oauth server is not accessible when fetching access token" in {
-        //when
-        wireMockServer.stop()
-
-        // when
-        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
-
-        // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
-      }
-
-      "return a SttpOauthServiceException when request for access token times out" in {
-        // given
-        stubFor(
-          post(urlEqualTo("/login/oauth/access_token"))
-            .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
-            .willReturn(
-              aResponse()
-                .withBody("""{"access_token": "stubbed-access-token"}""")
-                .withFixedDelay(100000)
-            )
-        )
-
-        // when
-        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
-
-        // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        authRepository
+          .exchangeCodeForAccessToken("authCode")
+          .unsafeRunSync()
+          .right
+          .value shouldBe "stubbed-access-token"
       }
 
       "return a SttpOauthServiceException when oauth server returns other response code when fetching access token" in {
         // given
         stubFor(
           post(urlEqualTo("/login/oauth/access_token"))
-            .withRequestBody(equalTo("client_id=clientId&client_secret=clientSecret&code=authCode"))
+            .withRequestBody(equalTo("client_id=client-id&client_secret=client-secret&code=authCode"))
             .willReturn(
               aResponse()
                 .withStatus(503)
@@ -101,10 +53,10 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // when
-        val result = oauthRepository.exchangeCodeForAccessToken("authCode")
+        val result = authRepository.exchangeCodeForAccessToken("authCode")
 
         // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        result.unsafeRunSync().left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       // given
@@ -126,45 +78,7 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // expect
-        oauthRepository.fetchEmail("stubbed-access-token").right.value shouldBe "name@domain.com"
-      }
-
-      // given
-      "return a SttpOauthServiceException when oauth server is not accessible when fetching email" in {
-        //when
-        wireMockServer.stop()
-
-        // when
-        val result = oauthRepository.fetchEmail("access-token")
-
-        // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
-      }
-
-      "return a SttpOauthServiceException when request for email times out" in {
-        // given
-        stubFor(
-          get(urlEqualTo("/user/emails"))
-            .withHeader("Authorization", equalTo("Bearer stubbed-access-token"))
-            .willReturn(
-              aResponse()
-                .withBody("""[
-                            |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
-                            |        "primary": true,
-                            |        "verified": true,
-                            |        "visibility": "public"
-                            |    }
-                            |]""".stripMargin)
-                .withFixedDelay(10000)
-            )
-        )
-
-        // when
-        val result = oauthRepository.fetchEmail("stubbed-access-token")
-
-        // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        authRepository.fetchEmail("stubbed-access-token").unsafeRunSync().right.value shouldBe "name@domain.com"
       }
 
       "return a SttpOauthServiceException when oauth server returns other response code when fetching email" in {
@@ -179,10 +93,10 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // when
-        val result = oauthRepository.fetchEmail("stubbed-access-token")
+        val result = authRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        result.unsafeRunSync().left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns no verified email" in {
@@ -194,7 +108,7 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": true,
                             |        "verified": false,
                             |        "visibility": "public"
@@ -204,10 +118,10 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // when
-        val result = oauthRepository.fetchEmail("stubbed-access-token")
+        val result = authRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        result.unsafeRunSync().left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
 
       "return a SttpOauthServiceException when oauth server returns no primary email" in {
@@ -219,7 +133,7 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
               aResponse()
                 .withBody("""[
                             |    {
-                            |        "email": "dorian.sarnowski@gmail.com",
+                            |        "email": "name@domain.com",
                             |        "primary": false,
                             |        "verified": true,
                             |        "visibility": "public"
@@ -229,10 +143,10 @@ class SttpGithubAuthenticationProviderRepositoryTest extends WordSpec with Match
         )
 
         // when
-        val result = oauthRepository.fetchEmail("stubbed-access-token")
+        val result = authRepository.fetchEmail("stubbed-access-token")
 
         // then
-        result.left.value shouldBe a[SttpGithubAuthenticationProviderException]
+        result.unsafeRunSync().left.value shouldBe a[SttpGithubAuthenticationProviderException]
       }
     }
 }

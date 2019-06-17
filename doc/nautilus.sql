@@ -17,11 +17,10 @@ CREATE TABLE tiers(
 );
 CREATE TABLE users(
     userid serial PRIMARY KEY,
-    username text NOT NULL,
-    useremail text NOT NULL,
+    useremail text NOT NULL UNIQUE,
     userrole text NOT NULL DEFAULT 'user',
     registrationdate timestamp NOT NULL,
-    accountsource text,
+    accountsource text NOT NULL,
     accountdescription text
 );
 CREATE TABLE api_keys(
@@ -30,8 +29,8 @@ CREATE TABLE api_keys(
     resourceid integer NOT NULL,
     userid integer NOT NULL,
     tierid integer NOT NULL,
-    dateissued timestamp,
-    datesuspended timestamp,
+    dateissued timestamp with time zone,
+    datesuspended timestamp with time zone,
     CONSTRAINT resourceid_fk FOREIGN KEY (resourceid)
       REFERENCES resources (resourceid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
