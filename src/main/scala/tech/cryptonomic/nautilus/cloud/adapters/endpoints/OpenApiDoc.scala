@@ -19,6 +19,7 @@ object OpenApiDoc
     updateUser,
     getUser,
     getUserKeys,
+    getCurrentUser,
     getApiKeyUsage
   )
 
