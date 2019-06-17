@@ -17,7 +17,7 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       tags = List("User")
     )
 
-  /** Current user endpoint definition */
+  /** Currently logged-in user endpoint definition */
   def getCurrentUser: Endpoint[Unit, Option[User]] =
     endpoint(
       request = get(url = path / "users" / "me"),

@@ -73,7 +73,7 @@ class NautilusCloudStarterE2ETest
       }
     }
 
-  "/users/me endpoint" should {
+  "get current user endpoint" should {
 
       "return HTTP 403 FORBIDDEN when user is not logged-in" in {
         // when

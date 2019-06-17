@@ -1,19 +1,18 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Monad
+import cats.Applicative
+import cats.implicits._
+import cats.syntax.applicative._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.{
-  AccessToken,
-  Code,
-  Email,
-  Result
-}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.AccessToken
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Code
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
 
 import scala.collection.mutable
 import scala.language.higherKinds
 
-class InMemoryAuthenticationProviderRepository[F[_]](implicit monad: Monad[F])
-    extends AuthenticationProviderRepository[F] {
+class InMemoryAuthenticationProviderRepository[F[_]: Applicative] extends AuthenticationProviderRepository[F] {
 
   private val availableAuthentications = new mutable.MutableList[(Code, AccessToken, Email)]
 
@@ -26,18 +25,14 @@ class InMemoryAuthenticationProviderRepository[F[_]](implicit monad: Monad[F])
   }
 
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = this.synchronized {
-    monad.pure(
-      availableAuthentications.collectFirst {
-        case (`code`, accessToken, _) => accessToken
-      }.toRight(new RuntimeException)
-    )
+    availableAuthentications.collectFirst {
+      case (`code`, accessToken, _) => accessToken
+    }.toRight(new RuntimeException).pure
   }
 
   override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = this.synchronized {
-    monad.pure(
-      availableAuthentications.collectFirst {
-        case (_, `accessToken`, email) => email
-      }.toRight(new RuntimeException)
-    )
+    availableAuthentications.collectFirst {
+      case (_, `accessToken`, email) => email
+    }.toRight(new RuntimeException).pure
   }
 }
