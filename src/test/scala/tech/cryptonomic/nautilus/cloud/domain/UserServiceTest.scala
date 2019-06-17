@@ -6,9 +6,9 @@ import org.scalatest.OptionValues
 import org.scalatest.EitherValues
 import org.scalatest.Matchers
 import org.scalatest.WordSpec
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
+import tech.cryptonomic.nautilus.cloud.domain.authentication.PermissionDenied
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
@@ -24,17 +24,10 @@ class UserServiceTest
     with OptionValues
     with BeforeAndAfterEach {
 
-  val apiKeyRepo = new ApiKeyRepository[Id] {
-    override def getAllApiKeys: List[ApiKey] = List(exampleApiKey)
-
-    override def validateApiKey(apiKey: String): Boolean = ???
-
-    override def getUserApiKeys(userId: Int): List[ApiKey] = List(exampleApiKey)
-  }
-
+  val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
   val userRepository = new InMemoryUserRepository[Id]()
 
-  val sut = new UserService[Id](userRepository, apiKeyRepo)
+  val sut = new UserService[Id](userRepository, apiKeyRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()
@@ -48,13 +41,24 @@ class UserServiceTest
 
         // expect
         sut
-          .getUser(1)
+          .getUser(1)(adminSession)
+          .right
+          .value
           .value shouldBe User(1, "user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, None)
       }
 
       "get None when there is no existing user" in {
         // expect
-        sut.getUser(1) shouldBe None
+        sut.getUser(1)(adminSession)
+          .right
+          .value shouldBe None
+      }
+
+      "get PermissionDenied when requesting user is not an admin" in {
+        // expect
+        sut.getUser(1)(userSession)
+          .left
+          .value shouldBe a[PermissionDenied]
       }
 
       "get current user" in {
@@ -63,24 +67,24 @@ class UserServiceTest
 
         // expect
         sut
-          .getCurrentUser(Session("user@domain.com", AuthenticationProvider.Github, Role.User))
+          .getCurrentUser(adminSession.copy(email = "user@domain.com"))
           .value shouldBe User(1, "user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, None)
       }
 
       "get None when there is no current user" in {
         // expect
-        sut.getCurrentUser(Session("user@domain.com", AuthenticationProvider.Github, Role.User)) shouldBe None
+        sut.getCurrentUser(adminSession.copy("non-existing-user@domain.com")) shouldBe None
       }
 
-      "updateUser" in {
+      "update user" in {
         // given
         userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
 
         // when
-        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))
+        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
 
         // then
-        sut.getUser(1).value shouldBe User(
+        sut.getUser(1)(adminSession).right.value.value shouldBe User(
           1,
           "user@domain.com",
           Role.User,
@@ -90,9 +94,22 @@ class UserServiceTest
         )
       }
 
-      "getUserApiKeys" in {
-        sut.getUserApiKeys(0) shouldBe List(exampleApiKey)
+      "get PermissionDenied on updating user when requesting user is not an admin" in {
+        // when
+        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
+
+        // then
+        sut.getUser(1)(userSession).left.value shouldBe a[PermissionDenied]
       }
 
+      "getUserApiKeys" in {
+        // given
+        apiKeyRepository.add(exampleApiKey.copy(keyId = 1, userId = 1))
+        apiKeyRepository.add(exampleApiKey.copy(keyId = 2, userId = 1))
+        apiKeyRepository.add(exampleApiKey.copy(keyId = 3, userId = 2))
+
+        //
+        sut.getUserApiKeys(1).map(_.keyId) shouldBe List(1, 2)
+      }
     }
 }

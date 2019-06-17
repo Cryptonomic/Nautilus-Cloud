@@ -1,20 +1,24 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.server.Route
-import endpoints.akkahttp.server
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import cats.effect.IO
+import com.typesafe.scalalogging.StrictLogging
+import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ApiKeyEndpoints
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointsUtils
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** API Keys routes implementation */
 class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     extends ApiKeyEndpoints
     with server.Endpoints
-    with server.JsonSchemaEntities {
+    with EndpointsUtils
+    with StrictLogging {
 
   /** Routes implementation for getting all ApiKeys */
-  val getAllApiKeysRoute: Route = getAllKeys.implementedByAsync { _ =>
+  def getAllApiKeysRoute(implicit session: Session): Route = getAllKeys.implementedByAsync { _ =>
     apiKeysService.getAllApiKeys.unsafeToFuture()
   }
 
@@ -25,7 +29,7 @@ class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     }
 
   /** Concatenated API keys routes */
-  val routes: Route = concat(
+  def routes(implicit session: Session): Route = concat(
     getAllApiKeysRoute,
     validateApiKeyRoute
   )
