@@ -6,7 +6,7 @@ import com.softwaremill.sttp._
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{InMemoryDatabase, WireMockServer}
+import tech.cryptonomic.nautilus.cloud.tools.{InMemoryDatabase, NautilusTestRunner, WireMockServer}
 
 class NautilusCloudStarterE2ETest
     extends WordSpec
@@ -15,13 +15,12 @@ class NautilusCloudStarterE2ETest
     with EitherValues
     with OptionValues
     with InMemoryDatabase
+    with NautilusTestRunner
     with WireMockServer {
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
   val nautilusContext = NautilusContext
-
-  NautilusCloud.main(Array.empty)
 
   "users API" should {
       "return HTTP 403 FORBIDDEN when user is not logged-in" in {
