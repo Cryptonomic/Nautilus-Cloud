@@ -2,7 +2,6 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
-import cats.syntax.applicative._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.AccessToken
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Code
@@ -26,12 +25,12 @@ class InMemoryAuthenticationProviderRepository[F[_]: Applicative] extends Authen
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (`code`, accessToken, _) => accessToken
-    }.toRight(new RuntimeException).pure
+    }.toRight(new Throwable).pure[F]
   }
 
   override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (_, `accessToken`, email) => email
-    }.toRight(new RuntimeException).pure
+    }.toRight(new Throwable).pure[F]
   }
 }
