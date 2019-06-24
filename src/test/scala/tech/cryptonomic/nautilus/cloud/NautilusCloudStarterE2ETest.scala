@@ -94,7 +94,7 @@ class NautilusCloudStarterE2ETest
 
         // and
         response.code shouldBe HTTP_OK
-        response.body.right.value should matchJson("{\"userEmail\": \"name@domain.com\", \"userRole\": \"user\"}")
+        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
     }
 
