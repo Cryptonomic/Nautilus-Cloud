@@ -25,12 +25,12 @@ class InMemoryAuthenticationProviderRepository[F[_]: Applicative] extends Authen
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (`code`, accessToken, _) => accessToken
-    }.toRight(new Throwable).pure[F]
+    }.toRight(new Throwable).pure
   }
 
   override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (_, `accessToken`, email) => email
-    }.toRight(new Throwable).pure[F]
+    }.toRight(new Throwable).pure
   }
 }

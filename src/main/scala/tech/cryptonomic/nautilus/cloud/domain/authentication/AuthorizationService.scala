@@ -11,9 +11,9 @@ object AuthorizationService {
 
   def requiredRole[F[_], T](
       requiredRole: Role
-  )(f: => F[T])(implicit session: Session, applicative: Applicative[F]): F[Either[PermissionDenied, T]] =
+  )(f: => F[T])(implicit session: Session, applicative: Applicative[F]): F[Permission[T]] =
     if (requiredRole == session.role)
       f.map(Right(_))
     else
-      applicative.pure(Left(PermissionDenied(requiredRole, session.role)))
+      (Left(PermissionDenied(requiredRole, session.role)): Permission[T]).pure
 }

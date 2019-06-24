@@ -1,13 +1,14 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
+import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
 
-class InMemoryApiKeyRepository[F[_]](implicit monad: Monad[F]) extends ApiKeyRepository[F] {
+class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** list of all api keys
     *
@@ -22,17 +23,17 @@ class InMemoryApiKeyRepository[F[_]](implicit monad: Monad[F]) extends ApiKeyRep
 
   /** Query returning all API keys from the DB */
   override def getAllApiKeys: F[List[ApiKey]] = this.synchronized {
-    monad.pure(apiKeys)
+    apiKeys.pure
   }
 
   /** Query checking if API key is valid */
   override def validateApiKey(apiKey: String): F[Boolean] = this.synchronized {
-    monad.pure(apiKeys.exists(_.key == apiKey))
+    apiKeys.exists(_.key == apiKey).pure
   }
 
   /** Query returning API keys connected to user */
   override def getUserApiKeys(userId: UserId): F[List[ApiKey]] = this.synchronized {
-    monad.pure(apiKeys.filter(_.userId == userId))
+    apiKeys.filter(_.userId == userId).pure
   }
 
   /** Clears repository */
