@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp
 
-import cats.{Applicative, Monad}
+import cats.Applicative
 import cats.implicits._
 import com.softwaremill.sttp._
 import io.circe.generic.auto._

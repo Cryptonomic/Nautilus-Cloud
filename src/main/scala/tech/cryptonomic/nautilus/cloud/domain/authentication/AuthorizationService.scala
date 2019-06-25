@@ -9,9 +9,9 @@ import scala.language.higherKinds
 object AuthorizationService {
   type Permission[T] = Either[PermissionDenied, T]
 
-  def requiredRole[F[_], T](
+  def requiredRole[F[_]: Applicative, T](
       requiredRole: Role
-  )(f: => F[T])(implicit session: Session, applicative: Applicative[F]): F[Permission[T]] =
+  )(f: => F[T])(implicit session: Session): F[Permission[T]] =
     if (requiredRole == session.role)
       f.map(Right(_))
     else
