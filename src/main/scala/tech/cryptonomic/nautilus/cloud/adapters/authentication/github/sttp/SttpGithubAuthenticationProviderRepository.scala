@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp
 
-import cats.Monad
+import cats.{Applicative, Monad}
 import cats.implicits._
 import com.softwaremill.sttp._
 import io.circe.generic.auto._
@@ -13,7 +13,7 @@ import scala.language.higherKinds
 import scala.util.Try
 
 /* Github authentication provider */
-class SttpGithubAuthenticationProviderRepository[F[_]: Monad](config: GithubConfig)(
+class SttpGithubAuthenticationProviderRepository[F[_]: Applicative](config: GithubConfig)(
     implicit sttpBackend: SttpBackend[F, Nothing]
 ) extends AuthenticationProviderRepository[F] {
 
@@ -66,8 +66,8 @@ class SttpGithubAuthenticationProviderRepository[F[_]: Monad](config: GithubConf
 
   private def safeCall(value: => F[Result[String]]): F[Result[String]] =
     Try(value).recover {
-      case error: Throwable => embeddedError(error).pure
-      case _ => unknownError.pure
+      case error: Throwable => embeddedError(error).pure[F]
+      case _ => unknownError.pure[F]
     }.get
 
   final private case class EmailResponse(email: String, primary: Boolean, verified: Boolean)

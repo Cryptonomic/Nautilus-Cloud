@@ -1,7 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
-import cats.Monad
+import cats.Applicative
 import cats.implicits._
+import cats.instances.unit
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
 import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
@@ -10,7 +11,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
 
 import scala.language.higherKinds
 
-class InMemoryUserRepository[F[_]: Monad] extends UserRepository[F] {
+class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
 
   /** list of all users
     *
@@ -23,7 +24,7 @@ class InMemoryUserRepository[F[_]: Monad] extends UserRepository[F] {
   override def createUser(user: CreateUser): F[Either[Throwable, UserId]] = this.synchronized {
     val userId = users.size + 1
     users = users :+ user.toUser(userId)
-    Right(userId).pure
+    (Right(userId): Either[Throwable, UserId]).pure[F]
   }
 
   /** Updates user */
@@ -36,17 +37,17 @@ class InMemoryUserRepository[F[_]: Monad] extends UserRepository[F] {
         )
       case it => it
     }
-    Unit.pure
+    ().pure[F]
   }
 
   /** Returns user */
   override def getUser(id: UserId): F[Option[User]] = this.synchronized {
-    users.find(_.userId == id).pure
+    users.find(_.userId == id).pure[F]
   }
 
   /** Returns user by email address */
   override def getUserByEmailAddress(email: String): F[Option[User]] = this.synchronized {
-    users.find(_.userEmail == email).pure
+    users.find(_.userEmail == email).pure[F]
   }
 
   /** Clears repository */

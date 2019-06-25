@@ -23,17 +23,17 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** Query returning all API keys from the DB */
   override def getAllApiKeys: F[List[ApiKey]] = this.synchronized {
-    apiKeys.pure
+    apiKeys.pure[F]
   }
 
   /** Query checking if API key is valid */
   override def validateApiKey(apiKey: String): F[Boolean] = this.synchronized {
-    apiKeys.exists(_.key == apiKey).pure
+    apiKeys.exists(_.key == apiKey).pure[F]
   }
 
   /** Query returning API keys connected to user */
   override def getUserApiKeys(userId: UserId): F[List[ApiKey]] = this.synchronized {
-    apiKeys.filter(_.userId == userId).pure
+    apiKeys.filter(_.userId == userId).pure[F]
   }
 
   /** Clears repository */

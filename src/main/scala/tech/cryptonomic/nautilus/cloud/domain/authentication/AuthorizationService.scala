@@ -15,5 +15,5 @@ object AuthorizationService {
     if (requiredRole == session.role)
       f.map(Right(_))
     else
-      (Left(PermissionDenied(requiredRole, session.role)): Permission[T]).pure
+      (Left(PermissionDenied(requiredRole, session.role)): Permission[T]).pure[F]
 }
