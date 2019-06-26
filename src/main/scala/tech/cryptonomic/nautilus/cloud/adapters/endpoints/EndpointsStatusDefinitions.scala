@@ -13,7 +13,7 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
   /** Extension for using Conflict status code */
   def conflict[A](response: Response[A], invalidDocs: Documentation): Response[Option[A]]
 
-  /** Extension for using Conflict status code */
+  /** Extension for using Forbidden status code */
   def forbidden[A](response: Response[A], invalidDocs: Documentation): Response[Permission[A]]
 
   /** Extensions for [[Response]]. */
@@ -25,7 +25,7 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
     /** syntax for `conflict` */
     final def orConflict(conflictDocs: Documentation = None): Response[Option[A]] = conflict(response, conflictDocs)
 
-    /** syntax for `conflict` */
+    /** syntax for `forbidden` */
     final def orForbidden(forbiddenDocs: Documentation = None): Response[Permission[A]] =
       forbidden(response, forbiddenDocs)
   }

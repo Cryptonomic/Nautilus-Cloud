@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointsUtils
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.domain.UserService
@@ -18,7 +18,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 class UserRoutes(userService: UserService[IO])
     extends UserEndpoints
     with server.Endpoints
-    with EndpointsUtils
+    with EndpointStatusSyntax
     with StrictLogging {
 
   /** User update route implementation */

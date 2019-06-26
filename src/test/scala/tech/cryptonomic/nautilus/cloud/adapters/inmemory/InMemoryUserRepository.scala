@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
-import cats.instances.unit
+import cats.syntax.either._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
 import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
@@ -24,7 +24,7 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
   override def createUser(user: CreateUser): F[Either[Throwable, UserId]] = this.synchronized {
     val userId = users.size + 1
     users = users :+ user.toUser(userId)
-    (Right(userId): Either[Throwable, UserId]).pure[F]
+    userId.asRight[Throwable].pure[F]
   }
 
   /** Updates user */

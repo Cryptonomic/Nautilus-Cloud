@@ -15,7 +15,6 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, 
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieUserRepository}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService
 import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, UserService}
 
 import scala.concurrent.ExecutionContext

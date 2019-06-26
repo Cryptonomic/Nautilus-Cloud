@@ -6,5 +6,5 @@ case class PermissionDenied(message: String) extends RuntimeException
 
 object PermissionDenied {
   def apply(requiredRole: Role, givenRole: Role): PermissionDenied =
-    new PermissionDenied(s"""Access permitted. Required role: $requiredRole, given role: $givenRole""")
+    new PermissionDenied(s"""Access denied. Required role: $requiredRole, given role: $givenRole""")
 }

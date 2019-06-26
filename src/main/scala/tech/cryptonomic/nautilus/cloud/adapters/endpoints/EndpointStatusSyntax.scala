@@ -11,7 +11,7 @@ import endpoints.algebra.Documentation
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** Utility trait for extending Endpoints functionality */
-trait EndpointsUtils extends EndpointsStatusDefinitions with server.JsonSchemaEntities with StrictLogging {
+trait EndpointStatusSyntax extends EndpointsStatusDefinitions with server.JsonSchemaEntities with StrictLogging {
 
   /** Extension for using Created status code */
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>

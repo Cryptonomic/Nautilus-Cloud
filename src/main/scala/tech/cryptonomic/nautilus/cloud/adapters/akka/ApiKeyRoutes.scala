@@ -6,7 +6,7 @@ import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ApiKeyEndpoints
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointsUtils
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
@@ -14,7 +14,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
     extends ApiKeyEndpoints
     with server.Endpoints
-    with EndpointsUtils
+    with EndpointStatusSyntax
     with StrictLogging {
 
   /** Routes implementation for getting all ApiKeys */
