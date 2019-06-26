@@ -2,7 +2,6 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
-import cats.syntax.either._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
 import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
