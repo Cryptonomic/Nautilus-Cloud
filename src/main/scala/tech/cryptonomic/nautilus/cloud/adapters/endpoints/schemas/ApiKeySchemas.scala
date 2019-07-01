@@ -1,25 +1,15 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
-import java.time.{Instant, ZonedDateTime}
-
 import endpoints.generic
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
 
 /** Schemas used for ApiKey endpoints */
-trait ApiKeySchemas extends generic.JsonSchemas {
+trait ApiKeySchemas extends generic.JsonSchemas with InstantSchema {
 
   /** ApiKey schema */
   implicit lazy val apiKeySchema: JsonSchema[ApiKey] =
     genericJsonSchema[ApiKey]
-
-  /** Timestamp schema */
-  implicit lazy val timestampSchema: JsonSchema[Instant] =
-    xmapJsonSchema[String, Instant](
-      implicitly[JsonSchema[String]],
-      it => ZonedDateTime.parse(it).toInstant,
-      _.toString
-    )
 
   /** Authentication provider */
   implicit lazy val authenticationProviderSchema: JsonSchema[AuthenticationProvider] =

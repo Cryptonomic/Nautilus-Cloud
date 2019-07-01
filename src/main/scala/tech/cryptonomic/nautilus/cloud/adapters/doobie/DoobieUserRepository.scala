@@ -22,7 +22,7 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     createUserQuery(user)
       .withUniqueGeneratedKeys[UserId]("userid")
       .attemptSomeSqlState {
-        case UNIQUE_VIOLATION => DoobieUniqueViolationException("UNIQUE_VIOLATION"): Throwable
+        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
       }
       .transact(transactor)
 
@@ -39,4 +39,4 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     getUserByEmailQuery(email).option.transact(transactor)
 }
 
-final case class DoobieUniqueViolationException(message: String) extends Exception(message)
+final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

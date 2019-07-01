@@ -15,7 +15,7 @@ class SessionRoutes(
 ) extends StrictLogging {
 
   lazy val routes: Route =
-    List(
+    concat(
       path("github-login") {
         redirect(authService.loginUrl, Found)
       },
@@ -45,5 +45,5 @@ class SessionRoutes(
           }
         }
       }
-    ).reduce(_ ~ _)
+    )
 }

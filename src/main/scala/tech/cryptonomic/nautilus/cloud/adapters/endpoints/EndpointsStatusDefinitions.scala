@@ -13,6 +13,9 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
   /** Extension for using Conflict status code */
   def conflict[A](response: Response[A], invalidDocs: Documentation): Response[Option[A]]
 
+  /** Extension for using Bad request status code */
+  def badRequest[A](response: Response[A], invalidDocs: Documentation): Response[Either[Throwable, A]]
+
   /** Extension for using Forbidden status code */
   def forbidden[A](response: Response[A], invalidDocs: Documentation): Response[Permission[A]]
 
@@ -24,6 +27,9 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
 
     /** syntax for `conflict` */
     final def orConflict(conflictDocs: Documentation = None): Response[Option[A]] = conflict(response, conflictDocs)
+
+    /** syntax for `bad request` */
+    final def orBadRequest(conflictDocs: Documentation = None): Response[Either[Throwable, A]] = badRequest(response, conflictDocs)
 
     /** syntax for `forbidden` */
     final def orForbidden(forbiddenDocs: Documentation = None): Response[Permission[A]] =
