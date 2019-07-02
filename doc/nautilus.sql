@@ -31,6 +31,7 @@ CREATE TABLE api_keys(
     tierid integer NOT NULL,
     dateissued timestamp with time zone,
     datesuspended timestamp with time zone,
+    UNIQUE(key),
     CONSTRAINT resourceid_fk FOREIGN KEY (resourceid)
       REFERENCES resources (resourceid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -43,11 +44,11 @@ CREATE TABLE api_keys(
 );
 
 CREATE TABLE usage_left(
-    keyid integer NOT NULL,
+    key text NOT NULL,
     daily integer NOT NULL,
     monthly integer NOT NULL,
-    CONSTRAINT keyid_fk FOREIGN KEY (keyid)
-      REFERENCES api_keys (keyid) MATCH SIMPLE
+    CONSTRAINT keyid_fk FOREIGN KEY (key)
+      REFERENCES api_keys (key) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 

@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {
@@ -19,6 +19,10 @@ class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {
     override def getKeyUsage(key: String): Id[Option[UsageLeft]] = ???
 
     override def updateKeyUsage(usage: UsageLeft): Id[Unit] = ???
+
+    override def putApiKeyUsage(usageLeft: UsageLeft): Id[Unit] = ???
+
+    override def putApiKeyForUser(apiKey: CreateApiKey): Id[Unit] = ???
   }
 
   val sut = new ApiKeyService[Id](apiKeyRepo)

@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
 
 /** Trait containing api key related queries */
 trait ApiKeyQueries {
@@ -23,18 +23,26 @@ trait ApiKeyQueries {
     sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys WHERE userid = $userId"
       .query[ApiKey]
 
+  /** Inserts API key for user */
+  def putApiKey(apiKey: CreateApiKey): Update0 =
+    sql"INSERT INTO api_keys (key, resourceid, userid, tierid, dateissued, datesuspended) VALUES(${apiKey.key}, ${apiKey.resourceId}, ${apiKey.userId}, ${apiKey.tierId}, ${apiKey.dateIssued}, ${apiKey.dateSuspended})".update
+
   /** Query returning API keys usage for given user */
   def getUsageForUser(userId: Int): Query0[UsageLeft] =
-    sql"SELECT key, monthly, daily FROM api_keys JOIN usage_left USING(keyid) WHERE userid = $userId"
+    sql"SELECT key, monthly, daily FROM api_keys JOIN usage_left USING(key) WHERE userid = $userId"
       .query[UsageLeft]
 
   /** Query returning usage for given key */
   def getUsageForKey(key: String): Query0[UsageLeft] =
-    sql"SELECT key, monthly, daily FROM api_keys JOIN usage_left USING(keyid) WHERE key = $key"
+    sql"SELECT key, monthly, daily FROM usage_left WHERE key = $key"
       .query[UsageLeft]
 
   /** Query updates API keys usage */
   def updateUsage(usage: UsageLeft): Update0 =
-    sql"UPDATE usage_left SET daily = ${usage.daily}, monthly = ${usage.monthly} FROM api_keys a WHERE a.key = ${usage.key} AND usage_left.keyid = a.keyid".update
+    sql"UPDATE usage_left SET daily = ${usage.daily}, monthly = ${usage.monthly} FROM api_keys a WHERE a.key = ${usage.key}".update
+
+  /** Query updates API keys usage */
+  def putUsage(usage: UsageLeft): Update0 =
+    sql"INSERT INTO usage_left(key, daily, monthly) VALUES(${usage.key}, ${usage.daily}, ${usage.monthly})".update
 
 }

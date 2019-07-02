@@ -47,4 +47,12 @@ trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities wi
       response = jsonResponse[List[UsageLeft]](),
       tags = List("User")
     )
+
+  /** Issues an api key for a user */
+  def issueApiKey: Endpoint[Int, String] =
+    endpoint(
+      request = post(url = path / "users" / segment[Int]("user") / "issueApiKey", entity = emptyRequest),
+      response = textResponse().withCreatedStatus(),
+      tags = List("User")
+    )
 }

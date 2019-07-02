@@ -8,6 +8,7 @@ import endpoints.openapi.model.{Info, MediaType, OpenApi, Schema}
 object OpenApiDoc
     extends ApiKeyEndpoints
     with UserEndpoints
+    with ResourceEndpoints
     with openapi.model.OpenApiSchemas
     with openapi.JsonSchemaEntities {
 
@@ -19,7 +20,10 @@ object OpenApiDoc
     updateUser,
     getUser,
     getUserKeys,
-    getApiKeyUsage
+    getApiKeyUsage,
+    getResourceEndpoint,
+    listResourcesEndpoint,
+    createResourceEndpoint
   )
 
   override def created[A](

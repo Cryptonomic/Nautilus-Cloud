@@ -9,6 +9,7 @@ import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
@@ -22,8 +23,9 @@ class UserRoutesTest
 
   val userRepository = stub[UserRepository[IO]]
   val apiKeyRepo = stub[ApiKeyRepository[IO]]
+  val resourcesRepo = stub[ResourceRepository[IO]]
 
-  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepo))
+  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepo, resourcesRepo))
 
   "The User route" should {
 

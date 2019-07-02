@@ -20,6 +20,7 @@ class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
     private val userRoutes: UserRoutes,
     private val sessionRoutes: SessionRoutes,
+    private val resourceRoutes: ResourceRoutes,
     private val sessionOperations: SessionOperations
 ) extends StrictLogging {
 
@@ -46,7 +47,7 @@ class Routes(
         List(
           apiKeysRoutes.routes,
           sessionOperations.requiredRole(Administrator) {
-            userRoutes.routes
+            userRoutes.routes ~ resourceRoutes.routes
           }
         ).reduce(_ ~ _)
       }

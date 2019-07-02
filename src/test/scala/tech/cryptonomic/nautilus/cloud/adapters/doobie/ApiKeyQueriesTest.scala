@@ -4,7 +4,7 @@ import cats.effect.IO
 import doobie.scalatest._
 import doobie.util.transactor.Transactor
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.UsageLeft
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
@@ -24,11 +24,17 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
     "check getUserApiKeys" in {
       check(sut.getUserApiKeysQuery(0))
     }
+    "check insertApiKey" in {
+      check(sut.putApiKey(CreateApiKey("", 0, 0, 0, None, None)))
+    }
     "check getUsageForUser" in {
       check(sut.getUsageForUser(0))
     }
     "check getUsageForKey" in {
       check(sut.getUsageForKey(""))
+    }
+    "check putUsage" in {
+      check(sut.putUsage(UsageLeft("", 0, 0)))
     }
     "check updateUsage" in {
       check(sut.updateUsage(UsageLeft("", 0, 0)))

@@ -6,7 +6,7 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 
@@ -26,6 +26,10 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
         override def getKeyUsage(key: String): IO[Option[UsageLeft]] = ???
 
         override def updateKeyUsage(usage: UsageLeft): IO[Unit] = ???
+
+        override def putApiKeyUsage(usageLeft: UsageLeft): IO[Unit] = ???
+
+        override def putApiKeyForUser(apiKey: CreateApiKey): IO[Unit] = ???
       }
 
       val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepository))

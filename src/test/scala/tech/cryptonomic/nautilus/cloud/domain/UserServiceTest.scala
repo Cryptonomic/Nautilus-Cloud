@@ -2,7 +2,9 @@ package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
 import org.scalatest.{EitherValues, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -21,6 +23,10 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures with EitherVa
     override def getKeyUsage(key: String): Id[Option[UsageLeft]] = Some(exampleUsageLeft)
 
     override def updateKeyUsage(usage: UsageLeft): Id[Unit] = ()
+
+    override def putApiKeyForUser(apiKey: CreateApiKey): Id[Unit] = ???
+
+    override def putApiKeyUsage(usageLeft: UsageLeft): Id[Unit] = ???
   }
 
   val userRepo = new UserRepository[Id] {
@@ -33,7 +39,15 @@ class UserServiceTest extends WordSpec with Matchers with Fixtures with EitherVa
     override def getUserByEmailAddress(email: String): Id[Option[User]] = Some(exampleUser)
   }
 
-  val sut = new UserService[Id](userRepo, apiKeyRepo)
+  val resourcesRepo = new ResourceRepository[Id] {
+    override def createResource(cr: CreateResource): Id[ResourceId] = ???
+
+    override def getResources: Id[List[Resource]] = ???
+
+    override def getResource(resourceId: ResourceId): Id[Option[Resource]] = ???
+  }
+
+  val sut = new UserService[Id](userRepo, apiKeyRepo, resourcesRepo)
 
   "UserService" should {
     "createUser" in {
