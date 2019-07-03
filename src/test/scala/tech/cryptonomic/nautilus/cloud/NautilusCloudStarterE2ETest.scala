@@ -6,8 +6,7 @@ import com.softwaremill.sttp._
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.JsonMatchers
-import tech.cryptonomic.nautilus.cloud.tools.{InMemoryDatabase, WireMockServer}
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase, JsonMatchers, WireMockServer}
 
 class NautilusCloudStarterE2ETest
     extends WordSpec
@@ -21,7 +20,7 @@ class NautilusCloudStarterE2ETest
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
-  val nautilusContext = NautilusContext
+  val nautilusContext = DefaultNautilusContext
 
   NautilusCloud.main(Array.empty)
 

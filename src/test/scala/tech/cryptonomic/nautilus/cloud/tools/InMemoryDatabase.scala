@@ -22,7 +22,7 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
   /** here are temp files for the embedded process, can wipe out if needed */
   protected val cachedRuntimePath = Paths.get("test-nautilus-postgres-path")
 
-  val context = NautilusContext
+  val context = DefaultNautilusContext
   val testTransactor = context.transactor
   val config = context.doobieConfig
 

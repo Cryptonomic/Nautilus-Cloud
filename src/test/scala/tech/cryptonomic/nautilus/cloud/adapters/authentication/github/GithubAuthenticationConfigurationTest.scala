@@ -2,13 +2,15 @@ package tech.cryptonomic.nautilus.cloud.adapters.authentication.github
 
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.NautilusContext
+import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContext
+
 import scala.language.postfixOps
 
 class GithubAuthenticationConfigurationTest extends WordSpec with Matchers {
 
   "GithubAuthenticationConfiguration" should {
 
-      val config = NautilusContext.githubConfig.copy(
+      val config = DefaultNautilusContext.githubConfig.copy(
         clientId = "clientId",
         loginUrl = "http://localhost:8089/login/oauth/authorize"
       )

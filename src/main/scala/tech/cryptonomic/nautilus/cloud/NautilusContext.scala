@@ -19,7 +19,7 @@ import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationServ
 
 import scala.concurrent.ExecutionContext
 
-object NautilusContext extends StrictLogging {
+trait NautilusContext extends StrictLogging {
 
   logger.info("Starting to initialize application config")
 

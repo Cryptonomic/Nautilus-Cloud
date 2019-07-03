@@ -5,7 +5,7 @@ import java.time.Instant
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName}
-import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
 class DoobieTierRepositoryTest
     extends WordSpec
@@ -16,7 +16,7 @@ class DoobieTierRepositoryTest
 
   val now: Instant = Instant.now()
 
-  val sut = NautilusContext.tierRepository
+  val sut = DefaultNautilusContext.tierRepository
 
   "ApiKeyRepo" should {
       "save an user" in {
