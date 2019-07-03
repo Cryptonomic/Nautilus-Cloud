@@ -14,7 +14,7 @@ class DoobieResourceRepository[F[_]](transactor: Transactor[F])(
     implicit bracket: Bracket[F, Throwable],
     monad: Monad[F]
 ) extends ResourceRepository[F]
-    with ResourcesQueries {
+    with ResourceQueries {
 
   /** Creates resource */
   override def createResource(cr: CreateResource): F[ResourceId] =

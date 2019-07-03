@@ -7,7 +7,7 @@ import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 
 /** Queries for resources table */
-trait ResourcesQueries {
+trait ResourceQueries {
 
   /** Inserts resource */
   def insertResource(cr: CreateResource): Update0 =
@@ -15,10 +15,10 @@ trait ResourcesQueries {
 
   /** Lists all resources */
   def listResources: Query0[Resource] =
-    sql"SELECT resourceid, resourcename, description, platform, network FROM resource".query
+    sql"SELECT resourceid, resourcename, description, platform, network FROM resources".query
 
   /** Returns single resource by id */
   def selectResource(resourceId: ResourceId): Query0[Resource] =
-    sql"SELECT resourceid, resourcename, description, platform, network FROM resource WHERE resourceid = $resourceId".query
+    sql"SELECT resourceid, resourcename, description, platform, network FROM resources WHERE resourceid = $resourceId".query
 
 }

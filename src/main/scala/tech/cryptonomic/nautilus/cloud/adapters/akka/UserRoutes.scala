@@ -1,12 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.model.{HttpEntity, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import endpoints.akkahttp.server
-import endpoints.algebra.Documentation
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{RoutesUtil, UserEndpoints}
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 
 // TODO:
@@ -16,7 +14,8 @@ import tech.cryptonomic.nautilus.cloud.domain.UserService
 class UserRoutes(userService: UserService[IO])
     extends UserEndpoints
     with server.Endpoints
-    with server.JsonSchemaEntities {
+    with server.JsonSchemaEntities
+    with RoutesUtil {
 
   /** User creation route implementation */
   val createUserRoute: Route = createUser.implementedByAsync { userReg =>
@@ -52,12 +51,4 @@ class UserRoutes(userService: UserService[IO])
     getUserKeysRoute
   )
 
-  /** Extension for using Created status code */
-  override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>
-    complete(HttpResponse(StatusCodes.Created, entity = HttpEntity(entity.toString)))
-  }
-
-  /** Extension for using Conflict status code */
-  override def conflict[A](response: A => Route, invalidDocs: Documentation): Option[A] => Route =
-    _.map(response).getOrElse(complete(HttpResponse(StatusCodes.Conflict)))
 }

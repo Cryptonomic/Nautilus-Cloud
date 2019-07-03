@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Monad
-import cats.effect.IO
+import cats.data.OptionT
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
@@ -45,20 +45,16 @@ class UserService[F[_]](
   def createApiKey(userId: UserId, resourceId: ResourceId, tierId: Int): F[Option[String]] = {
     val generatedKey = Random.alphanumeric.take(32).toString()
 
+    // I need to add tiers here
     {
       for {
-        maybeUser <- userRepo.getUser(userId)
-        maybeResource <- resourcesRepository.getResource(resourceId)
-      } yield {
-        for {
-          _ <- maybeUser
-          _ <- maybeResource
-        } yield
-          apiKeyRepo
-            .putApiKeyForUser(CreateApiKey(generatedKey, resourceId, userId, tierId, Some(Instant.now()), None))
-            .map(_ => generatedKey)
-      }.sequence
-    }.flatten
+        _ <- OptionT(userRepo.getUser(userId))
+        _ <- OptionT(resourcesRepository.getResource(resourceId))
+      } yield
+        apiKeyRepo
+          .putApiKeyForUser(CreateApiKey(generatedKey, resourceId, userId, tierId, Some(Instant.now()), None))
+          .map(_ => generatedKey)
+    }.value.flatMap(_.sequence)
   }
 
 }

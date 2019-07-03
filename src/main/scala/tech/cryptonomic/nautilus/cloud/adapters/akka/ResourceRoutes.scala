@@ -2,34 +2,36 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import cats.effect.IO
 import endpoints.akkahttp.server
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ResourceEndpoints
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{ResourceEndpoints, RoutesUtil}
 import tech.cryptonomic.nautilus.cloud.domain.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 
 /** Resource routes */
 class ResourceRoutes(resourceService: ResourceService[IO])
     extends ResourceEndpoints
     with server.Endpoints
-    with server.JsonSchemaEntities {
+    with server.JsonSchemaEntities
+    with RoutesUtil {
 
   /** Route for geting single resource by id */
-  private val getResource = getResourceEndpoint.implementedByAsync { resourceId =>
+  val getResource: Route = getResourceEndpoint.implementedByAsync { resourceId =>
     resourceService.getResource(resourceId).unsafeToFuture()
   }
 
   /** Route for creating resources */
-  private val createResource = createResourceEndpoint.implementedByAsync { createResource: CreateResource =>
+  val createResource: Route = createResourceEndpoint.implementedByAsync { createResource: CreateResource =>
     resourceService.createResource(createResource).map(_.toString).unsafeToFuture()
   }
 
   /** Route for listing resources */
-  private val listResources = listResourcesEndpoint.implementedByAsync { _ =>
+  val listResources: Route = listResourcesEndpoint.implementedByAsync { _ =>
     resourceService.getResources.unsafeToFuture()
   }
 
   /** Concatenated resource routes */
-  val routes = concat(
+  val routes: Route = concat(
     getResource,
     createResource,
     listResources

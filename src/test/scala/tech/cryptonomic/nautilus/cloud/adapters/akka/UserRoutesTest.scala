@@ -8,7 +8,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
 import tech.cryptonomic.nautilus.cloud.domain.UserService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures

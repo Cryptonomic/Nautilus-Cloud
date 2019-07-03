@@ -6,7 +6,11 @@ import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resourc
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 
 /** Resource endpoints definition*/
-trait ResourceEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with ResourceSchemas {
+trait ResourceEndpoints
+    extends algebra.Endpoints
+    with algebra.JsonSchemaEntities
+    with ResourceSchemas
+    with EndpointsUtil {
 
   /** Resource endpoint */
   def getResourceEndpoint: Endpoint[Int, Option[Resource]] =
@@ -19,8 +23,8 @@ trait ResourceEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntitie
   /** Resource creation endpoint */
   def createResourceEndpoint: Endpoint[CreateResource, String] =
     endpoint(
-      request = post(url = path / "resource", entity = jsonRequest[CreateResource]()),
-      response = textResponse(),
+      request = post(url = path / "resources", entity = jsonRequest[CreateResource]()),
+      response = textResponse().withCreatedStatus(),
       tags = List("Resource")
     )
 
