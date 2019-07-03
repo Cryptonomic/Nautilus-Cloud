@@ -7,7 +7,8 @@ case class UpdateTier(
     monthlyHits: Int,
     dailyHits: Int,
     maxResultSetSize: Int,
-    startDate: Instant
+    startDate: Option[Instant] = None
 ) {
-  lazy val asConfiguration = TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize, startDate)
+  def toConfiguration(now: Instant) =
+    TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize, startDate.getOrElse(now))
 }

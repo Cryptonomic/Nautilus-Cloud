@@ -5,12 +5,12 @@ import java.time.{Instant, ZonedDateTime}
 import akka.http.scaladsl.model.ContentTypes.NoContentType
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import cats.effect.{Clock, IO}
+import cats.effect.IO
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.TierService
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierConfiguration, TierName}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, JsonMatchers}
 
@@ -25,9 +25,11 @@ class TierRoutesTest
 
   val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
 
-  val tierRepository = new InMemoryTierRepository[IO](new FixedClock(now))
+  val tierRepository = new InMemoryTierRepository[IO]()
 
-  val sut = new TierRoutes(new TierService[IO](tierRepository))
+  val clock = new FixedClock[IO](now)
+
+  val sut = new TierRoutes(new TierService[IO](tierRepository, clock))
 
   override def beforeEach() = tierRepository.clear()
 
@@ -69,7 +71,7 @@ class TierRoutesTest
 
       "update tier" in {
         // given
-        tierRepository.create(TierName("a_b"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+        tierRepository.create(TierName("a_b"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // when
         val response: RouteTestResult = HttpRequest(

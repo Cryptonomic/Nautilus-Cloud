@@ -2,8 +2,6 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
-import cats.effect._
-
 import scala.concurrent.duration.MILLISECONDS
 import cats.Monad
 import cats.data.EitherT
@@ -12,47 +10,39 @@ import cats.implicits._
 import doobie.enum.SqlState
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, TierRepository, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository, UpdateTier}
 
 import scala.language.higherKinds
 
 /** Trait representing User repo queries */
 class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
-    implicit bracket: Bracket[F, Throwable],
-    clock: Clock[F]
+    implicit bracket: Bracket[F, Throwable]
 ) extends TierRepository[F]
     with TierQueries {
 
   val UNIQUE_VIOLATION = SqlState("23505")
 
   /** Creates tier */
-  override def create(name: TierName, createTier: CreateTier): F[Either[Throwable, Tier]] = {
-    def inserts(now: Instant) =
-      for {
-        _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
-          case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
-        })
-        _ <- EitherT(createTierConfigurationQuery(name, createTier.toConfiguration(now)).run.attemptSomeSqlState {
-          case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
-        })
-      } yield ()
-
+  override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] = {
     val result = for {
-      now <- EitherT.right(clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)): EitherT[F, Throwable, Instant]
-      tier <- EitherT.rightT(createTier.toTier(name, now)): EitherT[F, Throwable, Tier]
-      _ <- inserts(now).transact(transactor)
-    } yield tier
+      _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
+        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+      })
+      _ <- EitherT(createTierConfigurationQuery(name, initialConfiguration).run.attemptSomeSqlState {
+        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+      })
+    } yield Tier(name, List(initialConfiguration))
 
-    result.value
+    result.transact(transactor).value
   }
 
   /** Updates tier */
-  override def update(name: TierName, updateTier: UpdateTier): F[Either[Throwable, Unit]] = {
-    val result = createTierConfigurationQuery(name, updateTier.asConfiguration).run.attemptSomeSqlState {
+  override def addConfiguration(name: TierName, configuration: TierConfiguration): F[Either[Throwable, Unit]] = {
+    val result = EitherT(createTierConfigurationQuery(name, configuration).run.attemptSomeSqlState {
       case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
-    }.transact(transactor)
+    }.transact(transactor))
 
-    EitherT(result).map(_ => ()).value
+    result.map(_ => ()).value
   }
 
   /** Returns tier */

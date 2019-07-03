@@ -23,9 +23,9 @@ class DoobieTierRepositoryTest
   val sut = context.tierRepository
 
   "DoobieTierRepository" should {
-      "save an user" in {
+      "save a tier" in {
         // when
-        val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+        val tier = sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // then
         tier.right.value should equal(
@@ -33,12 +33,12 @@ class DoobieTierRepositoryTest
         )
       }
 
-      "update an user" in {
+      "update a tier" in {
         // given
-        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // when
-        sut.update(TierName("shared", "free"), UpdateTier("description", 2, 3, 4, now)).unsafeRunSync()
+        sut.addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now)).unsafeRunSync()
 
         // then
         sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
@@ -52,9 +52,9 @@ class DoobieTierRepositoryTest
         )
       }
 
-      "receive an user" in {
+      "receive an tier" in {
         // given
-        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // when
         val tier = sut.get(TierName("shared", "free")).unsafeRunSync()

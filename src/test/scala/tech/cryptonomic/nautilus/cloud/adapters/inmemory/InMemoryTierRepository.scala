@@ -1,16 +1,12 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
-import java.time.Instant
-
 import cats.Monad
-import cats.effect.Clock
 import cats.implicits._
-import scala.concurrent.duration.MILLISECONDS
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, TierRepository, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
 
 import scala.language.higherKinds
 
-class InMemoryTierRepository[F[_]: Monad](clock: Clock[F]) extends TierRepository[F] {
+class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
 
   /** list of all tiers
     *
@@ -20,29 +16,27 @@ class InMemoryTierRepository[F[_]: Monad](clock: Clock[F]) extends TierRepositor
   private var tiers: List[Tier] = List.empty
 
   /** Creates tier */
-  override def create(name: TierName, createTier: CreateTier): F[Either[Throwable, Tier]] = this.synchronized {
-    for {
-      tier <- get(name)
-      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
-    } yield
-      tier match {
+  override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] =
+    this.synchronized {
+      get(name).map {
         case Some(_) => Left(new RuntimeException)
         case None =>
-          val tier = createTier.toTier(name, now)
+          val tier = Tier(name, List(initialConfiguration))
           tiers = tiers :+ tier
           tier.asRight[Throwable]
       }
-  }
-
-  /** Updates tier */
-  override def update(name: TierName, tier: UpdateTier): F[Either[Throwable, Unit]] = this.synchronized {
-    tiers = tiers.collect {
-      case t @ Tier(`name`, _) => t.copy(configurations = t.configurations :+ tier.asConfiguration)
-      case it => it
     }
 
-    ().asRight[Throwable].pure[F]
-  }
+  /** Updates tier */
+  override def addConfiguration(name: TierName, tierConfiguration: TierConfiguration): F[Either[Throwable, Unit]] =
+    this.synchronized {
+      tiers = tiers.collect {
+        case t @ Tier(`name`, _) => t.copy(configurations = t.configurations :+ tierConfiguration)
+        case it => it
+      }
+
+      ().asRight[Throwable].pure[F]
+    }
 
   /** Returns tier */
   override def get(name: TierName): F[Option[Tier]] = this.synchronized {

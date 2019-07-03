@@ -25,7 +25,7 @@ trait Fixtures {
   val adminSession = Session("user@domain.com", AuthenticationProvider.Github, Role.Administrator)
 
   val exampleCreateTier = CreateTier("some description", 1, 2, 3)
-  val exampleUpdateTier = UpdateTier("some description", 1, 2, 3, Instant.now)
+  val exampleUpdateTier = UpdateTier("some description", 1, 2, 3, Some(Instant.now))
 
   val exampleApiKeyAsJson =
     """
