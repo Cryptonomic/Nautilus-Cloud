@@ -22,6 +22,12 @@ class TierRoutes(tierService: TierService[IO])
       case (name, tier) => tierService.createTier(name, tier).unsafeToFuture()
     }
 
+  /** Tier update route implementation */
+  def updateTierRoute(implicit session: Session): Route =
+    updateTier.implementedByAsync {
+      case (name, tier) => tierService.updateTier(name, tier).unsafeToFuture()
+    }
+
   /** Tier get route implementation */
   def getTierRoute(implicit session: Session): Route =
     getTier.implementedByAsync(tier => tierService.getTier(tier).unsafeToFuture())

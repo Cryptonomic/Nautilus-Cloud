@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.TierSchemas
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, UpdateTier}
 
 /** Tier endpoints */
 trait TierEndpoints
@@ -17,6 +17,14 @@ trait TierEndpoints
     endpoint(
       request = put(url = path / "tiers" / segment[TierName]("tierName"), jsonRequest[CreateTier]()),
       response = jsonResponse[Tier]().withCreatedStatus().orBadRequest().orForbidden(),
+      tags = List("Tier")
+    )
+
+  /** Tier update endpoint definition */
+  def updateTier: Endpoint[(TierName, UpdateTier), Permission[Either[Throwable, Unit]]] =
+    endpoint(
+      request = post(url = path / "tiers" / segment[TierName]("tierName") / "configurations", jsonRequest[UpdateTier]()),
+      response = emptyResponse().withCreatedStatus().orBadRequest().orForbidden(),
       tags = List("Tier")
     )
 

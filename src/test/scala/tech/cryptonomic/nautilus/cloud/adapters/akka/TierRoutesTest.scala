@@ -1,13 +1,13 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 
 import akka.http.scaladsl.model.ContentTypes.NoContentType
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.{Clock, IO}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.TierService
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierName}
@@ -19,14 +19,17 @@ class TierRoutesTest
     with Matchers
     with ScalatestRouteTest
     with JsonMatchers
+    with BeforeAndAfterEach
     with Fixtures
     with MockFactory {
 
-  val now = Instant.now()
+  val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
 
   val tierRepository = new InMemoryTierRepository[IO](new FixedClock(now))
 
   val sut = new TierRoutes(new TierService[IO](tierRepository))
+
+  override def beforeEach() = tierRepository.clear()
 
   "The Tier route" should {
 
@@ -82,7 +85,7 @@ class TierRoutesTest
               |  "startDate": "2019-05-27T18:03:48.081+01:00"
               |}""".stripMargin
           )
-        ) ~> sut.createTierRoute(adminSession)
+        ) ~> sut.updateTierRoute(adminSession)
 
         // then
         response ~> check {
@@ -96,19 +99,19 @@ class TierRoutesTest
               |  "name": "a_b",
               |  "configurations": [
               |    {
-              |      "description": "some description",
-              |      "monthlyHits": 100,
-              |      "dailyHits": 10,
-              |      "maxResultSetSize": 20,
-              |      "startDate": "2019-05-27T18:03:48.081+01:00"
+              |      "description": "description",
+              |      "monthlyHits": 1,
+              |      "dailyHits": 2,
+              |      "maxResultSetSize": 3,
+              |      "startDate": "2019-05-27T11:03:48.081Z"
               |    },
               |    {
               |      "description": "some other description",
-              |      "monthlyHits": 200,
-              |      "dailyHits": 20,
-              |      "maxResultSetSize": 40,
-              |      "startDate": "2019-05-27T18:03:48.081+01:00"
-              |    },
+              |      "monthlyHits": 100,
+              |      "dailyHits": 10,
+              |      "maxResultSetSize": 20,
+              |      "startDate": "2019-05-27T17:03:48.081Z"
+              |    }
               |  ]
               |}""".stripMargin)
         }
