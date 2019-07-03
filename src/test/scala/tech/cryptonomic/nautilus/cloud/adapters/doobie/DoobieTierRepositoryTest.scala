@@ -4,8 +4,8 @@ import java.time.Instant
 
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName}
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, InMemoryDatabase}
 
 class DoobieTierRepositoryTest
     extends WordSpec
@@ -14,18 +14,41 @@ class DoobieTierRepositoryTest
     with OptionValues
     with InMemoryDatabase {
 
-  val now: Instant = Instant.now()
+  val now = Instant.now()
 
-  val sut = DefaultNautilusContext.tierRepository
+  val context: NautilusContext = new NautilusContext {
+    override val clock = new FixedClock(now)
+  }
 
-  "ApiKeyRepo" should {
+  val sut = context.tierRepository
+
+  "DoobieTierRepository" should {
       "save an user" in {
         // when
         val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // then
         tier.right.value should equal(
-          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None)))
+          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now)))
+        )
+      }
+
+      "update an user" in {
+        // given
+        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+
+        // when
+        sut.update(TierName("shared", "free"), UpdateTier("description", 2, 3, 4, now)).unsafeRunSync()
+
+        // then
+        sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
+          Tier(
+            TierName("shared", "free"),
+            List(
+              TierConfiguration("description", 1, 2, 3, now),
+              TierConfiguration("description", 2, 3, 4, now)
+            )
+          )
         )
       }
 
@@ -37,7 +60,7 @@ class DoobieTierRepositoryTest
         val tier = sut.get(TierName("shared", "free")).unsafeRunSync()
 
         // then
-        tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None))))
+        tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now))))
       }
     }
 }

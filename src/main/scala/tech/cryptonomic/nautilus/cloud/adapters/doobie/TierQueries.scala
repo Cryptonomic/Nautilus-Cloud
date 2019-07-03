@@ -15,14 +15,14 @@ trait TierQueries {
     sql"""INSERT INTO tiers (tier, subtier) VALUES (${name.tier},${name.subTier})""".update
 
   /** Creates tier configuration */
-  def createTierConfigurationQuery(name: TierName, tier: CreateTier): Update0 =
-    sql"""INSERT into tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize)
-          VALUES (${name.tier}, ${name.subTier}, ${tier.description}, ${tier.monthlyHits}, ${tier.dailyHits},
-                  ${tier.maxResultSetSize})""".update
+  def createTierConfigurationQuery(name: TierName, configuration: TierConfiguration): Update0 =
+    sql"""INSERT into tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate)
+          VALUES (${name.tier}, ${name.subTier}, ${configuration.description}, ${configuration.monthlyHits},
+                  ${configuration.dailyHits}, ${configuration.maxResultSetSize}, ${configuration.startDate})""".update
 
   /** Returns tier */
   def getTiersConfigurationQuery(tierName: TierName): Query0[TierDto] =
-    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, enddate FROM tiers_configuration
+    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate FROM tiers_configuration
           WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query[TierDto]
 }
 
@@ -41,8 +41,8 @@ case class TierDto(
     monthlyhits: Int,
     dailyhits: Int,
     maxResultSetSize: Int,
-    enddate: Option[Instant]
+    startdate: Instant
 ) {
   lazy val asTierName = TierName(tier, subtier)
-  lazy val asTierConfiguration = TierConfiguration(description, monthlyhits, dailyhits, maxResultSetSize, enddate)
+  lazy val asTierConfiguration = TierConfiguration(description, monthlyhits, dailyhits, maxResultSetSize, startdate)
 }

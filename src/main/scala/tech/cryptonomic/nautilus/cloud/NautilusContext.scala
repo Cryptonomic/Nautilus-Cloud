@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.{Clock, ContextShift, IO}
 import com.softwaremill.macwire._
 import com.softwaremill.session.SessionConfig
 import com.softwaremill.sttp.SttpBackend
@@ -22,6 +22,8 @@ import scala.concurrent.ExecutionContext
 trait NautilusContext extends StrictLogging {
 
   logger.info("Starting to initialize application config")
+
+  implicit val clock = Clock.create[IO]
 
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get

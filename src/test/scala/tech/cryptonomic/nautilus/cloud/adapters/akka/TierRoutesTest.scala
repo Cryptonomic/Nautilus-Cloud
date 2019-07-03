@@ -1,14 +1,18 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
+import java.time.Instant
+
+import akka.http.scaladsl.model.ContentTypes.NoContentType
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import cats.effect.IO
+import cats.effect.{Clock, IO}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.TierService
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierName}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.JsonMatchers
+import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, JsonMatchers}
 
 class TierRoutesTest
     extends WordSpec
@@ -18,7 +22,9 @@ class TierRoutesTest
     with Fixtures
     with MockFactory {
 
-  val tierRepository = new InMemoryTierRepository[IO]()
+  val now = Instant.now()
+
+  val tierRepository = new InMemoryTierRepository[IO](new FixedClock(now))
 
   val sut = new TierRoutes(new TierService[IO](tierRepository))
 
@@ -26,7 +32,7 @@ class TierRoutesTest
 
       "create tier" in {
         // when
-        val request: RouteTestResult = HttpRequest(
+        val response: RouteTestResult = HttpRequest(
             HttpMethods.PUT,
             uri = "/tiers/a_b",
             entity = HttpEntity(
@@ -41,7 +47,7 @@ class TierRoutesTest
           ) ~> sut.createTierRoute(adminSession)
 
         // then
-        request ~> check {
+        response ~> check {
           status shouldEqual StatusCodes.Created
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""{
@@ -55,6 +61,56 @@ class TierRoutesTest
                                                 |    }
                                                 |  ]
                                                 |}""".stripMargin)
+        }
+      }
+
+      "update tier" in {
+        // given
+        tierRepository.create(TierName("a_b"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+
+        // when
+        val response: RouteTestResult = HttpRequest(
+          HttpMethods.POST,
+          uri = "/tiers/a_b/configurations",
+          entity = HttpEntity(
+            MediaTypes.`application/json`,
+            """{
+              |  "description": "some other description",
+              |  "monthlyHits": 100,
+              |  "dailyHits": 10,
+              |  "maxResultSetSize": 20,
+              |  "startDate": "2019-05-27T18:03:48.081+01:00"
+              |}""".stripMargin
+          )
+        ) ~> sut.createTierRoute(adminSession)
+
+        // then
+        response ~> check {
+          status shouldEqual StatusCodes.Created
+          contentType shouldBe NoContentType
+        }
+
+        Get("/tiers/a_b") ~> sut.getTierRoute(adminSession) ~> check {
+          responseAs[String] should matchJson(
+            """{
+              |  "name": "a_b",
+              |  "configurations": [
+              |    {
+              |      "description": "some description",
+              |      "monthlyHits": 100,
+              |      "dailyHits": 10,
+              |      "maxResultSetSize": 20,
+              |      "startDate": "2019-05-27T18:03:48.081+01:00"
+              |    },
+              |    {
+              |      "description": "some other description",
+              |      "monthlyHits": 200,
+              |      "dailyHits": 20,
+              |      "maxResultSetSize": 40,
+              |      "startDate": "2019-05-27T18:03:48.081+01:00"
+              |    },
+              |  ]
+              |}""".stripMargin)
         }
       }
 

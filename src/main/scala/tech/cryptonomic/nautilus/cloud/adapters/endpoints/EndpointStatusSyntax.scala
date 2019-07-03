@@ -16,6 +16,7 @@ trait EndpointStatusSyntax extends EndpointsStatusDefinitions with server.JsonSc
   /** Extension for using Created status code */
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = response.embeddedMap {
     case Complete(httpResponse) => Complete(httpResponse.withStatus(StatusCodes.Created))
+    case it => it
   }
 
   /** Extension for using Conflict status code */
