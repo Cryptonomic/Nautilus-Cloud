@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.Id
 import org.scalatest._
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.domain.tier._
@@ -113,7 +114,7 @@ class TierServiceTest
             description = "shared free",
             monthlyHits = 100,
             dailyHits = 10,
-            maxResultSetSize = 20
+            maxResultSetSize = 20,
           )
         )(adminSession)
 
@@ -124,7 +125,8 @@ class TierServiceTest
             description = "shared free",
             monthlyHits = 200,
             dailyHits = 20,
-            maxResultSetSize = 40
+            maxResultSetSize = 40,
+            startDate = Some(now.plusSeconds(100))
           )
         )(adminSession)
 
@@ -144,10 +146,21 @@ class TierServiceTest
               monthlyHits = 200,
               dailyHits = 20,
               maxResultSetSize = 40,
-              startDate = now.plusSeconds(1)
+              startDate = now.plusSeconds(100)
             )
           )
         )
+      }
+
+      "not update tier when a given startDate is from the past" in {
+        // when
+        val result = sut.updateTier(
+          TierName("shared", "free"),
+          exampleUpdateTier.copy(startDate = Some(now.minusSeconds(1)))
+        )(adminSession)
+
+        // then
+        result.right.value.left.value shouldBe a[NotAllowedConfigurationOverride]
       }
 
       "get AccessDenied when user updating tier is not an admin" in {

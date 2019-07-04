@@ -2,9 +2,11 @@ package tech.cryptonomic.nautilus.cloud.domain
 
 import java.time.Instant
 
+import akka.dispatch.OnFailure
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, TierRepository, UpdateTier}
@@ -34,7 +36,9 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
     requiredRole(Administrator) {
       for {
         now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
-        tier <- tierRepository.addConfiguration(name, updateTier.toConfiguration(now))
+        isValid = updateTier.startDate.exists(_ isAfter now)
+        tier <- if (isValid) tierRepository.addConfiguration(name, updateTier.toConfiguration(now))
+        else (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[F]
       } yield tier
     }
 

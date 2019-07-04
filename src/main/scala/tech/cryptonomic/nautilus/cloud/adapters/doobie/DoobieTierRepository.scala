@@ -1,16 +1,14 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-import java.time.Instant
-
-import scala.concurrent.duration.MILLISECONDS
 import cats.Monad
 import cats.data.EitherT
 import cats.effect.Bracket
 import cats.implicits._
 import doobie.enum.SqlState
+import doobie.free.connection.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
 
 import scala.language.higherKinds
 
@@ -26,10 +24,10 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] = {
     val result = for {
       _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
-        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+        case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
       _ <- EitherT(createTierConfigurationQuery(name, initialConfiguration).run.attemptSomeSqlState {
-        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+        case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
     } yield Tier(name, List(initialConfiguration))
 
@@ -38,11 +36,19 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
 
   /** Updates tier */
   override def addConfiguration(name: TierName, configuration: TierConfiguration): F[Either[Throwable, Unit]] = {
-    val result = EitherT(createTierConfigurationQuery(name, configuration).run.attemptSomeSqlState {
-      case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
-    }.transact(transactor))
 
-    result.map(_ => ()).value
+    val createConfiguration = createTierConfigurationQuery(name, configuration).run.map(_ => ().asRight[Throwable])
+    lazy val error = (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[ConnectionIO]
+
+    val transaction = for {
+      isValid <- validateTierConfigurationQuery(name, configuration).unique.map(_ == 0)
+      result <- if (isValid)
+        createConfiguration
+      else
+        error
+    } yield result
+
+    transaction.transact(transactor)
   }
 
   /** Returns tier */
@@ -53,3 +59,5 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)
+
+final case class NotAllowedConfigurationOverride(message: String) extends Throwable(message)

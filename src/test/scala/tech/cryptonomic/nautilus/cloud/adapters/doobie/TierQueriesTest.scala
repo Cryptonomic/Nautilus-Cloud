@@ -22,6 +22,20 @@ class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
           sut.createTierQuery(TierName("shared", "free"))
         )
       }
+      "check validation of a tier configuration" in {
+        check(
+          sut.validateTierConfigurationQuery(
+            TierName("shared", "free"),
+            TierConfiguration(
+              description = "shared free",
+              monthlyHits = 100,
+              dailyHits = 10,
+              maxResultSetSize = 20,
+              Instant.now
+            )
+          )
+        )
+      }
       "check creation of a tier configuration" in {
         check(
           sut.createTierConfigurationQuery(

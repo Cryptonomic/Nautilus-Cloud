@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName}
 import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, InMemoryDatabase}
 
 class DoobieTierRepositoryTest
@@ -25,7 +25,8 @@ class DoobieTierRepositoryTest
   "DoobieTierRepository" should {
       "save a tier" in {
         // when
-        val tier = sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        val tier =
+          sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // then
         tier.right.value should equal(
@@ -38,7 +39,9 @@ class DoobieTierRepositoryTest
         sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
         // when
-        sut.addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now)).unsafeRunSync()
+        sut
+          .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.plusSeconds(1)))
+          .unsafeRunSync()
 
         // then
         sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
@@ -46,7 +49,28 @@ class DoobieTierRepositoryTest
             TierName("shared", "free"),
             List(
               TierConfiguration("description", 1, 2, 3, now),
-              TierConfiguration("description", 2, 3, 4, now)
+              TierConfiguration("description", 2, 3, 4, now.plusSeconds(1))
+            )
+          )
+        )
+      }
+
+      "not update an user when new configuration start date override previous configurations" in {
+        // given
+        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+
+        // when
+        val result = sut
+          .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.minusSeconds(1)))
+          .unsafeRunSync()
+
+        // then
+        result.left.value shouldBe a[NotAllowedConfigurationOverride]
+        sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
+          Tier(
+            TierName("shared", "free"),
+            List(
+              TierConfiguration("description", 1, 2, 3, now)
             )
           )
         )
