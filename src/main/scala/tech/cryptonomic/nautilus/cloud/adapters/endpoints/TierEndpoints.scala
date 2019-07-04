@@ -24,7 +24,7 @@ trait TierEndpoints
   def updateTier: Endpoint[(TierName, UpdateTier), Permission[Either[Throwable, Unit]]] =
     endpoint(
       request = post(url = path / "tiers" / segment[TierName]("tierName") / "configurations", jsonRequest[UpdateTier]()),
-      response = emptyResponse().withCreatedStatus().orBadRequest().orForbidden(),
+      response = emptyResponse().withCreatedStatus().orConflict().orForbidden(),
       tags = List("Tier")
     )
 

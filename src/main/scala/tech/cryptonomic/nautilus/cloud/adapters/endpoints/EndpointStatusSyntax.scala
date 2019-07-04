@@ -20,7 +20,7 @@ trait EndpointStatusSyntax extends EndpointsStatusDefinitions with server.JsonSc
   }
 
   /** Extension for using Conflict status code */
-  override def conflict[A](response: A => Route, invalidDocs: Documentation): Option[A] => Route =
+  override def conflict[A](response: A => Route, invalidDocs: Documentation): Either[Throwable, A] => Route =
     _.map(response).getOrElse(complete(HttpResponse(StatusCodes.Conflict)))
 
   /** Extension for using Bad request status code */

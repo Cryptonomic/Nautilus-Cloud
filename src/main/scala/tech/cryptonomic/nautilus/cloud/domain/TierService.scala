@@ -2,7 +2,6 @@ package tech.cryptonomic.nautilus.cloud.domain
 
 import java.time.Instant
 
-import akka.dispatch.OnFailure
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
