@@ -36,16 +36,12 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
 
   /** Updates tier */
   override def addConfiguration(name: TierName, configuration: TierConfiguration): F[Either[Throwable, Unit]] = {
-
-    val createConfiguration = createTierConfigurationQuery(name, configuration).run.map(_ => ().asRight[Throwable])
-    lazy val error = (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[ConnectionIO]
-
     val transaction = for {
       isValid <- validateTierConfigurationQuery(name, configuration).unique.map(_ == 0)
       result <- if (isValid)
-        createConfiguration
+        createTierConfigurationQuery(name, configuration).run.map(_ => ().asRight[Throwable])
       else
-        error
+        (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[ConnectionIO]
     } yield result
 
     transaction.transact(transactor)

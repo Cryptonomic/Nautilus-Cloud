@@ -8,7 +8,14 @@ import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, TierRepository, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{
+  CreateTier,
+  Tier,
+  TierConfiguration,
+  TierName,
+  TierRepository,
+  UpdateTier
+}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 
 import scala.concurrent.duration.MILLISECONDS
@@ -33,13 +40,25 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
       implicit session: Session
   ): F[Permission[Either[Throwable, Unit]]] =
     requiredRole(Administrator) {
-      for {
-        now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
-        isValid = updateTier.startDate.exists(_ isAfter now)
-        tier <- if (isValid) tierRepository.addConfiguration(name, updateTier.toConfiguration(now))
-        else (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[F]
-      } yield tier
+      ifDateIsNotFromThePast(updateTier) {
+        tierRepository.addConfiguration(name, _)
+      }
     }
+
+  private def ifDateIsNotFromThePast(
+      tier: UpdateTier
+  )(f: TierConfiguration => F[Either[Throwable, Unit]]): F[Either[Throwable, Unit]] =
+    for {
+      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
+      isValid = tier.startDate.exists(_ isAfter now)
+      tierConfiguration = tier.toConfiguration(now)
+      tier <- if (isValid)
+        f(tierConfiguration)
+      else
+        (NotAllowedConfigurationOverride(s"Given time ${tier.startDate} is from the past. Current time: $now"): Throwable)
+          .asLeft[Unit]
+          .pure[F]
+    } yield tier
 
   /** Returns tier with given name */
   def getTier(name: TierName)(implicit session: Session): F[Permission[Option[Tier]]] = requiredRole(Administrator) {
