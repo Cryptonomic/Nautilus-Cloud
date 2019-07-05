@@ -20,6 +20,7 @@ object OpenApiDoc
     updateUser,
     getUser,
     getUserKeys,
+    issueApiKey,
     getApiKeyUsage,
     getResourceEndpoint,
     listResourcesEndpoint,

@@ -43,12 +43,19 @@ class UserRoutes(userService: UserService[IO])
     userService.getUserApiKeysUsage(userId).unsafeToFuture()
   }
 
+  /** Creates API key for given user with resource and tiers */
+  val issueApiKeyRoute: Route = issueApiKey.implementedByAsync {
+    case (userId, createApiKeyRequest) =>
+      userService.createApiKey(userId, createApiKeyRequest.resourceId, createApiKeyRequest.tierId).unsafeToFuture()
+  }
+
   /** Concatenated User routes */
   val routes: Route = concat(
     createUserRoute,
     updateUserRoute,
     getUserRoute,
-    getUserKeysRoute
+    getUserKeysRoute,
+    issueApiKeyRoute,
   )
 
 }

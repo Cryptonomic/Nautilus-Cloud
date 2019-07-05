@@ -97,6 +97,41 @@ class UserRoutesTest
           responseAs[String] should matchJson(exampleUsageJson)
         }
       }
+
+      "create API key for user" in {
+        (apiKeyRepo.putApiKeyForUser _).when(*).returns(IO.pure(()))
+        (userRepository.getUser _).when(1).returns(IO.pure(Some(exampleUser.copy(userId = 1))))
+        (resourcesRepo.getResource _).when(1).returns(IO.pure(Some(exampleResource.copy(resourceid = 1))))
+
+        val postRequest = HttpRequest(
+          HttpMethods.POST,
+          uri = "/users/1/apiKeys",
+          entity = HttpEntity(MediaTypes.`application/json`, exampleCreateApiKeyRequestJson)
+        )
+
+        postRequest ~> sut.issueApiKeyRoute ~> check {
+          status shouldEqual StatusCodes.Created
+          contentType shouldBe ContentTypes.`text/plain(UTF-8)`
+          val response = responseAs[String]
+          response.length shouldBe 32
+        }
+      }
+
+    "do not create API key for user when resource does not exist" in {
+      (apiKeyRepo.putApiKeyForUser _).when(*).returns(IO.pure(()))
+      (userRepository.getUser _).when(1).returns(IO.pure(Some(exampleUser.copy(userId = 1))))
+      (resourcesRepo.getResource _).when(1).returns(IO.pure(None))
+
+      val postRequest = HttpRequest(
+        HttpMethods.POST,
+        uri = "/users/1/apiKeys",
+        entity = HttpEntity(MediaTypes.`application/json`, exampleCreateApiKeyRequestJson)
+      )
+
+      postRequest ~> sut.issueApiKeyRoute ~> check {
+        status shouldEqual StatusCodes.NotFound
+      }
+    }
   }
 
 }

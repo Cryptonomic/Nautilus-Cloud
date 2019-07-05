@@ -2,9 +2,9 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 
 import java.time.ZonedDateTime
 
-import scala.concurrent.duration._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKeyRequest, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 
@@ -20,6 +20,14 @@ trait Fixtures {
   val exampleUpdateUser = UpdateUser("email@example.com", Role.User, Github, None)
 
   val exampleUsageLeft = UsageLeft("apikey", 500, 15000)
+
+  val exampleResource = Resource(0, "dev", "Development", "tezos", "alphanet")
+
+  val exampleCreateResource = CreateResource("dev", "Development", "tezos", "alphanet")
+
+  val exampleCreateApiKeyRequest = CreateApiKeyRequest(1, 2)
+
+  val exampleCreateApiKeyRequestJson = """{"resourceId": 1, "tierId": 2}"""
 
   val exampleApiKeyAsJson =
     """

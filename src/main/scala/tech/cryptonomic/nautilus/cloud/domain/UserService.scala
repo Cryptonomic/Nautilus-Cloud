@@ -43,7 +43,7 @@ class UserService[F[_]](
 
   /** Creates API key for given userId, resourceId and tierId */
   def createApiKey(userId: UserId, resourceId: ResourceId, tierId: Int): F[Option[String]] = {
-    val generatedKey = Random.alphanumeric.take(32).toString()
+    val generatedKey = Random.alphanumeric.take(32).mkString
 
     // I need to add tiers here
     {

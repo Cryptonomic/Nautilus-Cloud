@@ -1,38 +1,25 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
-class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures {
+class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with MockFactory {
 
-  val apiKeyRepo = new ApiKeyRepository[Id] {
-    override def getAllApiKeys: List[ApiKey] = List(exampleApiKey)
-
-    override def validateApiKey(apiKey: String): Boolean = true
-
-    override def getUserApiKeys(userId: Int): List[ApiKey] = List(exampleApiKey)
-
-    override def getKeysUsageForUser(userId: Int): Id[List[UsageLeft]] = ???
-
-    override def getKeyUsage(key: String): Id[Option[UsageLeft]] = ???
-
-    override def updateKeyUsage(usage: UsageLeft): Id[Unit] = ???
-
-    override def putApiKeyUsage(usageLeft: UsageLeft): Id[Unit] = ???
-
-    override def putApiKeyForUser(apiKey: CreateApiKey): Id[Unit] = ???
-  }
+  val apiKeyRepo = stub[ApiKeyRepository[Id]]
 
   val sut = new ApiKeyService[Id](apiKeyRepo)
 
   "ApiKeyService" should {
     "getAllApiKeys" in {
+      (apiKeyRepo.getAllApiKeys _).when().returns(List(exampleApiKey))
       sut.getAllApiKeys shouldBe List(exampleApiKey)
     }
     "validateApiKey" in {
-      sut.validateApiKey("") shouldBe true
+      (apiKeyRepo.validateApiKey _).when("xyz").returns(true)
+      sut.validateApiKey("xyz") shouldBe true
     }
   }
 }
