@@ -18,7 +18,7 @@ class DoobieTierRepositoryTest
 
   val sut = NautilusContext.tierRepository
 
-  "ApiKeyRepo" should {
+  "TierRepo" should {
       "save an user" in {
         // when
         val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
@@ -27,6 +27,17 @@ class DoobieTierRepositoryTest
         tier.right.value should equal(
           Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None)))
         )
+      }
+
+      "get DoobieUniqueTierViolationException when saving a duplicated user" in {
+        // given
+        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+
+        // when
+        val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+
+        // then
+        tier.left.value shouldBe a[DoobieUniqueTierViolationException]
       }
 
       "receive an user" in {
@@ -38,6 +49,14 @@ class DoobieTierRepositoryTest
 
         // then
         tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None))))
+      }
+
+      "get on when receiving an user which doesn't exist" in {
+        // when
+        val tier = sut.get(TierName("shared", "free")).unsafeRunSync()
+
+        // then
+        tier should equal(None)
       }
     }
 }

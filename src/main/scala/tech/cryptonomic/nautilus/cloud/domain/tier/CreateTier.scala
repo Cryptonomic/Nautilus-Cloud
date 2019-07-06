@@ -1,5 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.domain.tier
 
+/* case class for create tier */
 case class CreateTier(
     description: String,
     monthlyHits: Int,

@@ -22,16 +22,15 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(implicit brac
   override def create(name: TierName, createTier: CreateTier): F[Either[Throwable, Tier]] = {
     val inserts = for {
       _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
-        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+        case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
       _ <- EitherT(createTierConfigurationQuery(name, createTier).run.attemptSomeSqlState {
-        case UNIQUE_VIOLATION => DoobieUniqueUserViolationException("UNIQUE_VIOLATION"): Throwable
+        case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
-    } yield ()
+    } yield createTier.toTier(name)
 
     inserts
       .transact(transactor)
-      .map(_ => createTier.toTier(name))
       .value
   }
 
