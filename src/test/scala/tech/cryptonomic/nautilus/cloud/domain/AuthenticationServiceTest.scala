@@ -58,6 +58,7 @@ class AuthenticationServiceTest
       "resolve an auth code when user doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        userRepository.getUser(1) should be(None)
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -70,6 +71,7 @@ class AuthenticationServiceTest
       "create an user when the user with a given email doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        userRepository.getUser(1) should be(None)
 
         // when
         authenticationService.resolveAuthCode("authCode")

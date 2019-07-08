@@ -6,7 +6,6 @@ import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
@@ -26,33 +25,6 @@ class UserRoutesTest
   val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepo))
 
   "The User route" should {
-
-      "successfully create user" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Right(1)))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
-        )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Created
-          responseAs[String] shouldBe "1"
-        }
-      }
-
-      "receive 409 Conflict response code when given email is already used" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Left(DoobieUniqueViolationException("error"))))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
-        )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Conflict
-        }
-      }
 
       "successfully update user" in {
         (userRepository.updateUser _).when(*, *).returns(IO.pure())

@@ -1,12 +1,17 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Id
+import cats.Applicative
+import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.{AccessToken, Code, Email, Result}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.AccessToken
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Code
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
 
 import scala.collection.mutable
+import scala.language.higherKinds
 
-class InMemoryAuthenticationProviderRepository extends AuthenticationProviderRepository[Id] {
+class InMemoryAuthenticationProviderRepository[F[_]: Applicative] extends AuthenticationProviderRepository[F] {
 
   private val availableAuthentications = new mutable.MutableList[(Code, AccessToken, Email)]
 
@@ -18,15 +23,15 @@ class InMemoryAuthenticationProviderRepository extends AuthenticationProviderRep
     availableAuthentications.clear()
   }
 
-  override def exchangeCodeForAccessToken(code: Code): Result[AccessToken] = this.synchronized {
+  override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (`code`, accessToken, _) => accessToken
-    }.toRight(new RuntimeException)
+    }.toRight(new Throwable).pure[F]
   }
 
-  override def fetchEmail(accessToken: AccessToken): Result[Email] = this.synchronized {
+  override def fetchEmail(accessToken: AccessToken): F[Result[Email]] = this.synchronized {
     availableAuthentications.collectFirst {
       case (_, `accessToken`, email) => email
-    }.toRight(new RuntimeException)
+    }.toRight(new Throwable).pure[F]
   }
 }

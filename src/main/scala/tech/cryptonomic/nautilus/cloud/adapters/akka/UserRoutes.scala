@@ -8,6 +8,7 @@ import endpoints.akkahttp.server
 import endpoints.algebra.Documentation
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{UsageLeft, UserEndpoints}
 import tech.cryptonomic.nautilus.cloud.domain.UserService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 // TODO:
 //   users/{user}/usage	  GET	Gets the number of queries used by the given user
@@ -17,11 +18,6 @@ class UserRoutes(userService: UserService[IO])
     extends UserEndpoints
     with server.Endpoints
     with server.JsonSchemaEntities {
-
-  /** User creation route implementation */
-  val createUserRoute: Route = createUser.implementedByAsync { userReg =>
-    userService.createUser(userReg).map(_.toOption.map(_.toString)).unsafeToFuture()
-  }
 
   /** User update route implementation */
   val updateUserRoute: Route = updateUser.implementedByAsync {
@@ -34,6 +30,11 @@ class UserRoutes(userService: UserService[IO])
     userService.getUser(userId).unsafeToFuture()
   }
 
+  /** Current user route implementation */
+  def getCurrentUserRoute(session: Session): Route = getCurrentUser.implementedByAsync { _ =>
+    userService.getCurrentUser(session).unsafeToFuture()
+  }
+
   /** User keys route implementation */
   val getUserKeysRoute: Route = getUserKeys.implementedByAsync { userId =>
     userService.getUserApiKeys(userId).unsafeToFuture()
@@ -43,14 +44,6 @@ class UserRoutes(userService: UserService[IO])
   val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedBy { apiKey =>
     Some(UsageLeft("dummyKey", 500, 15000))
   }
-
-  /** Concatenated User routes */
-  val routes: Route = concat(
-    createUserRoute,
-    updateUserRoute,
-    getUserRoute,
-    getUserKeysRoute
-  )
 
   /** Extension for using Created status code */
   override def created[A](response: A => Route, invalidDocs: Documentation): A => Route = { entity =>

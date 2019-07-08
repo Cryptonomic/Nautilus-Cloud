@@ -1,12 +1,20 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.model.StatusCodes.Found
-import akka.http.scaladsl.server.Directives.{getFromResource, getFromResourceDirectory, path, pathEndOrSingleSlash, pathPrefix, redirect, _}
+import akka.http.scaladsl.server.Directives.{
+  getFromResource,
+  getFromResourceDirectory,
+  path,
+  pathEndOrSingleSlash,
+  pathPrefix,
+  redirect,
+  _
+}
 import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
 class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
@@ -22,6 +30,7 @@ class Routes(
           getFromResource("web/swagger/index.html")
         }
       },
+      Docs.route,
       pathPrefix("swagger-ui") {
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
@@ -32,13 +41,18 @@ class Routes(
       path("") {
         redirect("/site", Found)
       },
-      Docs.route,
       sessionRoutes.routes,
       sessionOperations.requiredSession { session =>
         List(
-          apiKeysRoutes.routes,
-          sessionOperations.requiredRole(Administrator) {
-            userRoutes.routes
+          apiKeysRoutes.validateApiKeyRoute,
+          userRoutes.getCurrentUserRoute(session),
+          sessionOperations.requiredRole(Role.Administrator) {
+            List(
+              apiKeysRoutes.getAllApiKeysRoute,
+              userRoutes.updateUserRoute,
+              userRoutes.getUserRoute,
+              userRoutes.getUserKeysRoute
+            ).reduce(_ ~ _)
           }
         ).reduce(_ ~ _)
       }

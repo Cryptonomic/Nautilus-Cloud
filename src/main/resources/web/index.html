@@ -37,10 +37,8 @@
             $loginForm.hide();
             $logoutForm.show();
 
-            var parsedJson = JSON.parse(data);
-
-            $currentLogin.text(parsedJson.email);
-            $currentRole.text(parsedJson.role);
+            $currentLogin.text(data.userEmail);
+            $currentRole.text(data.userRole);
             $currentLoginStatus.text(status);
         } else {
             $loginForm.show();
@@ -54,7 +52,7 @@
 
     function getCurrentLogin() {
         $.ajax({
-            url: '/current_login',
+            url: '/users/me',
             type: 'GET',
             success: handleResponse,
             error: handleResponse

@@ -5,7 +5,7 @@ import java.time.Instant
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class DoobieUserRepositoryTest
@@ -69,14 +69,14 @@ class DoobieUserRepositoryTest
 
         // when
         sut
-          .updateUser(1, UpdateUser("different-login@domain.com", Role.User, AuthenticationProvider.Github, None))
+          .updateUser(1, UpdateUser(Role.User, Some("brand new description")))
           .unsafeRunSync()
 
         // and
         val fetchedUser = sut.getUser(1).unsafeRunSync()
 
         // then
-        fetchedUser.value should equal(User(1, "different-login@domain.com", Role.User, now, Github, None))
+        fetchedUser.value should equal(User(1, "login@domain.com", Role.User, now, Github, Some("brand new description")))
       }
     }
 }
