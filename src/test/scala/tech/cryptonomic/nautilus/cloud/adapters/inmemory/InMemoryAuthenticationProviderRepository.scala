@@ -1,4 +1,4 @@
-package tech.cryptonomic.nautilus.cloud.domain
+package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
@@ -8,19 +8,18 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProvi
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
 
-import scala.collection.mutable
 import scala.language.higherKinds
 
 class InMemoryAuthenticationProviderRepository[F[_]: Applicative] extends AuthenticationProviderRepository[F] {
 
-  private val availableAuthentications = new mutable.MutableList[(Code, AccessToken, Email)]
+  private var availableAuthentications: List[(Code, AccessToken, Email)] = List.empty
 
   def addMapping(code: Code, accessToken: AccessToken, email: Email): Unit = this.synchronized {
-    availableAuthentications += ((code, accessToken, email))
+    availableAuthentications = availableAuthentications :+ (code, accessToken, email)
   }
 
   def clear(): Unit = this.synchronized {
-    availableAuthentications.clear()
+    availableAuthentications = List.empty
   }
 
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = this.synchronized {

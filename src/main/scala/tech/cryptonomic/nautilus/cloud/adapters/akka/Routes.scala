@@ -42,18 +42,10 @@ class Routes(
         redirect("/site", Found)
       },
       sessionRoutes.routes,
-      sessionOperations.requiredSession { session =>
+      sessionOperations.requiredSession { implicit session =>
         List(
-          apiKeysRoutes.validateApiKeyRoute,
-          userRoutes.getCurrentUserRoute(session),
-          sessionOperations.requiredRole(Role.Administrator) {
-            List(
-              apiKeysRoutes.getAllApiKeysRoute,
-              userRoutes.updateUserRoute,
-              userRoutes.getUserRoute,
-              userRoutes.getUserKeysRoute
-            ).reduce(_ ~ _)
-          }
+          apiKeysRoutes.routes,
+          userRoutes.routes,
         ).reduce(_ ~ _)
       }
     ).reduce(_ ~ _)

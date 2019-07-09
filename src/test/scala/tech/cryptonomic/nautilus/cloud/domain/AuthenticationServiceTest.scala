@@ -5,6 +5,8 @@ import java.time.Instant
 import cats.Id
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.NautilusContext
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryAuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
