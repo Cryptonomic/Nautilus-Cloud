@@ -40,6 +40,16 @@ object OpenApiDoc
     DocumentedResponse(409, notFoundDocs.getOrElse(""), content = Map.empty) :: response
 
   /** Extension for using Forbidden status code */
-  override def forbidden[A](response: List[OpenApiDoc.DocumentedResponse], invalidDocs: Documentation): Response[Permission[A]] =
+  override def forbidden[A](
+      response: List[OpenApiDoc.DocumentedResponse],
+      invalidDocs: Documentation
+  ): Response[Permission[A]] =
     DocumentedResponse(403, invalidDocs.getOrElse(""), content = Map.empty) :: response
+
+  /** Extension for using Bad request status code */
+  override def badRequest[A](
+      response: List[OpenApiDoc.DocumentedResponse],
+      invalidDocs: Documentation
+  ): List[OpenApiDoc.DocumentedResponse] =
+    DocumentedResponse(401, invalidDocs.getOrElse(""), content = Map.empty) :: response
 }

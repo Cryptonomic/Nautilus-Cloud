@@ -8,7 +8,11 @@ import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
 
 /** User relevant endpoints */
-trait UserEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with UserSchemas with EndpointsStatusDefinitions {
+trait UserEndpoints
+    extends algebra.Endpoints
+    with algebra.JsonSchemaEntities
+    with UserSchemas
+    with EndpointsStatusDefinitions {
 
   /** User update endpoint definition */
   def updateUser: Endpoint[(UserId, UpdateUser), Permission[Unit]] =

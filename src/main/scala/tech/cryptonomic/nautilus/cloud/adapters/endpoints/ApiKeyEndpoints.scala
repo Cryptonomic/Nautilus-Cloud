@@ -6,7 +6,11 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** ApiKey relevant endpoints */
-trait ApiKeyEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with ApiKeySchemas with EndpointsStatusDefinitions {
+trait ApiKeyEndpoints
+    extends algebra.Endpoints
+    with algebra.JsonSchemaEntities
+    with ApiKeySchemas
+    with EndpointsStatusDefinitions {
 
   /** Endpoint definition for getting all ApiKeys */
   def getAllKeys: Endpoint[Unit, Permission[List[ApiKey]]] =
