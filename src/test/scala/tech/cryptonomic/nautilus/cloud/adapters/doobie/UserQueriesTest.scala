@@ -22,7 +22,7 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
       check(sut.createUserQuery(CreateUser("name@domain.com", Role.User, Instant.now(), AuthenticationProvider.Github, None)))
     }
     "check updating of user " in {
-      check(sut.updateUserQuery(1, UpdateUser("name@domain.com", Role.User, AuthenticationProvider.Github, None)))
+      check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))
     }
     "check getUser" in {
       check(sut.getUserQuery(0))

@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka.session
 
 import akka.http.scaladsl.model.StatusCodes.{Found, NoContent, SeeOther}
-import akka.http.scaladsl.server.Directives.{complete, get, onComplete, parameters, path, post, redirect, reject, _}
+import akka.http.scaladsl.server.Directives.{complete, onComplete, parameters, path, post, redirect, reject, _}
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route}
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
@@ -37,20 +37,13 @@ class SessionRoutes(
         }
       },
       sessionOperations.requiredSession { session =>
-        List(
-          path("logout") {
-            post {
-              sessionOperations.invalidateSession {
-                complete(NoContent)
-              }
-            }
-          },
-          path("current_login") {
-            get {
-              complete(s"""{"email": "${session.email}", "role": "${session.role}"}""")
+        path("logout") {
+          post {
+            sessionOperations.invalidateSession {
+              complete(NoContent)
             }
           }
-        ).reduce(_ ~ _)
+        }
       }
     ).reduce(_ ~ _)
 }

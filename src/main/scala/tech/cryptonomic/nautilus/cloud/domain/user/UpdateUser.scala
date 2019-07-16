@@ -1,9 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.user
 
-/** Class used in user registration and update */
+/** Class used in user update */
 case class UpdateUser(
-    userEmail: String,
     userRole: Role,
-    accountSource: AuthenticationProvider,
     accountDescription: Option[String]
 )

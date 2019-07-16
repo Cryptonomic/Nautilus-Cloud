@@ -42,9 +42,9 @@ object NautilusContext extends StrictLogging {
   lazy val userRepository = wire[DoobieUserRepository[IO]]
   lazy val authRepository = wire[SttpGithubAuthenticationProviderRepository[IO]]
 
+  lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]
   lazy val userService = wire[UserService[IO]]
-  lazy val authService = wire[AuthenticationService[IO]]
 
   lazy val apiKeysRoutes = wire[ApiKeyRoutes]
   lazy val userRoutes = wire[UserRoutes]
