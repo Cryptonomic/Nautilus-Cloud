@@ -41,7 +41,7 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
       result <- if (isValid)
         createTierConfigurationQuery(name, configuration).run.map(_ => ().asRight[Throwable])
       else
-        (NotAllowedConfigurationOverride(""): Throwable).asLeft[Unit].pure[ConnectionIO]
+        (NotAllowedConfigurationOverride("NOT_ALLOWED_CONFIGURATION"): Throwable).asLeft[Unit].pure[ConnectionIO]
     } yield result
 
     transaction.transact(transactor)

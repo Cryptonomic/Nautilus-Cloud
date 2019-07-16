@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain.tier
 
 import java.time.Instant
 
+/* case class for create tier */
 case class CreateTier(
     description: String,
     monthlyHits: Int,

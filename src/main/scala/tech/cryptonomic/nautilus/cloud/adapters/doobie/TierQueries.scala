@@ -27,20 +27,23 @@ trait TierQueries {
                   ${configuration.dailyHits}, ${configuration.maxResultSetSize}, ${configuration.startDate})""".update
 
   /** Returns tier */
-  def getTiersConfigurationQuery(tierName: TierName): Query0[TierDto] =
+  def getTiersConfigurationQuery(tierName: TierName): Query0[TierConfigurationDto] =
     sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate FROM tiers_configuration
-          WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query
+          WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query[TierConfigurationDto]
 }
 
 object TierQueries {
-  implicit class ExtendedTierDtoList(val tiers: List[TierDto]) extends AnyVal {
+
+  /* extension method which converts List[TierDto] to a Tier */
+  implicit class ExtendedTierDtoList(val tiers: List[TierConfigurationDto]) extends AnyVal {
     def toTier: Option[Tier] =
       tiers.headOption
         .map(head => Tier(head.asTierName, tiers.map(_.asTierConfiguration)))
   }
 }
 
-case class TierDto(
+/* Dto for TierConfiguration */
+case class TierConfigurationDto(
     tier: String,
     subtier: String,
     description: String,

@@ -20,6 +20,7 @@ case class TierName(tier: String, subTier: String) {
 }
 
 object TierName {
+  /* apply method for constructing tier name base on string with "_" as delimiter between tier and subTier */
   def apply(name: String): TierName =
     name.split('_') match {
       case Array(tier, subTier) => TierName(tier, subTier)

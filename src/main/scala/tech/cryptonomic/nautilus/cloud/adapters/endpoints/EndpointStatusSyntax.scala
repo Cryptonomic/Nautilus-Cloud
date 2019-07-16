@@ -7,7 +7,7 @@ import akka.http.scaladsl.server.RouteResult.Complete
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import endpoints.algebra.Documentation
-import tech.cryptonomic.nautilus.cloud.adapters.akka.Mappers.ResponseMapper
+import tech.cryptonomic.nautilus.cloud.adapters.akka.ResponseMappers.ResponseMapper
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** Utility trait for extending Endpoints functionality */
