@@ -1,9 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Monad
+import cats.Applicative
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.requiredRole
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, requiredRole}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserRepository}
@@ -11,7 +10,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserReposi
 import scala.language.higherKinds
 
 /** User service implementation */
-class UserService[F[_]: Monad](
+class UserService[F[_]: Applicative](
     userRepo: UserRepository[F],
     apiKeyRepo: ApiKeyRepository[F]
 ) {

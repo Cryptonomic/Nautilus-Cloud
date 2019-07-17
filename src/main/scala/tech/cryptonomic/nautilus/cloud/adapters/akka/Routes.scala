@@ -20,11 +20,12 @@ class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
     private val userRoutes: UserRoutes,
     private val sessionRoutes: SessionRoutes,
+    private val tierRoutes: TierRoutes,
     private val sessionOperations: SessionOperations
 ) extends StrictLogging {
 
   def getAll: Route =
-    List(
+    concat(
       pathPrefix("docs") {
         pathEndOrSingleSlash {
           getFromResource("web/swagger/index.html")
@@ -43,10 +44,11 @@ class Routes(
       },
       sessionRoutes.routes,
       sessionOperations.requiredSession { implicit session =>
-        List(
+        concat(
           apiKeysRoutes.routes,
           userRoutes.routes,
-        ).reduce(_ ~ _)
+          tierRoutes.routes
+        )
       }
-    ).reduce(_ ~ _)
+    )
 }
