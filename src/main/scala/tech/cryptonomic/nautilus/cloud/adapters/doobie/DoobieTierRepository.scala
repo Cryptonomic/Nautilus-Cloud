@@ -34,12 +34,17 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(implicit brac
       .value
   }
 
-  /** Returns tier */
+  /** Returns tier by Tier Name */
   override def get(name: TierName): F[Option[Tier]] = {
     import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
     getTiersConfigurationQuery(name).to[List].transact(transactor).map(_.toTier)
   }
 
+  /** Returns tier by ID */
+  override def get(tierId: Int): F[Option[Tier]] = {
+    import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
+    getTiersConfigurationQuery(tierId).to[List].transact(transactor).map(_.toTier)
+  }
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)

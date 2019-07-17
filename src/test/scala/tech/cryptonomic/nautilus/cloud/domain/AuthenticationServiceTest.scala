@@ -3,10 +3,10 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Id
-import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, OptionValues, WordSpec}
+import org.scalamock.scalatest.MockFactory
+import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryAuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
@@ -20,9 +20,12 @@ class AuthenticationServiceTest
 
   val authRepository = new InMemoryAuthenticationProviderRepository()
   val userRepository = new InMemoryUserRepository()
+  val apiKeyRepository = new InMemoryApiKeyRepository()
+  val tiersRepository = new InMemoryTierRepository()
+  val resourcesRespository = new InMemoryResourceRepository()
 
   val authenticationService =
-    new AuthenticationService[Id](NautilusContext.authConfig, authRepository, userRepository)
+    new AuthenticationService[Id](NautilusContext.authConfig, authRepository, userRepository, apiKeyRepository, resourcesRespository, tiersRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()

@@ -24,8 +24,7 @@ trait UserQueries {
 
   /** Updates user */
   def updateUserQuery(id: UserId, user: UpdateUser): Update0 =
-    sql"UPDATE users SET userrole = ${user.userRole}, accountdescription = ${user.accountDescription} WHERE userid = $id"
-      .update
+    sql"UPDATE users SET userrole = ${user.userRole}, accountdescription = ${user.accountDescription} WHERE userid = $id".update
 
   /** Returns user */
   def getUserQuery(userId: UserId): Query0[User] =

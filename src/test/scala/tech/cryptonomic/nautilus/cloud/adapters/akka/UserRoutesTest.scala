@@ -7,8 +7,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryTierRepository, InMemoryUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
@@ -29,8 +28,9 @@ class UserRoutesTest
   val userRepository = new InMemoryUserRepository[IO]()
   val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
   val resourceRepository = stub[ResourceRepository[IO]]
+  val tiersRepository = new InMemoryTierRepository[IO]()
 
-  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository, resourceRepository))
+  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository, resourceRepository, tiersRepository))
 
   "The User route" should {
 

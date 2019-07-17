@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Applicative
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, requiredRole}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, TierRepository}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator

@@ -54,14 +54,4 @@ trait UserEndpoints
       tags = List("User")
     )
 
-  /** Issues an api key for an user */
-  def issueApiKey: Endpoint[(UserId, CreateApiKeyRequest), Option[String]] =
-    endpoint(
-      request = post(
-        url = path / "users" /segment[UserId]("userId") / "apiKeys",
-        entity = jsonRequest[CreateApiKeyRequest]()
-      ),
-      response = textResponse().withCreatedStatus().orNotFound(),
-      tags = List("User")
-    )
 }

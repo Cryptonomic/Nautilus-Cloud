@@ -8,6 +8,9 @@ trait TierRepository[F[_]] {
   /** Creates tier */
   def create(name: TierName, tier: CreateTier): F[Either[Throwable, Tier]]
 
-  /** Returns tier */
+  /** Returns tier by TierName*/
   def get(name: TierName): F[Option[Tier]]
+
+  /** Returns tier by ID */
+  def get(tierId: Int): F[Option[Tier]]
 }

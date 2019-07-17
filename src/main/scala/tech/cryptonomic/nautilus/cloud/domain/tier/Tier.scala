@@ -7,6 +7,10 @@ case class Tier(
     configurations: List[TierConfiguration]
 )
 
+object Tier {
+  val defaultTierId = 1
+}
+
 case class TierConfiguration(
     description: String,
     monthlyHits: Int,

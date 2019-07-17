@@ -57,5 +57,14 @@ CREATE TABLE usage_left(
     CONSTRAINT keyid_fk FOREIGN KEY (key)
       REFERENCES api_keys (key) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
-)
+);
+
+--- Static resources described in #30
+INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Alphanet Conseil Dev', 'Conseil alphanet development environment', 'tezos', 'alphanet');
+INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Mainnet Conseil Dev', 'Conseil mainnet development environment', 'tezos', 'mainnet');
+INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Alphanet Conseil Prod', 'Conseil alphanet production environment', 'tezos', 'alphanet');
+INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Mainnet Conseil Prod', 'Conseil mainnet production environment', 'tezos', 'mainnet');
+
+INSERT INTO tiers (tier, subtier) VALUES('shared', 'free');
+INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize) VALUES('shared', 'free', 'free tier', 1000, 100, 10);
 

@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
-import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
+import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
@@ -11,7 +11,8 @@ class DoobieResourceRepositoryTest extends WordSpec
   with Matchers
   with EitherValues
   with OptionValues
-  with InMemoryDatabase {
+  with InMemoryDatabase
+  with OneInstancePerTest {
 
   val now: Instant = Instant.now()
 

@@ -35,4 +35,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   def clear(): Unit = this.synchronized {
     tiers = List.empty
   }
+
+  /** Returns tier by ID */
+  override def get(tierId: Int): F[Option[Tier]] = ???
 }

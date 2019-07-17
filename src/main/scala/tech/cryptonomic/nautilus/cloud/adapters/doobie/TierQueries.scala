@@ -24,6 +24,11 @@ trait TierQueries {
   def getTiersConfigurationQuery(tierName: TierName): Query0[TierConfigurationDto] =
     sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, enddate FROM tiers_configuration
           WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query[TierConfigurationDto]
+
+  /** Returns tier */
+  def getTiersConfigurationQuery(tierId: Int): Query0[TierConfigurationDto] =
+    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, enddate FROM tiers_configuration
+          WHERE tierid = $tierId""".query[TierConfigurationDto]
 }
 
 object TierQueries {
