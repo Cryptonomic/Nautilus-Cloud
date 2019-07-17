@@ -10,7 +10,7 @@ trait ResourceEndpoints
     extends algebra.Endpoints
     with algebra.JsonSchemaEntities
     with ResourceSchemas
-    with EndpointsUtil {
+    with EndpointsStatusDefinitions {
 
   /** Resource endpoint */
   def getResourceEndpoint: Endpoint[Int, Option[Resource]] =

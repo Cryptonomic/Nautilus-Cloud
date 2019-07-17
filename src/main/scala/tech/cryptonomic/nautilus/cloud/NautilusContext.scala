@@ -56,7 +56,6 @@ object NautilusContext extends StrictLogging {
   lazy val apiKeysService = wire[ApiKeyService[IO]]
   lazy val tierService = wire[TierService[IO]]
   lazy val userService = wire[UserService[IO]]
-  lazy val authService = wire[AuthenticationService[IO]]
   lazy val resourceService = wire[ResourceService[IO]]
 
   lazy val apiKeysRoutes = wire[ApiKeyRoutes]

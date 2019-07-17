@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import cats.effect.IO
 import endpoints.akkahttp.server
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{ResourceEndpoints, RoutesUtil}
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, ResourceEndpoints}
 import tech.cryptonomic.nautilus.cloud.domain.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 import akka.http.scaladsl.server.Directives._
@@ -13,7 +13,7 @@ class ResourceRoutes(resourceService: ResourceService[IO])
     extends ResourceEndpoints
     with server.Endpoints
     with server.JsonSchemaEntities
-    with RoutesUtil {
+    with EndpointStatusSyntax {
 
   /** Route for geting single resource by id */
   val getResource: Route = getResourceEndpoint.implementedByAsync { resourceId =>

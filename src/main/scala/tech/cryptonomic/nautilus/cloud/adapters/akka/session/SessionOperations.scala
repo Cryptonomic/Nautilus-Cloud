@@ -27,4 +27,5 @@ class SessionOperations(config: SessionConfig) {
 
   def setSession(session: Session): Directive0 = {
     SessionDirectives.setSession(sessionContinuity, sessionTransport, session)
+  }
 }

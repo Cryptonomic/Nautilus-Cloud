@@ -79,21 +79,5 @@ class DoobieUserRepositoryTest
         fetchedUser.value should equal(User(1, "login@domain.com", Role.User, now, Github, Some("brand new description")))
       }
 
-    "get usage left for the user" in {
-      // given
-      sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
-
-      // when
-      sut
-        .updateUser(1, UpdateUser("different-login@domain.com", Role.User, AuthenticationProvider.Github, None))
-        .unsafeRunSync()
-
-      // and
-      val fetchedUser = sut.getUser(1).unsafeRunSync()
-
-      // then
-      fetchedUser.value should equal(User(1, "different-login@domain.com", Role.User, now, Github, None))
-    }
-
     }
 }

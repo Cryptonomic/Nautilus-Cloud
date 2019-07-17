@@ -11,6 +11,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepositor
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
@@ -27,8 +28,9 @@ class UserRoutesTest
 
   val userRepository = new InMemoryUserRepository[IO]()
   val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
+  val resourceRepository = stub[ResourceRepository[IO]]
 
-  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository))
+  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository, resourceRepository))
 
   "The User route" should {
 

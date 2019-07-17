@@ -1,6 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
+import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.OptionValues
 import org.scalatest.EitherValues
@@ -9,6 +10,7 @@ import org.scalatest.WordSpec
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.PermissionDenied
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
@@ -22,12 +24,14 @@ class UserServiceTest
     with Fixtures
     with EitherValues
     with OptionValues
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with MockFactory {
 
   val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
   val userRepository = new InMemoryUserRepository[Id]()
+  val resourceRepository = stub[ResourceRepository[Id]]
 
-  val sut = new UserService[Id](userRepository, apiKeyRepository)
+  val sut = new UserService[Id](userRepository, apiKeyRepository, resourceRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()

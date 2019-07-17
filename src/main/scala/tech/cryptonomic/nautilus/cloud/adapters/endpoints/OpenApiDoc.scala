@@ -24,7 +24,7 @@ object OpenApiDoc
     getApiKeyUsage,
     getResourceEndpoint,
     listResourcesEndpoint,
-    createResourceEndpoint
+    createResourceEndpoint,
     getCurrentUser
   )
 

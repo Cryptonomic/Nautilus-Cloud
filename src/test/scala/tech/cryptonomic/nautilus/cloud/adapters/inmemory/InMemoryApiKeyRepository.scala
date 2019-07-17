@@ -2,8 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -39,5 +38,35 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   /** Clears repository */
   def clear(): Unit = this.synchronized {
     apiKeys = List.empty
+  }
+
+  /** Inserts API key */
+  override def putApiKeyForUser(apiKey: CreateApiKey): F[Unit] = this.synchronized {
+    import io.scalaland.chimney.dsl._
+
+    (apiKeys = apiKeys :+ apiKey.into[ApiKey].withFieldConst(_.keyId, apiKeys.map(_.keyId).max + 1).transform).pure[F]
+  }
+
+
+  private var apiKeyUsage: List[UsageLeft] = List.empty
+
+  /** Inserts API key usage */
+  override def putApiKeyUsage(usageLeft: UsageLeft): F[Unit] = this.synchronized {
+    (apiKeyUsage = apiKeyUsage :+ usageLeft).pure[F]
+  }
+
+  /** Query returning API keys usage for given user */
+  override def getKeysUsageForUser(userId: UserId): F[List[UsageLeft]] = {
+    apiKeys.find(_.userId == userId).toList.flatMap(ak => apiKeyUsage.filter(_.key == ak.key)).pure[F]
+  }
+
+  /** Query returning API key usage */
+  override def getKeyUsage(key: String): F[Option[UsageLeft]] = {
+    apiKeyUsage.find(_.key == key).pure[F]
+  }
+
+  /** Updates API key usage */
+  override def updateKeyUsage(usage: UsageLeft): F[Unit] = {
+    (apiKeyUsage = usage :: apiKeyUsage.filterNot(_.key == usage.key)).pure[F]
   }
 }

@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.Monad
 import cats.data.EitherT
+import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
   AuthenticationConfiguration,
   AuthenticationProviderRepository,
