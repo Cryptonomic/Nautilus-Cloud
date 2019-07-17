@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp
 
-import cats.Monad
+import cats.Applicative
 import cats.implicits._
 import com.softwaremill.sttp._
 import io.circe.generic.auto._
@@ -13,15 +13,13 @@ import scala.language.higherKinds
 import scala.util.Try
 
 /* Github authentication provider */
-class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
-    implicit monad: Monad[F],
-    sttpBackend: SttpBackend[F, Nothing]
+class SttpGithubAuthenticationProviderRepository[F[_]: Applicative](config: GithubConfig)(
+    implicit sttpBackend: SttpBackend[F, Nothing]
 ) extends AuthenticationProviderRepository[F] {
 
-  private val unknownError: F[Result[String]] =
-    monad.pure(Left(SttpGithubAuthenticationProviderException("Unknown error")))
-  private val embeddedError: Throwable => F[Result[String]] = error =>
-    monad.pure(Left(SttpGithubAuthenticationProviderException(cause = error)))
+  private val unknownError: Result[String] = Left(SttpGithubAuthenticationProviderException("Unknown error"))
+  private val embeddedError: Throwable => Result[String] = error =>
+    Left(SttpGithubAuthenticationProviderException(cause = error))
 
   /* exchange code for an access token */
   override def exchangeCodeForAccessToken(code: Code): F[Result[AccessToken]] = safeCall(
@@ -68,8 +66,8 @@ class SttpGithubAuthenticationProviderRepository[F[_]](config: GithubConfig)(
 
   private def safeCall(value: => F[Result[String]]): F[Result[String]] =
     Try(value).recover {
-      case error: Throwable => embeddedError(error)
-      case _ => unknownError
+      case error: Throwable => embeddedError(error).pure[F]
+      case _ => unknownError.pure[F]
     }.get
 
   final private case class EmailResponse(email: String, primary: Boolean, verified: Boolean)

@@ -25,6 +25,6 @@ class SessionOperations(config: SessionConfig) {
     case _ => reject(AuthorizationFailedRejection)
   }
 
-  def setSession(session: Session): Directive0 =
+  def setSession(session: Session): Directive0 = {
     SessionDirectives.setSession(sessionContinuity, sessionTransport, session)
 }

@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 import endpoints.algebra.Documentation
 import endpoints.openapi
 import endpoints.openapi.model.{Info, MediaType, OpenApi, Schema}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** OpenAPI documentation definition */
 object OpenApiDoc
@@ -16,7 +17,6 @@ object OpenApiDoc
   def openApi: OpenApi = openApi(Info("Nautilus-Cloud API", "0.0.1"))(
     getAllKeys,
     validateApiKey,
-    createUser,
     updateUser,
     getUser,
     getUserKeys,
@@ -25,6 +25,7 @@ object OpenApiDoc
     getResourceEndpoint,
     listResourcesEndpoint,
     createResourceEndpoint
+    getCurrentUser
   )
 
   override def created[A](
@@ -42,4 +43,18 @@ object OpenApiDoc
   /** Extension for using Conflict status code */
   override def conflict[A](response: Response[A], notFoundDocs: Documentation): Response[Option[A]] =
     DocumentedResponse(409, notFoundDocs.getOrElse(""), content = Map.empty) :: response
+
+  /** Extension for using Forbidden status code */
+  override def forbidden[A](
+      response: List[OpenApiDoc.DocumentedResponse],
+      invalidDocs: Documentation
+  ): Response[Permission[A]] =
+    DocumentedResponse(403, invalidDocs.getOrElse(""), content = Map.empty) :: response
+
+  /** Extension for using Bad request status code */
+  override def badRequest[A](
+      response: List[OpenApiDoc.DocumentedResponse],
+      invalidDocs: Documentation
+  ): List[OpenApiDoc.DocumentedResponse] =
+    DocumentedResponse(401, invalidDocs.getOrElse(""), content = Map.empty) :: response
 }

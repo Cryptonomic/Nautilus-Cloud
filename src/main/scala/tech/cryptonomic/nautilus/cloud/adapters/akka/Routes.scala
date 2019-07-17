@@ -14,23 +14,25 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
 class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
     private val userRoutes: UserRoutes,
     private val sessionRoutes: SessionRoutes,
     private val resourceRoutes: ResourceRoutes,
+    private val tierRoutes: TierRoutes,
     private val sessionOperations: SessionOperations
 ) extends StrictLogging {
 
   def getAll: Route =
-    List(
+    concat(
       pathPrefix("docs") {
         pathEndOrSingleSlash {
           getFromResource("web/swagger/index.html")
         }
       },
+      Docs.route,
       pathPrefix("swagger-ui") {
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
@@ -41,15 +43,14 @@ class Routes(
       path("") {
         redirect("/site", Found)
       },
-      Docs.route,
       sessionRoutes.routes,
-      sessionOperations.requiredSession { session =>
-        List(
+      sessionOperations.requiredSession { implicit session =>
+        concat(
           apiKeysRoutes.routes,
-          sessionOperations.requiredRole(Administrator) {
-            userRoutes.routes ~ resourceRoutes.routes
-          }
-        ).reduce(_ ~ _)
+          userRoutes.routes,
+          tierRoutes.routes,
+          resourceRoutes.routes
+        )
       }
-    ).reduce(_ ~ _)
+    )
 }

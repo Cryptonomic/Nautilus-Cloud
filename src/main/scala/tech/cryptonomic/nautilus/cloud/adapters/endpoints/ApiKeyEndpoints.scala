@@ -3,15 +3,20 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ApiKeySchemas
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** ApiKey relevant endpoints */
-trait ApiKeyEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities with ApiKeySchemas {
+trait ApiKeyEndpoints
+    extends algebra.Endpoints
+    with algebra.JsonSchemaEntities
+    with ApiKeySchemas
+    with EndpointsStatusDefinitions {
 
   /** Endpoint definition for getting all ApiKeys */
-  def getAllKeys: Endpoint[Unit, List[ApiKey]] =
+  def getAllKeys: Endpoint[Unit, Permission[List[ApiKey]]] =
     endpoint(
       request = get(url = path / "apiKeys"),
-      response = jsonResponse[List[ApiKey]](),
+      response = jsonResponse[List[ApiKey]]().orForbidden(),
       tags = List("ApiKeys")
     )
 
@@ -22,5 +27,4 @@ trait ApiKeyEndpoints extends algebra.Endpoints with algebra.JsonSchemaEntities 
       response = jsonResponse[Boolean](),
       tags = List("ApiKeys")
     )
-
 }

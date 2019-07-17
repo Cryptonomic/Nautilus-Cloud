@@ -1,17 +1,21 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
+import java.time.ZonedDateTime
+
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
-import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieUniqueViolationException
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.UserService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
-import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.JsonMatchers
 
 class UserRoutesTest
     extends WordSpec
@@ -21,117 +25,135 @@ class UserRoutesTest
     with Fixtures
     with MockFactory {
 
-  val userRepository = stub[UserRepository[IO]]
-  val apiKeyRepo = stub[ApiKeyRepository[IO]]
-  val resourcesRepo = stub[ResourceRepository[IO]]
+  val userRepository = new InMemoryUserRepository[IO]()
+  val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
 
-  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepo, resourcesRepo))
+  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository))
 
   "The User route" should {
 
-      "successfully create user" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Right(1)))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
+      "get user" in {
+        // given
+        userRepository.createUser(
+          CreateUser(
+            "email@example.com",
+            Role.User,
+            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            Github,
+            None
+          )
         )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Created
-          responseAs[String] shouldBe "1"
+
+        // when
+        val result = Get("/users/1") ~> sut.getUserRoute(adminSession)
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""{
+                                                    |  "userId": 1,
+                                                    |  "userRole": "user",
+                                                    |  "userEmail": "email@example.com",
+                                                    |  "registrationDate": "2019-05-27T17:03:48.081Z",
+                                                    |  "accountSource": "github"
+                                                    |}
+                                                  """.stripMargin)
         }
       }
 
-      "receive 409 Conflict response code when given email is already used" in {
-        (userRepository.createUser _).when(*).returns(IO.pure(Left(DoobieUniqueViolationException("error"))))
+      "get 403 when trying to get user without admin role" in {
+        Get("/users/1") ~> sut.getUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.Forbidden
+        }
+      }
 
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserRegJson)
+      "get current user" in {
+        // given
+        userRepository.createUser(
+          CreateUser(
+            "email@example.com",
+            Role.User,
+            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            Github,
+            None
+          )
         )
-        postRequest ~> sut.createUserRoute ~> check {
-          status shouldEqual StatusCodes.Conflict
+
+        Get("/users/me") ~> sut.getCurrentUserRoute(userSession.copy(email = "email@example.com")) ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""{
+                                                    |  "userId": 1,
+                                                    |  "userRole": "user",
+                                                    |  "userEmail": "email@example.com",
+                                                    |  "registrationDate": "2019-05-27T17:03:48.081Z",
+                                                    |  "accountSource": "github"
+                                                    |}
+                                                  """.stripMargin)
         }
       }
 
       "successfully update user" in {
-        (userRepository.updateUser _).when(*, *).returns(IO.pure())
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userRole = Role.Administrator, accountDescription = None))
 
+        // when
         val putRequest = HttpRequest(
-          HttpMethods.PUT,
-          uri = "/users/1",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleUserJson)
-        )
-        putRequest ~> sut.updateUserRoute ~> check {
-          status shouldEqual StatusCodes.OK
+            HttpMethods.PUT,
+            uri = "/users/1",
+            entity =
+              HttpEntity(MediaTypes.`application/json`, """{"userRole": "user", "accountDescription": "description"}""")
+          ) ~> sut.updateUserRoute(adminSession)
+
+        // then
+        putRequest ~> check {
+          status shouldEqual StatusCodes.Created
+        }
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
+          responseAs[String] should matchJson("""{"userRole": "user", "accountDescription": "description"}""")
         }
       }
 
-      "get user" in {
-        (userRepository.getUser _).when(*).returns(IO.pure(Some(exampleUser)))
+      "get 403 when trying to update user without admin role" in {
+        // when
+        val request = HttpRequest(
+            HttpMethods.PUT,
+            uri = "/users/1",
+            entity =
+              HttpEntity(MediaTypes.`application/json`, """{"userRole": "user", "accountDescription": "description"}""")
+          ) ~> sut.updateUserRoute(userSession)
 
-        Get("/users/1") ~> sut.getUserRoute ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson(exampleUserJson)
+        // then
+        request ~> check {
+          status shouldEqual StatusCodes.Forbidden
         }
       }
 
       "get user API keys" in {
-        (apiKeyRepo.getUserApiKeys _).when(*).returns(IO.pure(List(exampleApiKey)))
-
-        Get("/users/1/apiKeys") ~> sut.getUserKeysRoute ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson(exampleApiKeyAsJson)
-        }
-      }
-
-      "get user API keys usage" in {
-        (apiKeyRepo.getKeysUsageForUser _).when(*).returns(IO.pure(List(exampleUsageLeft)))
-        Get("/users/1/usage") ~> sut.getApiKeyUsageRoute ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson(exampleUsageJson)
-        }
-      }
-
-      "create API key for user" in {
-        (apiKeyRepo.putApiKeyForUser _).when(*).returns(IO.pure(()))
-        (userRepository.getUser _).when(1).returns(IO.pure(Some(exampleUser.copy(userId = 1))))
-        (resourcesRepo.getResource _).when(1).returns(IO.pure(Some(exampleResource.copy(resourceid = 1))))
-
-        val postRequest = HttpRequest(
-          HttpMethods.POST,
-          uri = "/users/1/apiKeys",
-          entity = HttpEntity(MediaTypes.`application/json`, exampleCreateApiKeyRequestJson)
+        // given
+        apiKeyRepository.add(
+          ApiKey(keyId = 1, key = "apiKey", resourceId = 1, userId = 1, tierId = 1, dateIssued = None, dateSuspended = None)
         )
 
-        postRequest ~> sut.issueApiKeyRoute ~> check {
-          status shouldEqual StatusCodes.Created
-          contentType shouldBe ContentTypes.`text/plain(UTF-8)`
-          val response = responseAs[String]
-          response.length shouldBe 32
+        // when
+        val result = Get("/users/1/apiKeys") ~> sut.getUserKeysRoute
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""
+                                                    |  [{
+                                                    |    "resourceId": 1,
+                                                    |    "tierId": 1,
+                                                    |    "keyId": 1,
+                                                    |    "key": "apiKey",
+                                                    |    "userId": 1
+                                                    |  }]
+                                                  """.stripMargin)
         }
       }
-
-    "do not create API key for user when resource does not exist" in {
-      (apiKeyRepo.putApiKeyForUser _).when(*).returns(IO.pure(()))
-      (userRepository.getUser _).when(1).returns(IO.pure(Some(exampleUser.copy(userId = 1))))
-      (resourcesRepo.getResource _).when(1).returns(IO.pure(None))
-
-      val postRequest = HttpRequest(
-        HttpMethods.POST,
-        uri = "/users/1/apiKeys",
-        entity = HttpEntity(MediaTypes.`application/json`, exampleCreateApiKeyRequestJson)
-      )
-
-      postRequest ~> sut.issueApiKeyRoute ~> check {
-        status shouldEqual StatusCodes.NotFound
-      }
     }
-  }
-
 }

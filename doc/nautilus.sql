@@ -9,11 +9,18 @@ CREATE TABLE resources(
 CREATE TABLE tiers(
     tierid serial PRIMARY KEY,
     tier text NOT NULL,
+    subtier text NOT NULL,
+    UNIQUE(tier, subtier)
+);
+CREATE TABLE tiers_configuration(
+    tier text NOT NULL,
+    subtier text NOT NULL,
     description text NOT NULL,
     monthlyhits integer NOT NULL,
     dailyhits integer NOT NULL,
-    effectivedate timestamp NOT NULL,
-    enddate timestamp NOT NULL
+    maxresultsetsize integer NOT NULL,
+    enddate timestamp,
+    FOREIGN KEY (tier, subtier) REFERENCES tiers (tier, subtier)
 );
 CREATE TABLE users(
     userid serial PRIMARY KEY,

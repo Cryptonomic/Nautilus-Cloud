@@ -12,6 +12,7 @@ import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.akka._
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, Routes, TierRoutes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
@@ -21,6 +22,8 @@ import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
   DoobieUserRepository
 }
 import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, ResourceService, UserService}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieTierRepository, DoobieUserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService, UserService}
 
 import scala.concurrent.ExecutionContext
 
@@ -45,16 +48,20 @@ object NautilusContext extends StrictLogging {
 
   lazy val apiKeysRepository = wire[DoobieApiKeyRepository[IO]]
   lazy val userRepository = wire[DoobieUserRepository[IO]]
+  lazy val tierRepository = wire[DoobieTierRepository[IO]]
   lazy val authRepository = wire[SttpGithubAuthenticationProviderRepository[IO]]
   lazy val resourcesRepository = wire[DoobieResourceRepository[IO]]
 
+  lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]
+  lazy val tierService = wire[TierService[IO]]
   lazy val userService = wire[UserService[IO]]
   lazy val authService = wire[AuthenticationService[IO]]
   lazy val resourceService = wire[ResourceService[IO]]
 
   lazy val apiKeysRoutes = wire[ApiKeyRoutes]
   lazy val userRoutes = wire[UserRoutes]
+  lazy val tierRoutes = wire[TierRoutes]
   lazy val sessionRoutes = wire[SessionRoutes]
   lazy val resourceRoutes = wire[ResourceRoutes]
   lazy val routes = wire[Routes]

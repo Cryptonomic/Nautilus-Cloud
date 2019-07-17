@@ -3,7 +3,6 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.Instant
 
 import cats.Monad
-import cats.implicits._
 import cats.data.EitherT
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
   AuthenticationConfiguration,

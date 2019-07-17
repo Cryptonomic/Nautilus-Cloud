@@ -4,40 +4,52 @@ import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
-import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
-
-class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures with MockFactory {
+class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
 
   "The API Keys route" should {
 
-    val apiKeyRepo = stub[ApiKeyRepository[IO]]
+      val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
+      val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepository))
 
+      "return list containing one api key" in {
+        // when
+        apiKeyRepository.add(
+          ApiKey(keyId = 0, key = "", resourceId = 1, userId = 2, tierId = 3, dateIssued = None, dateSuspended = None)
+        )
 
-    val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepo))
-
-      "return list containing one API key" in {
-        (apiKeyRepo.getAllApiKeys _).when().returns(IO.pure(List(exampleApiKey)))
-        Get("/apiKeys") ~> sut.getAllApiKeysRoute ~> check {
+        // expect
+        Get("/apiKeys") ~> sut.getAllApiKeysRoute(adminSession) ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson(exampleApiKeyAsJson)
+          responseAs[String] should matchJson("""
+                                                    |  [{
+                                                    |    "resourceId": 1,
+                                                    |    "tierId": 3,
+                                                    |    "keyId": 0,
+                                                    |    "key": "",
+                                                    |    "userId": 2
+                                                    |  }]
+                                                  """.stripMargin)
         }
       }
 
-      "return correctly validated API key" in {
-        (apiKeyRepo.validateApiKey _).when("someApiKey").returns(IO.pure(true))
+      "return correctly validated api key" in {
+        // when
+        apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
+
+        // expect
         Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
         }
       }
-
     }
 
 }

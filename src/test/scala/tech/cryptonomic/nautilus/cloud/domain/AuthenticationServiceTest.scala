@@ -5,6 +5,8 @@ import java.time.Instant
 import cats.Id
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.NautilusContext
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryAuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
@@ -58,6 +60,7 @@ class AuthenticationServiceTest
       "resolve an auth code when user doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        userRepository.getUser(1) should be(None)
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -70,6 +73,7 @@ class AuthenticationServiceTest
       "create an user when the user with a given email doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        userRepository.getUser(1) should be(None)
 
         // when
         authenticationService.resolveAuthCode("authCode")
