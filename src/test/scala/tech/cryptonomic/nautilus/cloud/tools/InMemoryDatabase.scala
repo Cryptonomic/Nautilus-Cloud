@@ -12,43 +12,62 @@ import tech.cryptonomic.nautilus.cloud.NautilusContext
 
 import scala.collection.JavaConverters._
 import scala.io.Source
+import scala.util.Try
 
 /**
   * Provides access to a test in-memory database initialized with nautilus schema
   */
-trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with StrictLogging {
+trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
   self: TestSuite =>
 
-  /** here are temp files for the embedded process, can wipe out if needed */
-  protected val cachedRuntimePath = Paths.get("test-nautilus-postgres-path")
+  val database = InMemoryDatabase
+  val testTransactor = database.testTransactor
 
-  val context = NautilusContext
-  val testTransactor = context.transactor
-  val config = context.doobieConfig
+  override protected def beforeEach(): Unit =
+    database.allTables.map { table =>
+      Fragment.const(s"TRUNCATE $table RESTART IDENTITY CASCADE").update.run.transact(testTransactor).unsafeRunSync()
+    }
+}
 
-  /* turns off anti-corruption guarantees settings that will improve performance on testing
-   * override to change or add test-specific settings
-   */
-  protected val pgInitParams = List("--nosync", "--lc-collate=C")
+object InMemoryDatabase extends StrictLogging {
 
-  /* turns off anti-corruption guarantees settings that will improve performance on testing
-   * override to change or add test-specific settings
-   */
-  protected val pgConfigs = List("-c", "full_page_writes=off")
+  private val context = NautilusContext
+  private val testTransactor = context.transactor
+  private val config = context.doobieConfig
 
-  lazy val dbInstance = new EmbeddedPostgres(Version.V9_5_15)
-
-  protected val dbSchema = Source.fromFile("./doc/nautilus.sql").getLines().mkString("\n")
-
-  protected val allTables = List(
+  private val allTables = List(
     "users",
     "tiers",
     "api_keys",
     "resources"
   )
 
-  override protected def beforeAll(): Unit = {
-    super.beforeAll()
+  if (isDatabaseRunning)
+    logger.info(s"Reusing already running embedded PostgreSQL on port ${config.port}")
+  else
+    startDatabase()
+
+  private def isDatabaseRunning: Boolean = Try(new java.net.Socket(config.host, config.port).close()).isSuccess
+
+  private def startDatabase(): Unit = {
+
+    /** here are temp files for the embedded process, can wipe out if needed */
+    val cachedRuntimePath = Paths.get("test-nautilus-postgres-path")
+
+    /* turns off anti-corruption guarantees settings that will improve performance on testing
+     * override to change or add test-specific settings
+     */
+    val pgInitParams = List("--nosync", "--lc-collate=C")
+
+    /* turns off anti-corruption guarantees settings that will improve performance on testing
+     * override to change or add test-specific settings
+     */
+    val pgConfigs = List("-c", "full_page_writes=off")
+
+    val dbInstance = new EmbeddedPostgres(Version.V9_5_15)
+
+    val dbSchema = Source.fromFile("./doc/nautilus.sql").getLines().mkString("\n")
+
     logger.info(s"Starting embedded PostgreSQL on port ${config.port}")
     dbInstance.start(
       EmbeddedPostgres.cachedRuntimeConfig(cachedRuntimePath),
@@ -58,20 +77,15 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
       config.user,
       config.password,
       pgInitParams.asJava,
-      pgConfigs.asJava)
+      pgConfigs.asJava
+    )
 
     Fragment.const(dbSchema).update.run.transact(testTransactor).unsafeRunSync()
     logger.info("Embedded PostgreSQL started successfully")
-  }
 
-  override protected def afterAll(): Unit = {
-    dbInstance.stop()
-    super.afterAll()
-  }
-
-  override protected def afterEach(): Unit = {
-    allTables.map { table =>
-      Fragment.const(s"TRUNCATE $table RESTART IDENTITY CASCADE").update.run.transact(testTransactor).unsafeRunSync()
+    sys.addShutdownHook {
+      dbInstance.stop()
+      logger.info("Embedded PostgreSQL stopped successfully")
     }
   }
 }
