@@ -11,7 +11,7 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
   def created[A](response: Response[A], invalidDocs: Documentation): Response[A]
 
   /** Extension for using Conflict status code */
-  def conflict[A](response: Response[A], invalidDocs: Documentation): Response[Option[A]]
+  def conflict[A](response: Response[A], invalidDocs: Documentation): Response[Either[Throwable, A]]
 
   /** Extension for using Bad request status code */
   def badRequest[A](response: Response[A], invalidDocs: Documentation): Response[Either[Throwable, A]]
@@ -26,7 +26,7 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
     final def withCreatedStatus(notFoundDocs: Documentation = None): Response[A] = created(response, notFoundDocs)
 
     /** syntax for `conflict` */
-    final def orConflict(conflictDocs: Documentation = None): Response[Option[A]] = conflict(response, conflictDocs)
+    final def orConflict(conflictDocs: Documentation = None): Response[Either[Throwable, A]] = conflict(response, conflictDocs)
 
     /** syntax for `bad request` */
     final def orBadRequest(conflictDocs: Documentation = None): Response[Either[Throwable, A]] = badRequest(response, conflictDocs)
