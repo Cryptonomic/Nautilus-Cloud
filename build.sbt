@@ -53,3 +53,12 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka"                  %% "akka-http-testkit"              % akkaHttpVersion % Test exclude ("com.typesafe", "config"),
   "com.github.tomakehurst"             % "wiremock-jre8"                   % "2.23.2" % Test
 )
+
+assemblyMergeStrategy in assembly := {
+  case "META-INF/io.netty.versions.properties" => MergeStrategy.first
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+
+assemblyJarName in assembly := s"nautilus-cloud-${version.value}.jar"
