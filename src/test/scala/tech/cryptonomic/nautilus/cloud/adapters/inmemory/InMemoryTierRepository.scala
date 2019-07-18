@@ -38,4 +38,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
 
   /** Returns tier by ID */
   override def get(tierId: Int): F[Option[Tier]] = ???
+
+  /** Creates default tier */
+  override def createDefaultTier: F[Either[Throwable, Tier]] = ???
 }

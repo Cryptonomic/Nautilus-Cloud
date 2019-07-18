@@ -17,9 +17,9 @@ case class Resource(
 
 /** Object for resource with type alias fro ResourceId */
 object Resource {
-    type ResourceId = Int
-    val defaultTezosDevAlphanetId = 1
-    val defaultTezosDevMainnetId = 2
-    val defaultTezosProdAlphanetId = 3
-    val defaultTezosProdMainnetId = 4
+  type ResourceId = Int
+  val defaultTezosDevAlphanetId = 1
+  val defaultTezosDevMainnetId = 2
+  val defaultTezosProdAlphanetId = 3
+  val defaultTezosProdMainnetId = 4
 }

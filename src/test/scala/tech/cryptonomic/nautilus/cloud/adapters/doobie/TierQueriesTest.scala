@@ -36,5 +36,9 @@ class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
       "check getTier" in {
         check(sut.getTiersConfigurationQuery(TierName("shared", "free")))
       }
+
+      "check getTier by id" in {
+        check(sut.getTiersConfigurationQuery(0))
+      }
     }
 }

@@ -14,4 +14,8 @@ trait ResourceRepository[F[_]] {
 
   /** Selects single resource by id */
   def getResource(resourceId: ResourceId): F[Option[Resource]]
+
+  /** Creates default resources */
+  def createDefaultResources: F[List[ResourceId]]
+
 }

@@ -26,4 +26,7 @@ class InMemoryResourceRepository[F[_]: Monad] extends ResourceRepository[F] {
   override def getResource(resourceId: ResourceId): F[Option[Resource]] = this.synchronized {
     resources.find(_.resourceid == resourceId).pure[F]
   }
+
+  /** Creates default resources */
+  override def createDefaultResources: F[List[ResourceId]] = ???
 }

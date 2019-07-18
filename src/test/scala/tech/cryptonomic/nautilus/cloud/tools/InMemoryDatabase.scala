@@ -62,6 +62,7 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
       pgConfigs.asJava)
 
     Fragment.const(dbSchema).update.run.transact(testTransactor).unsafeRunSync()
+    truncateAll()
     logger.info("Embedded PostgreSQL started successfully")
   }
 
@@ -70,9 +71,13 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach with St
     super.afterAll()
   }
 
-  override protected def afterEach(): Unit = {
+  private def truncateAll(): Unit = {
     allTables.map { table =>
       Fragment.const(s"TRUNCATE $table RESTART IDENTITY CASCADE").update.run.transact(testTransactor).unsafeRunSync()
     }
+  }
+
+  override protected def afterEach(): Unit = {
+    truncateAll()
   }
 }

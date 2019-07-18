@@ -25,13 +25,13 @@ class DoobieResourceRepositoryTest extends WordSpec
         sut.createResource(CreateResource("dev", "development", "tezos", "alphanet")).unsafeRunSync()
 
       // then
-      id should equal(5) // 4 resources are being created by default
+      id should equal(1)
 
       // when
-      val fetchedResource = sut.getResource(5).unsafeRunSync()
+      val fetchedResource = sut.getResource(1).unsafeRunSync()
 
       // then
-      fetchedResource.value should equal(Resource(5, "dev", "development", "tezos", "alphanet"))
+      fetchedResource.value should equal(Resource(1, "dev", "development", "tezos", "alphanet"))
     }
 
     "save and receive multiple resources" in {

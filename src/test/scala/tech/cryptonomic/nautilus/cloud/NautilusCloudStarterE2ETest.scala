@@ -37,6 +37,8 @@ class NautilusCloudStarterE2ETest
 
       "return info about user when user is logged-in with administrator role" in {
         // given
+        nautilusContext.tierRepository.createDefaultTier.unsafeRunSync()
+        nautilusContext.resourcesRepository.createDefaultResources.unsafeRunSync()
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         // create user through first login
@@ -57,6 +59,24 @@ class NautilusCloudStarterE2ETest
         // then
         response.code shouldBe HTTP_OK
         response.body.right.value should include("name@domain.com")
+
+        // get user API Keys
+        val apiKeys = sttp.get(uri"http://localhost:1235/users/1/apiKeys").cookies(authCodeResult.cookies).send()
+
+        val userApiKeys = nautilusContext.apiKeysRepository.getUserApiKeys(1).unsafeRunSync()
+        userApiKeys.size shouldBe 2
+        val exampleKey  = userApiKeys.map(_.key).head
+
+        // then
+        apiKeys.code shouldBe HTTP_OK
+        apiKeys.body.right.value should include(exampleKey)
+
+        // get usage left for the API keys
+        val usageLeft = sttp.get(uri"http://localhost:1235/users/1/usage").cookies(authCodeResult.cookies).send()
+
+        // then
+        usageLeft.code shouldBe HTTP_OK
+        usageLeft.body.right.value should include(exampleKey)
       }
 
       "return HTTP 403 FORBIDDEN when user is logged-in with user role (which is default)" in {

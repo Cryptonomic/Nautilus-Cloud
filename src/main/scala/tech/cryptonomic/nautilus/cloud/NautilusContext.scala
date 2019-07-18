@@ -18,12 +18,11 @@ import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAut
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
   DoobieApiKeyRepository,
   DoobieConfig,
-  DoobieResourceRepository,
-  DoobieUserRepository
+  DoobieTierRepository,
+  DoobieUserRepository,
+  DoobieResourceRepository
 }
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, ResourceService, UserService}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieTierRepository, DoobieUserRepository}
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService, UserService, ResourceService}
 
 import scala.concurrent.ExecutionContext
 

@@ -10,7 +10,6 @@ import org.scalatest.WordSpec
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryTierRepository, InMemoryUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.PermissionDenied
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
-import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser

@@ -45,6 +45,11 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(implicit brac
     import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
     getTiersConfigurationQuery(tierId).to[List].transact(transactor).map(_.toTier)
   }
+
+  /** Creates default tier */
+  override def createDefaultTier: F[Either[Throwable, Tier]] =
+    create(TierName("shared", "free"), CreateTier("free tier", 1000, 100, 10))
+
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)

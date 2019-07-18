@@ -13,4 +13,7 @@ trait TierRepository[F[_]] {
 
   /** Returns tier by ID */
   def get(tierId: Int): F[Option[Tier]]
+
+  /** Creates default tier */
+  def createDefaultTier: F[Either[Throwable, Tier]]
 }
