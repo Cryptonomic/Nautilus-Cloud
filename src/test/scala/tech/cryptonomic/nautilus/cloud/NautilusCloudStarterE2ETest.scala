@@ -6,7 +6,7 @@ import com.softwaremill.sttp._
 import org.scalatest.{EitherValues, Matchers, OptionValues, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase, JsonMatchers, WireMockServer}
+import tech.cryptonomic.nautilus.cloud.tools._
 
 class NautilusCloudStarterE2ETest
     extends WordSpec
@@ -15,14 +15,13 @@ class NautilusCloudStarterE2ETest
     with EitherValues
     with OptionValues
     with InMemoryDatabase
+    with NautilusTestRunner
     with JsonMatchers
     with WireMockServer {
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
   val nautilusContext = DefaultNautilusContext
-
-  NautilusCloud.main(Array.empty)
 
   "users API" should {
 
@@ -93,7 +92,7 @@ class NautilusCloudStarterE2ETest
 
         // and
         response.code shouldBe HTTP_OK
-        response.body.right.value should matchJson("{\"userEmail\": \"name@domain.com\", \"userRole\": \"user\"}")
+        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
     }
 
