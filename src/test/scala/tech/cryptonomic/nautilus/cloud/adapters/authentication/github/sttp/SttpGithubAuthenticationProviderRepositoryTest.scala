@@ -5,7 +5,7 @@ import com.softwaremill.sttp.HttpURLConnectionBackend
 import org.scalatest.{BeforeAndAfterEach, EitherValues, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, WireMockServer}
+import tech.cryptonomic.nautilus.cloud.tools.WireMockServer
 
 class SttpGithubAuthenticationProviderRepositoryTest
     extends WordSpec
@@ -15,7 +15,7 @@ class SttpGithubAuthenticationProviderRepositoryTest
     with BeforeAndAfterEach
     with WireMockServer {
 
-  val context = DefaultNautilusContext
+  val context = NautilusContext
   val authRepository = context.authRepository
 
   implicit val sttpBackend = HttpURLConnectionBackend()

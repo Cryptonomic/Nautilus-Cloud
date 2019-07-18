@@ -17,7 +17,7 @@ trait UserEndpoints
   /** User update endpoint definition */
   def updateUser: Endpoint[(UserId, UpdateUser), Permission[Unit]] =
     endpoint(
-      request = put(url = path / "users" / segment[UserId]("userId"), jsonRequest[UpdateUser]()),
+      request = put(url = path / "users" / segment[Int]("userId"), jsonRequest[UpdateUser]()),
       response = emptyResponse().withCreatedStatus().orForbidden(),
       tags = List("User")
     )

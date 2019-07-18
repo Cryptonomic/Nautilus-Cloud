@@ -5,7 +5,7 @@ import java.time.Instant
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName}
-import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, InMemoryDatabase}
+import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class DoobieTierRepositoryTest
     extends WordSpec
@@ -14,88 +14,41 @@ class DoobieTierRepositoryTest
     with OptionValues
     with InMemoryDatabase {
 
-  val now = Instant.now()
+  val now: Instant = Instant.now()
 
-  val context: NautilusContext = new NautilusContext {
-    override val clock = new FixedClock(now)
-  }
+  val sut = NautilusContext.tierRepository
 
-  val sut = context.tierRepository
-
-  "DoobieTierRepository" should {
-      "save a tier" in {
+  "TierRepo" should {
+      "save an user" in {
         // when
-        val tier =
-          sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // then
         tier.right.value should equal(
-          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now)))
+          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None)))
         )
       }
 
-    "update a tier" in {
-      // given
-      sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
-
-      // when
-      sut
-        .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.plusSeconds(1)))
-        .unsafeRunSync()
-
-      // then
-      sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
-        Tier(
-          TierName("shared", "free"),
-          List(
-            TierConfiguration("description", 1, 2, 3, now),
-            TierConfiguration("description", 2, 3, 4, now.plusSeconds(1))
-          )
-        )
-      )
-    }
-
-    "not update an user when new configuration start date override previous configurations" in {
+      "get DoobieUniqueTierViolationException when saving a duplicated user" in {
         // given
-        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // when
-        val result = sut
-          .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.minusSeconds(1)))
-          .unsafeRunSync()
+        val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // then
-        result.left.value shouldBe a[NotAllowedConfigurationOverride]
-        sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
-          Tier(
-            TierName("shared", "free"),
-            List(
-              TierConfiguration("description", 1, 2, 3, now)
-            )
-          )
-        )
+        tier.left.value shouldBe a[DoobieUniqueTierViolationException]
       }
 
-    "get DoobieUniqueTierViolationException when saving a duplicated user" in {
-      // given
-      sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
-
-      // when
-      val tier = sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
-
-      // then
-      tier.left.value shouldBe a[DoobieUniqueTierViolationException]
-    }
-
-      "receive an tier" in {
+      "receive an user" in {
         // given
-        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // when
         val tier = sut.get(TierName("shared", "free")).unsafeRunSync()
 
         // then
-        tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now))))
+        tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None))))
       }
 
       "get on when receiving an user which doesn't exist" in {

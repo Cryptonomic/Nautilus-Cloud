@@ -19,7 +19,7 @@ CREATE TABLE tiers_configuration(
     monthlyhits integer NOT NULL,
     dailyhits integer NOT NULL,
     maxresultsetsize integer NOT NULL,
-    startdate timestamp NOT NULL,
+    enddate timestamp,
     FOREIGN KEY (tier, subtier) REFERENCES tiers (tier, subtier)
 );
 CREATE TABLE users(

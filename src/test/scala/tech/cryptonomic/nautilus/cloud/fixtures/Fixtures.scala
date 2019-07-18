@@ -1,11 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.fixtures
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.ZonedDateTime
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, UpdateTier}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
@@ -23,9 +22,6 @@ trait Fixtures {
 
   val userSession = Session("user@domain.com", AuthenticationProvider.Github, Role.User)
   val adminSession = Session("user@domain.com", AuthenticationProvider.Github, Role.Administrator)
-
-  val exampleCreateTier = CreateTier("some description", 1, 2, 3)
-  val exampleUpdateTier = UpdateTier("some description", 1, 2, 3, Some(Instant.now))
 
   val exampleApiKeyAsJson =
     """

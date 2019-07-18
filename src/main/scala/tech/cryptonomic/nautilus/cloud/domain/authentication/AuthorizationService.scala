@@ -7,7 +7,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import scala.language.higherKinds
 
 object AuthorizationService {
-  type Permission[T] = Either[AccessDenied, T]
+  type Permission[T] = Either[PermissionDenied, T]
 
   def requiredRole[F[_]: Applicative, T](
       requiredRole: Role
@@ -15,5 +15,5 @@ object AuthorizationService {
     if (requiredRole == session.role)
       f.map(Right(_))
     else
-      AccessDenied(requiredRole, session).asLeft[T].pure[F]
+      PermissionDenied(requiredRole, session.role).asLeft[T].pure[F]
 }

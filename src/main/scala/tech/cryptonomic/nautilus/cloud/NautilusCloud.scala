@@ -10,7 +10,7 @@ object NautilusCloud extends App with StrictLogging {
   implicit val system: ActorSystem = ActorSystem("nautilus-system")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val context = new NautilusContext {}
+  val context = NautilusContext
   val httpConfig = context.httpConfig
   val routes = context.routes
 

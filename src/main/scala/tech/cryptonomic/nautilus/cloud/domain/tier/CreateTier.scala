@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.domain.tier
 
-import java.time.Instant
-
 /* case class for create tier */
 case class CreateTier(
     description: String,
@@ -9,7 +7,6 @@ case class CreateTier(
     dailyHits: Int,
     maxResultSetSize: Int
 ) {
-  def toConfiguration(instant: Instant) =
-    TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize, instant)
-  def toTier(name: TierName, now: Instant) = Tier(name, List(toConfiguration(now)))
+  def toTier(name: TierName): Tier =
+    Tier(name, List(TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize)))
 }

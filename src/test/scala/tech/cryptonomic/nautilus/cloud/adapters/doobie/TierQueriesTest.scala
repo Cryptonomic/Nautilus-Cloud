@@ -1,12 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-import java.time.Instant
-
 import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierName}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
@@ -22,30 +20,15 @@ class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
           sut.createTierQuery(TierName("shared", "free"))
         )
       }
-      "check validation of a tier configuration" in {
-        check(
-          sut.validateTierConfigurationQuery(
-            TierName("shared", "free"),
-            TierConfiguration(
-              description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
-              maxResultSetSize = 20,
-              Instant.now
-            )
-          )
-        )
-      }
       "check creation of a tier configuration" in {
         check(
           sut.createTierConfigurationQuery(
             TierName("shared", "free"),
-            TierConfiguration(
+            CreateTier(
               description = "shared free",
               monthlyHits = 100,
               dailyHits = 10,
-              maxResultSetSize = 20,
-              Instant.now
+              maxResultSetSize = 20
             )
           )
         )

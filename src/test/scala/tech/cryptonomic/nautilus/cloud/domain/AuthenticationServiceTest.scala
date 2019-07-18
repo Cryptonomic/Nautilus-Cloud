@@ -10,7 +10,6 @@ import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
-import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContext
 
 class AuthenticationServiceTest
     extends WordSpec
@@ -23,7 +22,7 @@ class AuthenticationServiceTest
   val userRepository = new InMemoryUserRepository()
 
   val authenticationService =
-    new AuthenticationService[Id](DefaultNautilusContext.authConfig, authRepository, userRepository)
+    new AuthenticationService[Id](NautilusContext.authConfig, authRepository, userRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()
