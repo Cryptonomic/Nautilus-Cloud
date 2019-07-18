@@ -21,11 +21,11 @@ class DoobieTierRepositoryTest
   "TierRepo" should {
       "save an user" in {
         // when
-        val tier = sut.create(TierName("shared", "free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
+        val tier = sut.create(TierName("shared", "example_free"), CreateTier("description", 1, 2, 3)).unsafeRunSync()
 
         // then
         tier.right.value should equal(
-          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, None)))
+          Tier(TierName("shared", "example_free"), List(TierConfiguration("description", 1, 2, 3, None)))
         )
       }
 
