@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-import java.time.Instant
-
 import cats.Monad
 import cats.data.EitherT
 import cats.effect.Bracket
@@ -10,6 +8,7 @@ import doobie.enum.SqlState
 import doobie.free.connection.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 
 import scala.language.higherKinds
@@ -56,14 +55,10 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   }
 
   /** Returns tier by ID */
-  override def get(tierId: Int): F[Option[Tier]] = {
+  override def get(tierId: TierId): F[Option[Tier]] = {
     import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
     getTiersConfigurationQuery(tierId).to[List].transact(transactor).map(_.toTier)
   }
-
-  /** Creates default tier */
-  override def createDefaultTier: F[Either[Throwable, Tier]] =
-    create(TierName("shared", "free"), TierConfiguration("free tier", 1000, 100, 10, Instant.now))
 
 }
 

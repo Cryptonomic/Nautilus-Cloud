@@ -35,8 +35,8 @@ class NautilusCloudStarterE2ETest
 
       "return info about user when user is logged-in with administrator role" in {
         // given
-        nautilusContext.tierRepository.createDefaultTier.unsafeRunSync()
-        nautilusContext.resourcesRepository.createDefaultResources.unsafeRunSync()
+        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
+        createDefaultResources(nautilusContext.resourcesRepository).unsafeRunSync()
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         // create user through first login

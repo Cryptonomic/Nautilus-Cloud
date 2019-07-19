@@ -1,11 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Monad
+import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, _}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
-import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserRepository}
@@ -13,10 +12,10 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserReposi
 import scala.language.higherKinds
 
 /** User service implementation */
-class UserService[F[_]](
+class UserService[F[_]: Monad](
     userRepo: UserRepository[F],
     apiKeyRepo: ApiKeyRepository[F]
-)(implicit monad: Monad[F]) {
+) {
 
   /** Get current user */
   def getCurrentUser(implicit session: Session): F[Option[User]] = userRepo.getUserByEmailAddress(session.email)
@@ -32,12 +31,31 @@ class UserService[F[_]](
     userRepo.getUser(userId)
   }
 
+  /** Returns API Keys for current user with given ID */
+  def getCurrentUserApiKeys(implicit session: Session): F[List[ApiKey]] =
+    userRepo.getUserByEmailAddress(session.email).flatMap { maybeUser =>
+      maybeUser.toList.map { user =>
+        apiKeyRepo.getUserApiKeys(user.userId)
+      }.sequence.map(_.flatten)
+    }
+
+  /** Returns API Keys usage for current user with given ID */
+  def getCurrentUserApiKeysUsage(implicit session: Session): F[List[UsageLeft]] =
+    userRepo.getUserByEmailAddress(session.email).flatMap { maybeUser =>
+      maybeUser.toList.map { user =>
+        apiKeyRepo.getKeysUsageForUser(user.userId)
+      }.sequence.map(_.flatten)
+    }
+
   /** Returns API Keys for user with given ID */
-  def getUserApiKeys(userId: UserId): F[List[ApiKey]] =
-    apiKeyRepo.getUserApiKeys(userId)
+  def getUserApiKeys(userId: UserId)(implicit session: Session): F[Permission[List[ApiKey]]] =
+    requiredRole(Administrator) {
+      apiKeyRepo.getUserApiKeys(userId)
+    }
 
   /** Returns API Keys usage for user with given ID */
-  def getUserApiKeysUsage(userId: UserId): F[List[UsageLeft]] =
-    apiKeyRepo.getKeysUsageForUser(userId)
-
+  def getUserApiKeysUsage(userId: UserId)(implicit session: Session): F[Permission[List[UsageLeft]]] =
+    requiredRole(Administrator) {
+      apiKeyRepo.getKeysUsageForUser(userId)
+    }
 }

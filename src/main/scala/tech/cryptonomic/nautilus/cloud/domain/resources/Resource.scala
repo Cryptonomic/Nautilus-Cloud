@@ -8,7 +8,8 @@ case class Resource(
     resourcename: String,
     description: String,
     platform: String,
-    network: String
+    network: String,
+    environment: String
 )
 
 /** Object for resource with type alias fro ResourceId */

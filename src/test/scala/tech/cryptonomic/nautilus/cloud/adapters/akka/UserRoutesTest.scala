@@ -138,7 +138,7 @@ class UserRoutesTest
         )
 
         // when
-        val result = Get("/users/1/apiKeys") ~> sut.getUserKeysRoute
+        val result = Get("/users/1/apiKeys") ~> sut.getUserKeysRoute(adminSession)
 
         // then
         result ~> check {

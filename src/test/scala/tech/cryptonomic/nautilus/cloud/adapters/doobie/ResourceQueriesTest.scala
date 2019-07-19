@@ -20,7 +20,7 @@ class ResourceQueriesTest extends WordSpec with Matchers with IOChecker with InM
       check(sut.selectResource(0))
     }
     "check creating resource " in {
-      check(sut.insertResource(CreateResource("", "", "", "")))
+      check(sut.insertResource(CreateResource("", "", "", "", "")))
     }
     "check listing all resources" in {
       check(sut.listResources)

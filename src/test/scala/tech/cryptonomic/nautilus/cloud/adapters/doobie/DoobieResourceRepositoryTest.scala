@@ -21,7 +21,7 @@ class DoobieResourceRepositoryTest extends WordSpec
     "save and receive resource" in {
       // when
       val id =
-        sut.createResource(CreateResource("dev", "development", "tezos", "alphanet")).unsafeRunSync()
+        sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", "dev")).unsafeRunSync()
 
       // then
       id should equal(1)
@@ -30,29 +30,22 @@ class DoobieResourceRepositoryTest extends WordSpec
       val fetchedResource = sut.getResource(1).unsafeRunSync()
 
       // then
-      fetchedResource.value should equal(Resource(1, "dev", "development", "tezos", "alphanet"))
+      fetchedResource.value should equal(Resource(1, "dev", "development", "tezos", "alphanet", "dev"))
     }
 
     "save and receive multiple resources" in {
-      // when
-      val firstId =
-        sut.createResource(CreateResource("dev", "development", "tezos", "alphanet")).unsafeRunSync()
-
-      // then
-      firstId should equal(1)
-
-      // when
-      val secondId =
-        sut.createResource(CreateResource("dev", "development", "tezos", "mainnet")).unsafeRunSync()
-
-      // then
-      secondId should equal(2)
+      // given
+      sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", "dev")).unsafeRunSync()
+      sut.createResource(CreateResource("dev", "development", "tezos", "mainnet", "dev")).unsafeRunSync()
 
       // when
       val fetchedResources = sut.getResources.unsafeRunSync()
 
       // then
-      fetchedResources should contain theSameElementsAs List(Resource(1, "dev", "development", "tezos", "alphanet"), Resource(2, "dev", "development", "tezos", "mainnet"))
+      fetchedResources should contain theSameElementsAs List(
+        Resource(1, "dev", "development", "tezos", "alphanet", "dev"),
+        Resource(2, "dev", "development", "tezos", "mainnet", "dev")
+      )
     }
   }
 

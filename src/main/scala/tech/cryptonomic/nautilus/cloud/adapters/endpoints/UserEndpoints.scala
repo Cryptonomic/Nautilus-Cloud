@@ -30,6 +30,22 @@ trait UserEndpoints
       tags = List("User")
     )
 
+  /** Currently logged-in user api keys endpoint definition */
+  def getCurrentUserKeys: Endpoint[Unit, Option[List[ApiKey]]] =
+    endpoint(
+      request = get(url = path / "users" / "me" / "apiKeys"),
+      response = jsonResponse[List[ApiKey]]().orNotFound(),
+      tags = List("User")
+    )
+
+  /** Currently logged-in user api keys usage left endpoint definition */
+  def getCurrentUserUsage: Endpoint[Unit, Option[List[UsageLeft]]] =
+    endpoint(
+      request = get(url = path / "users" / "me" / "usage"),
+      response = jsonResponse[List[UsageLeft]]().orNotFound(),
+      tags = List("User")
+    )
+
   /** User endpoint definition */
   def getUser: Endpoint[UserId, Permission[Option[User]]] =
     endpoint(
@@ -39,18 +55,18 @@ trait UserEndpoints
     )
 
   /** User keys endpoint definition */
-  def getUserKeys: Endpoint[UserId, List[ApiKey]] =
+  def getUserKeys: Endpoint[UserId, Permission[List[ApiKey]]] =
     endpoint(
       request = get(url = path / "users" / segment[UserId]("userId") / "apiKeys"),
-      response = jsonResponse[List[ApiKey]](),
+      response = jsonResponse[List[ApiKey]]().orForbidden(),
       tags = List("User")
     )
 
-  /** Api keys endpoint definition */
-  def getApiKeyUsage: Endpoint[UserId, List[UsageLeft]] =
+  /** Api keys usage endpoint definition */
+  def getApiKeyUsage: Endpoint[UserId, Permission[List[UsageLeft]]] =
     endpoint(
       request = get(url = path / "users" / segment[UserId]("user") / "usage"),
-      response = jsonResponse[List[UsageLeft]](),
+      response = jsonResponse[List[UsageLeft]]().orForbidden(),
       tags = List("User")
     )
 

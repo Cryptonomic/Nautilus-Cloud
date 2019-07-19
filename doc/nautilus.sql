@@ -4,7 +4,8 @@ CREATE TABLE resources(
     resourcename text NOT NULL,
     description text NOT NULL,
     platform text NOT NULL,
-    network text NOT NULL
+    network text NOT NULL,
+    environment text NOT NULL
 );
 CREATE TABLE tiers(
     tierid serial PRIMARY KEY,
@@ -60,10 +61,10 @@ CREATE TABLE usage_left(
 );
 
 --- Static resources described in #30
-INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Alphanet Conseil Dev', 'Conseil alphanet development environment', 'tezos', 'alphanet');
-INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Mainnet Conseil Dev', 'Conseil mainnet development environment', 'tezos', 'mainnet');
-INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Alphanet Conseil Prod', 'Conseil alphanet production environment', 'tezos', 'alphanet');
-INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Mainnet Conseil Prod', 'Conseil mainnet production environment', 'tezos', 'mainnet');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Alphanet Conseil Dev', 'Conseil alphanet development environment', 'tezos', 'alphanet', 'dev');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Mainnet Conseil Dev', 'Conseil mainnet development environment', 'tezos', 'mainnet', 'dev');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Alphanet Conseil Prod', 'Conseil alphanet production environment', 'tezos', 'alphanet', 'prod');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Mainnet Conseil Prod', 'Conseil mainnet production environment', 'tezos', 'mainnet', 'prod');
 
 INSERT INTO tiers (tier, subtier) VALUES('shared', 'free');
 INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate) VALUES('shared', 'free', 'free tier', 1000, 100, 10, current_timestamp);

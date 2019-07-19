@@ -37,14 +37,27 @@ class UserRoutes(userService: UserService[IO])
   }
 
   /** User keys route implementation */
-  val getUserKeysRoute: Route = getUserKeys.implementedByAsync { userId =>
+  def getCurrentUserKeysRoute(implicit session: Session): Route = getUserKeys.implementedByAsync { userId =>
     userService.getUserApiKeys(userId).unsafeToFuture()
   }
 
   /** ApiKey usage route implementation */
-  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedByAsync { userId =>
+  def getCurrentApiKeyUsageRoute(implicit session: Session): Route = getApiKeyUsage.implementedByAsync { userId =>
     userService.getUserApiKeysUsage(userId).unsafeToFuture()
   }
+
+
+  /** User keys route implementation */
+  def getUserKeysRoute(implicit session: Session): Route = getUserKeys.implementedByAsync { userId =>
+    userService.getUserApiKeys(userId).unsafeToFuture()
+  }
+
+  /** ApiKey usage route implementation */
+  def getApiKeyUsageRoute(implicit session: Session): Route = getApiKeyUsage.implementedByAsync { userId =>
+    userService.getUserApiKeysUsage(userId).unsafeToFuture()
+  }
+
+
 
   /** Concatenated User routes */
   def routes(implicit session: Session): Route = concat(

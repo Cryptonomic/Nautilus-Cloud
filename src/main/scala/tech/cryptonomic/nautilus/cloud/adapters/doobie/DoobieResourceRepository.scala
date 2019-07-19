@@ -3,7 +3,6 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import cats.Monad
 import cats.effect.Bracket
 import doobie.implicits._
-import cats.implicits._
 import doobie.util.transactor.Transactor
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
@@ -28,16 +27,4 @@ class DoobieResourceRepository[F[_]: Monad](transactor: Transactor[F])(
   override def getResource(resourceId: ResourceId): F[Option[Resource]] =
     selectResource(resourceId).option.transact(transactor)
 
-  /** Creates default resources */
-  override def createDefaultResources: F[List[ResourceId]] = {
-    val createResources = List(
-      CreateResource("Tezos Alphanet Conseil Dev", "Conseil alphanet development environment", "tezos", "alphanet"),
-      CreateResource("Tezos Mainnet Conseil Dev", "Conseil mainnet development environment", "tezos", "mainnet"),
-      CreateResource("Tezos Alphanet Conseil Prod", "Conseil alphanet production environment", "tezos", "alphanet"),
-      CreateResource("Tezos Mainnet Conseil Prod", "Conseil mainnet production environment", "tezos", "mainnet")
-    )
-    createResources
-      .map(insertResource(_).withUniqueGeneratedKeys[ResourceId]("resourceid").transact(transactor))
-      .sequence
-  }
 }
