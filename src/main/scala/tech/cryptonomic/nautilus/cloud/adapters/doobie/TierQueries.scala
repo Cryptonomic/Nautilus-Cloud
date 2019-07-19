@@ -33,7 +33,7 @@ trait TierQueries {
 
   /** Returns tier */
   def getTiersConfigurationQuery(tierId: Int): Query0[TierConfigurationDto] =
-    sql"""SELECT tiers_configuration.tier, tiers_configuration.subtier, description, monthlyhits, dailyhits, maxResultSetSize, enddate
+    sql"""SELECT tiers_configuration.tier, tiers_configuration.subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate
           FROM tiers_configuration JOIN tiers ON tiers.tier = tiers_configuration.tier AND tiers.subtier = tiers_configuration.subtier
           WHERE tierid = $tierId""".query[TierConfigurationDto]
 }
