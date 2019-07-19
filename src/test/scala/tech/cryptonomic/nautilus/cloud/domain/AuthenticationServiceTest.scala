@@ -10,6 +10,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContext
 
 class AuthenticationServiceTest
     extends WordSpec

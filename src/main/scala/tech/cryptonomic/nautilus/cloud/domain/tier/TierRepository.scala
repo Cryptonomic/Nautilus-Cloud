@@ -6,7 +6,10 @@ import scala.language.higherKinds
 trait TierRepository[F[_]] {
 
   /** Creates tier */
-  def create(name: TierName, tier: CreateTier): F[Either[Throwable, Tier]]
+  def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]]
+
+  /** Updates tier */
+  def addConfiguration(name: TierName, tierConfiguration: TierConfiguration): F[Either[Throwable, Unit]]
 
   /** Returns tier by TierName*/
   def get(name: TierName): F[Option[Tier]]

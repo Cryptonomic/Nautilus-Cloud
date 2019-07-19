@@ -7,6 +7,9 @@ import org.scalatest.OptionValues
 import org.scalatest.EitherValues
 import org.scalatest.Matchers
 import org.scalatest.WordSpec
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryTierRepository, InMemoryUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.PermissionDenied
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
@@ -62,7 +65,7 @@ class UserServiceTest
         // expect
         sut.getUser(1)(userSession)
           .left
-          .value shouldBe a[PermissionDenied]
+          .value shouldBe a[AccessDenied]
       }
 
       "get current user" in {
@@ -103,7 +106,7 @@ class UserServiceTest
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
 
         // then
-        sut.getUser(1)(userSession).left.value shouldBe a[PermissionDenied]
+        sut.getUser(1)(userSession).left.value shouldBe a[AccessDenied]
       }
 
       "getUserApiKeys" in {
