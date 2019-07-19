@@ -77,13 +77,9 @@ class AuthenticationService[F[_]: Monad](
       _ <- OptionT(resourcesRepository.getResource(resourceId))
       tier <- OptionT(tiersRepository.get(tierId))
     } yield {
-      val dailMonthlyHits = clock.realTime(MILLISECONDS).map { now =>
-        tier
-          .configurations
-          .find(conf => conf.startDate.isBefore(Instant.ofEpochMilli(now)))
-          .map(conf => conf.dailyHits -> conf.monthlyHits)
-          .getOrElse((0, 0))
-      }
+      val dailMonthlyHits = clock
+        .realTime(MILLISECONDS)
+        .map(now => tier.findValidDailyMonthlyHits(Instant.ofEpochMilli(now)))
       for {
         dailyMonthly <- dailMonthlyHits
         _ <- apiKeyRepository.putApiKeyForUser(
