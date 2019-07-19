@@ -74,7 +74,6 @@ class AuthenticationService[F[_]: Monad](
   private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: Int): F[Option[String]] = {
     val generatedKey = Random.alphanumeric.take(32).mkString
     (for {
-      _ <- OptionT(userRepository.getUser(userId))
       _ <- OptionT(resourcesRepository.getResource(resourceId))
       tier <- OptionT(tiersRepository.get(tierId))
     } yield {
