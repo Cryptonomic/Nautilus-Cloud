@@ -11,9 +11,8 @@ import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resourc
 import scala.language.higherKinds
 
 /** Doobie resources repository definition*/
-class DoobieResourceRepository[F[_]](transactor: Transactor[F])(
-    implicit bracket: Bracket[F, Throwable],
-    monad: Monad[F]
+class DoobieResourceRepository[F[_]: Monad](transactor: Transactor[F])(
+    implicit bracket: Bracket[F, Throwable]
 ) extends ResourceRepository[F]
     with ResourceQueries {
 

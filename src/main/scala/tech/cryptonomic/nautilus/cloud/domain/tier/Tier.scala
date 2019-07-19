@@ -9,6 +9,7 @@ case class Tier(
 
 object Tier {
   val defaultTierId = 1
+  type TierId = Int
 }
 
 case class TierConfiguration(

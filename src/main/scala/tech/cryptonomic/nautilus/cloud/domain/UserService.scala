@@ -15,9 +15,7 @@ import scala.language.higherKinds
 /** User service implementation */
 class UserService[F[_]](
     userRepo: UserRepository[F],
-    apiKeyRepo: ApiKeyRepository[F],
-    resourcesRepository: ResourceRepository[F],
-    tiersRepository: TierRepository[F]
+    apiKeyRepo: ApiKeyRepository[F]
 )(implicit monad: Monad[F]) {
 
   /** Get current user */

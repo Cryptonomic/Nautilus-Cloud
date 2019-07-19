@@ -42,9 +42,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** Inserts API key */
   override def putApiKeyForUser(apiKey: CreateApiKey): F[Unit] = this.synchronized {
-    import io.scalaland.chimney.dsl._
-
-    (apiKeys = apiKeys :+ apiKey.into[ApiKey].withFieldConst(_.keyId, apiKeys.map(_.keyId).max + 1).transform).pure[F]
+    (apiKeys = apiKeys :+ apiKey.toApiKey(apiKeys.map(_.keyId).maximumOption.getOrElse(0) + 1)).pure[F]
   }
 
 

@@ -3,9 +3,8 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 import java.time.{Instant, ZonedDateTime}
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKeyRequest, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, CreateApiKeyRequest, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, UpdateTier}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
@@ -15,7 +14,8 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
 
-  val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
+  val exampleCreateApiKey = CreateApiKey("", 1, 2, 3, None, None)
+  val exampleApiKey = ApiKey(1, "", 1, 2, 3, None, None)
 
   val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 

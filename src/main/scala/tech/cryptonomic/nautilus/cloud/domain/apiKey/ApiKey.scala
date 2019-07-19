@@ -2,9 +2,11 @@ package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
 import java.time.Instant
 
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey.KeyId
+
 /** Class representing API Key */
 case class ApiKey(
-    keyId: Int,
+    keyId: KeyId,
     key: String,
     resourceId: Int,
     userId: Int,
@@ -12,3 +14,7 @@ case class ApiKey(
     dateIssued: Option[Instant],
     dateSuspended: Option[Instant]
 )
+
+object ApiKey {
+  type KeyId = Int
+}

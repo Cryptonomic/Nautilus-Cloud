@@ -3,9 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
-import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
 class DoobieResourceRepositoryTest extends WordSpec
   with Matchers
@@ -16,7 +15,7 @@ class DoobieResourceRepositoryTest extends WordSpec
 
   val now: Instant = Instant.now()
 
-  val sut = NautilusContext.resourcesRepository
+  val sut = DefaultNautilusContext.resourcesRepository
 
   "Resource repo" should {
     "save and receive resource" in {

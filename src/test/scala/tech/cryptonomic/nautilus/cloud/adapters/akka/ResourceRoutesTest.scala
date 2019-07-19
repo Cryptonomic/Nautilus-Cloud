@@ -5,29 +5,32 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.ResourceService
-import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
-import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 
 class ResourceRoutesTest
   extends WordSpec
     with Matchers
     with ScalatestRouteTest
     with JsonMatchers
-    with Fixtures
-    with MockFactory {
+    with BeforeAndAfterEach {
 
 
-  val resourceRepo = stub[ResourceRepository[IO]]
+  val resourceRepo = new InMemoryResourceRepository[IO]
 
   val resourceService = new ResourceService(resourceRepo)
 
   val sut = new ResourceRoutes(resourceService)
 
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    resourceRepo.clear()
+  }
+
   "The resources route" should {
     "return empty list of resources" in {
-      (resourceRepo.getResources _).when().returns(IO.pure(List.empty))
       val getRequest = HttpRequest(
         HttpMethods.GET,
         uri = "/resources"
@@ -38,8 +41,7 @@ class ResourceRoutesTest
       }
     }
     "return single resource by id" in {
-      val examplerResource = Resource(1, "dev", "development", "tezos", "alphanet")
-      (resourceRepo.getResource _).when(1).returns(IO.pure(Some(examplerResource)))
+      resourceRepo.createResource(CreateResource("dev", "development", "tezos", "alphanet"))
       val getRequest = HttpRequest(
         HttpMethods.GET,
         uri = "/resources/1"
@@ -50,7 +52,6 @@ class ResourceRoutesTest
       }
     }
     "return 404 when resource does not exists" in {
-      (resourceRepo.getResource _).when(1).returns(IO.pure(None))
       val getRequest = HttpRequest(
         HttpMethods.GET,
         uri = "/resources/1"
@@ -60,11 +61,10 @@ class ResourceRoutesTest
       }
     }
     "create resource and return its Id" in {
-      (resourceRepo.createResource _).when(*).returns(IO.pure(1))
       val postRequest = HttpRequest(
         HttpMethods.POST,
         uri = "/resources",
-        entity = HttpEntity(MediaTypes.`application/json`, """{"resourcename":"dev","description":"development","platform":"tezos","network":"alphanet"}""")
+        entity = HttpEntity(MediaTypes.`application/json`, """{"resourceName":"dev","description":"development","platform":"tezos","network":"alphanet"}""")
       )
       postRequest ~> sut.createResource ~> check {
         status shouldEqual StatusCodes.Created

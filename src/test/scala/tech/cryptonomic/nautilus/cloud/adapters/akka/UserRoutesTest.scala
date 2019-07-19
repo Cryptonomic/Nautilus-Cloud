@@ -27,10 +27,8 @@ class UserRoutesTest
 
   val userRepository = new InMemoryUserRepository[IO]()
   val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
-  val resourceRepository = stub[ResourceRepository[IO]]
-  val tiersRepository = new InMemoryTierRepository[IO]()
 
-  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository, resourceRepository, tiersRepository))
+  val sut = new UserRoutes(new UserService[IO](userRepository, apiKeyRepository))
 
   "The User route" should {
 

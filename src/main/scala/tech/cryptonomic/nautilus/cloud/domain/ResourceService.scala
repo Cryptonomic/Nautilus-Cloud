@@ -9,8 +9,8 @@ import scala.language.higherKinds
 class ResourceService[F[_]](resourcesRepo: ResourceRepository[F]) {
 
   /** Creates new resource */
-  def createResource(cr: CreateResource): F[ResourceId] =
-    resourcesRepo.createResource(cr)
+  def createResource(createResource: CreateResource): F[ResourceId] =
+    resourcesRepo.createResource(createResource)
 
   /** Returns all resources */
   def getResources: F[List[Resource]] =

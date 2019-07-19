@@ -66,5 +66,5 @@ INSERT INTO resources (resourcename, description, platform, network) VALUES('Tez
 INSERT INTO resources (resourcename, description, platform, network) VALUES('Tezos Mainnet Conseil Prod', 'Conseil mainnet production environment', 'tezos', 'mainnet');
 
 INSERT INTO tiers (tier, subtier) VALUES('shared', 'free');
-INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize) VALUES('shared', 'free', 'free tier', 1000, 100, 10);
+INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate) VALUES('shared', 'free', 'free tier', 1000, 100, 10, current_timestamp);
 

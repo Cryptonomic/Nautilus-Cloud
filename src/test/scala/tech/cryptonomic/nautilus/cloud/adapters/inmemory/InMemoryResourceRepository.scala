@@ -12,9 +12,9 @@ class InMemoryResourceRepository[F[_]: Monad] extends ResourceRepository[F] {
   private var resources: List[Resource] = List.empty
 
   /** Creates resource */
-  override def createResource(cr: CreateResource): F[ResourceId] = this.synchronized {
-    val max = resources.map(_.resourceid).max
-    (resources = resources :+ Resource(max, cr.resourcename, cr.description, cr.platform, cr.network)).pure[F].map(_ => max)
+  override def createResource(createResource: CreateResource): F[ResourceId] = this.synchronized {
+    val max = resources.map(_.resourceid).maximumOption.getOrElse(0)
+    (resources = resources :+ createResource.toResource(max + 1)).pure[F].map(_ => max + 1)
   }
 
   /** Returns all resources */
@@ -29,4 +29,9 @@ class InMemoryResourceRepository[F[_]: Monad] extends ResourceRepository[F] {
 
   /** Creates default resources */
   override def createDefaultResources: F[List[ResourceId]] = ???
+
+
+  def clear(): Unit = this.synchronized {
+    resources = List.empty
+  }
 }

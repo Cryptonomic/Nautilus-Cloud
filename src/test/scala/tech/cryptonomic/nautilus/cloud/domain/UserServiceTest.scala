@@ -7,11 +7,8 @@ import org.scalatest.OptionValues
 import org.scalatest.EitherValues
 import org.scalatest.Matchers
 import org.scalatest.WordSpec
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryTierRepository, InMemoryUserRepository}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.PermissionDenied
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
@@ -31,10 +28,8 @@ class UserServiceTest
 
   val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
   val userRepository = new InMemoryUserRepository[Id]()
-  val resourceRepository = stub[ResourceRepository[Id]]
-  val tiersRespository = new InMemoryTierRepository[Id]()
 
-  val sut = new UserService[Id](userRepository, apiKeyRepository, resourceRepository, tiersRespository)
+  val sut = new UserService[Id](userRepository, apiKeyRepository)
 
   override protected def afterEach(): Unit = {
     super.afterEach()

@@ -11,7 +11,7 @@ trait ResourceQueries {
 
   /** Inserts resource */
   def insertResource(cr: CreateResource): Update0 =
-    sql"INSERT INTO resources (resourcename, description, platform, network) VALUES(${cr.resourcename}, ${cr.description}, ${cr.platform}, ${cr.network})".update
+    sql"INSERT INTO resources (resourcename, description, platform, network) VALUES(${cr.resourceName}, ${cr.description}, ${cr.platform}, ${cr.network})".update
 
   /** Lists all resources */
   def listResources: Query0[Resource] =

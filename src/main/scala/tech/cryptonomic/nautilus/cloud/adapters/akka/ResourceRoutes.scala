@@ -21,7 +21,7 @@ class ResourceRoutes(resourceService: ResourceService[IO])
   }
 
   /** Route for creating resources */
-  val createResource: Route = createResourceEndpoint.implementedByAsync { createResource: CreateResource =>
+  val createResource: Route = createResourceEndpoint.implementedByAsync { createResource =>
     resourceService.createResource(createResource).map(_.toString).unsafeToFuture()
   }
 
