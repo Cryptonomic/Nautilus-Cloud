@@ -55,7 +55,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** Query returning API keys usage for given user */
   override def getKeysUsageForUser(userId: UserId): F[List[UsageLeft]] = {
-    apiKeys.find(_.userId == userId).toList.flatMap(ak => apiKeyUsage.filter(_.key == ak.key)).pure[F]
+    apiKeys.filter(_.userId == userId).flatMap(ak => apiKeyUsage.filter(_.key == ak.key)).pure[F]
   }
 
   /** Query returning API key usage */

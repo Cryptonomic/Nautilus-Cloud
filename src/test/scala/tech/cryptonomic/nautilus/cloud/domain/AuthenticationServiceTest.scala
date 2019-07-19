@@ -11,6 +11,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, FixedClock}
 
 class AuthenticationServiceTest
@@ -18,6 +19,7 @@ class AuthenticationServiceTest
     with Matchers
     with EitherValues
     with OptionValues
+    with Fixtures
     with BeforeAndAfterEach {
 
   val authRepository = new InMemoryAuthenticationProviderRepository()
@@ -77,9 +79,11 @@ class AuthenticationServiceTest
         )
       }
 
-      "create an user when the user with a given email doesn't exist" in {
+      "create an user when the user with a given email doesn't exist and generate keys and usage for him" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        createDefaultTier(tiersRepository)
+        createDefaultResources(resourcesRespository)
         userRepository.getUser(1) should be(None)
 
         // when
@@ -92,6 +96,8 @@ class AuthenticationServiceTest
           'userRole (Role.User),
           'accountSource (Github)
         )
+        apiKeyRepository.getUserApiKeys(1).size shouldBe 2
+        apiKeyRepository.getKeysUsageForUser(1).size shouldBe 2
       }
 
       "return Left when a given auth code shouldn't be resolved" in {

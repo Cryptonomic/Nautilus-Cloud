@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
 
 import scala.language.higherKinds
@@ -49,6 +50,8 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   }
 
   /** Returns tier by ID */
-  override def get(tierId: Int): F[Option[Tier]] = ???
+  override def get(tierId: TierId): F[Option[Tier]] = this.synchronized {
+    Option(tiers(tierId-1)).pure[F]
+  }
 
 }
