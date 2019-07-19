@@ -4,14 +4,14 @@ import java.net.Socket
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.{BeforeAndAfterEach, TestSuite}
-import tech.cryptonomic.nautilus.cloud.{NautilusCloud, NautilusContext}
+import tech.cryptonomic.nautilus.cloud.NautilusCloud
 
 import scala.util.Try
 
 trait NautilusTestRunner extends BeforeAndAfterEach with StrictLogging {
   self: TestSuite =>
 
-  private val httpConfig = NautilusContext.httpConfig
+  private val httpConfig = DefaultNautilusContext.httpConfig
 
   val thread: Thread = new Thread {
     override def run() {

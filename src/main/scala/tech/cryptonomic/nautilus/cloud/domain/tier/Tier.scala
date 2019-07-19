@@ -12,7 +12,7 @@ case class TierConfiguration(
     monthlyHits: Int,
     dailyHits: Int,
     maxResultSetSize: Int,
-    endDate: Option[Instant] = None
+    startDate: Instant
 )
 
 case class TierName(tier: String, subTier: String) {

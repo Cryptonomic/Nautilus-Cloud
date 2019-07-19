@@ -8,7 +8,6 @@ import doobie.util.fragment.Fragment
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestSuite}
 import ru.yandex.qatools.embed.postgresql.EmbeddedPostgres
 import ru.yandex.qatools.embed.postgresql.distribution.Version
-import tech.cryptonomic.nautilus.cloud.NautilusContext
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -31,9 +30,10 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
 
 object InMemoryDatabase extends StrictLogging {
 
-  private val context = NautilusContext
-  private val testTransactor = context.transactor
+  private val context = DefaultNautilusContext
   private val config = context.doobieConfig
+
+  val testTransactor = context.transactor
 
   private val allTables = List(
     "users",

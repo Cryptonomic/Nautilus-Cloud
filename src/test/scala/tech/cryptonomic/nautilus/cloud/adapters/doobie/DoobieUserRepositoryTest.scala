@@ -6,7 +6,7 @@ import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
-import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
 class DoobieUserRepositoryTest
     extends WordSpec
@@ -17,7 +17,7 @@ class DoobieUserRepositoryTest
 
   val now: Instant = Instant.now()
 
-  val sut = NautilusContext.userRepository
+  val sut = DefaultNautilusContext.userRepository
 
   "ApiKeyRepo" should {
       "save and receive user" in {

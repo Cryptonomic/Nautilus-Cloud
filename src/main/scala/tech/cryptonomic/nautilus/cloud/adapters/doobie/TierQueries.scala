@@ -5,7 +5,7 @@ import java.time.Instant
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName}
 
 /** Trait containing User related queries */
 trait TierQueries {
@@ -14,15 +14,21 @@ trait TierQueries {
   def createTierQuery(name: TierName): Update0 =
     sql"""INSERT INTO tiers (tier, subtier) VALUES (${name.tier},${name.subTier})""".update
 
+  def validateTierConfigurationQuery(name: TierName, configuration: TierConfiguration): Query0[Long] =
+    sql"""SELECT count(*) FROM tiers_configuration WHERE
+          tier = ${name.tier} AND
+          subtier = ${name.subTier} AND
+          startdate >= ${configuration.startDate}""".query
+
   /** Creates tier configuration */
-  def createTierConfigurationQuery(name: TierName, tier: CreateTier): Update0 =
-    sql"""INSERT into tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize)
-          VALUES (${name.tier}, ${name.subTier}, ${tier.description}, ${tier.monthlyHits}, ${tier.dailyHits},
-                  ${tier.maxResultSetSize})""".update
+  def createTierConfigurationQuery(name: TierName, configuration: TierConfiguration): Update0 =
+    sql"""INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate)
+          VALUES (${name.tier}, ${name.subTier}, ${configuration.description}, ${configuration.monthlyHits},
+                  ${configuration.dailyHits}, ${configuration.maxResultSetSize}, ${configuration.startDate})""".update
 
   /** Returns tier */
   def getTiersConfigurationQuery(tierName: TierName): Query0[TierConfigurationDto] =
-    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, enddate FROM tiers_configuration
+    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate FROM tiers_configuration
           WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query[TierConfigurationDto]
 }
 
@@ -44,8 +50,8 @@ case class TierConfigurationDto(
     monthlyhits: Int,
     dailyhits: Int,
     maxResultSetSize: Int,
-    enddate: Option[Instant]
+    startdate: Instant
 ) {
   lazy val asTierName = TierName(tier, subtier)
-  lazy val asTierConfiguration = TierConfiguration(description, monthlyhits, dailyhits, maxResultSetSize, enddate)
+  lazy val asTierConfiguration = TierConfiguration(description, monthlyhits, dailyhits, maxResultSetSize, startdate)
 }
