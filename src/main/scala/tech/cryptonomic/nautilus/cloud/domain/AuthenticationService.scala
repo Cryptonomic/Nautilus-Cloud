@@ -7,7 +7,11 @@ import cats.data.{EitherT, OptionT}
 import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyRepository, CreateApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationConfiguration,
+  AuthenticationProviderRepository,
+  Session
+}
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository}
@@ -26,7 +30,7 @@ class AuthenticationService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     resourcesRepository: ResourceRepository[F],
     tiersRepository: TierRepository[F],
-    clock: Clock[F],
+    clock: Clock[F]
 ) {
 
   type Result[T] = Either[Throwable, T]

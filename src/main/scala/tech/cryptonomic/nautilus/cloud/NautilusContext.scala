@@ -11,17 +11,30 @@ import doobie.util.transactor.Transactor
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, Routes, TierRoutes, UserRoutes, ResourceRoutes}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{
+  ApiKeyRoutes,
+  HttpConfig,
+  ResourceRoutes,
+  Routes,
+  TierRoutes,
+  UserRoutes
+}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
   DoobieApiKeyRepository,
   DoobieConfig,
+  DoobieResourceRepository,
   DoobieTierRepository,
-  DoobieUserRepository,
-  DoobieResourceRepository
+  DoobieUserRepository
 }
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService, UserService, ResourceService}
+import tech.cryptonomic.nautilus.cloud.domain.{
+  ApiKeyService,
+  AuthenticationService,
+  ResourceService,
+  TierService,
+  UserService
+}
 
 import scala.concurrent.ExecutionContext
 

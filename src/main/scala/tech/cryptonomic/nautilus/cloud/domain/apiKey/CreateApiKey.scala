@@ -5,7 +5,6 @@ import java.time.Instant
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey.KeyId
 import io.scalaland.chimney.dsl._
 
-
 /** Model for creating API key */
 case class CreateApiKey(
     key: String,
@@ -15,8 +14,8 @@ case class CreateApiKey(
     dateIssued: Option[Instant],
     dateSuspended: Option[Instant]
 ) {
-    /** Transforms CreateApiKey into ApiKey with given KeyId */
-    def toApiKey(keyId: KeyId): ApiKey =
-      this.into[ApiKey].withFieldConst(_.keyId, keyId).transform
-}
 
+  /** Transforms CreateApiKey into ApiKey with given KeyId */
+  def toApiKey(keyId: KeyId): ApiKey =
+    this.into[ApiKey].withFieldConst(_.keyId, keyId).transform
+}

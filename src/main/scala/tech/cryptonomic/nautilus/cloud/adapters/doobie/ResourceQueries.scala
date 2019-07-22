@@ -20,7 +20,6 @@ trait ResourceQueries {
       ${createResource.environment}
       )""".update
 
-
   /** Lists all resources */
   def listResources: Query0[Resource] =
     sql"SELECT resourceid, resourcename, description, platform, network, environment FROM resources".query
