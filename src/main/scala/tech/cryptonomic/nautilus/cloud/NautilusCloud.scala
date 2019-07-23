@@ -19,8 +19,7 @@ class NautilusCloud(context: NautilusContext) extends StrictLogging {
 
 object NautilusCloud extends App {
 
-  override def main(args: Array[String]): Unit = {
+  override def main(args: Array[String]): Unit =
     new NautilusCloud(new NautilusContext {})
-  }
 
 }

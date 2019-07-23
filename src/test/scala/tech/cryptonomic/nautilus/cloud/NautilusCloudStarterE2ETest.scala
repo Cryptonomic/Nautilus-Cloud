@@ -95,9 +95,6 @@ class NautilusCloudStarterE2ETest
         response.code shouldBe HTTP_OK
         response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
-  }
-
-  "sth" should {
     "return user apiKeys and usageLeft generated with first login" in {
       // given
       createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
@@ -133,6 +130,7 @@ class NautilusCloudStarterE2ETest
       usageLeft.body.right.value should include(exampleKey)
     }
   }
+
 
   "github-callback endpoint" should {
 

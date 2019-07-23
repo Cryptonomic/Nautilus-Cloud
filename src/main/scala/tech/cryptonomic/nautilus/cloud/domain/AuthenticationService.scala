@@ -7,7 +7,11 @@ import cats.data.{EitherT, OptionT}
 import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationConfiguration,
+  AuthenticationProviderRepository,
+  Session
+}
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
