@@ -7,13 +7,10 @@ import cats.data.{EitherT, OptionT}
 import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{
-  AuthenticationConfiguration,
-  AuthenticationProviderRepository,
-  Session
-}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
@@ -62,33 +59,25 @@ class AuthenticationService[F[_]: Monad](
   private def createUser(email: String): EitherT[F, Throwable, User] = {
     val createUser =
       CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
-    EitherT(userRepository.createUser(createUser).flatMap { userIdEither =>
-      userIdEither.bitraverse(
-        t => t.pure[F],
-        userId =>
-          tiersRepository.getDefaultTier.flatMap { maybeTier =>
-            (
-              createApiKey(
-                userId,
-                Resource.defaultTezosDevAlphanetId,
-                maybeTier.get.tierId // there always should be default tier
-              ),
-              createApiKey(
-                userId,
-                Resource.defaultTezosProdMainnetId,
-                maybeTier.get.tierId // there always should be default tier
-              )
-            ).mapN { (_, _) =>
-              createUser.toUser(userId)
-            }
-          }
-      )
-    })
+
+    for {
+      userId <- EitherT(userRepository.createUser(createUser))
+      _ <- createApiKeyTwice(userId)
+    } yield createUser.toUser(userId)
   }
 
-  private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: Int): F[Option[String]] = {
+  private def createApiKeyTwice(userId: UserId): F[EitherT[F, NoSuchFieldException, UserId]] = {
+    tiersRepository.getDefaultTier.map { maybeTier =>
+      for {
+        _ <- createApiKey(userId, Resource.defaultTezosDevAlphanetId, maybeTier.get.tierId) // there always should be default tier
+        _ <- createApiKey(userId, Resource.defaultTezosProdMainnetId, maybeTier.get.tierId) // there always should be default tier
+      } yield userId
+    }
+  }
+
+  private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: TierId) = {
     val generatedKey = apiKeyGenerator.generateKey
-    (for {
+    val res = (for {
       _ <- OptionT(resourcesRepository.getResource(resourceId))
       tier <- OptionT(tiersRepository.get(tierId))
     } yield {
@@ -109,9 +98,8 @@ class AuthenticationService[F[_]: Monad](
         _ <- apiKeyRepository.putApiKeyUsage(
           UsageLeft(generatedKey, dailyMonthly._1, dailyMonthly._2)
         )
-      } yield {
-        generatedKey
-      }
+      } yield generatedKey
     }).value.flatMap(_.sequence)
+    EitherT.fromOptionF(res, NoSuchFieldException)
   }
 }
