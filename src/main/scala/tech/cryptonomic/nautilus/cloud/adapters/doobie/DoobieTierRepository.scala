@@ -24,13 +24,13 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   /** Creates tier */
   override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] = {
     val result = for {
-      _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
+      tierId <- EitherT(createTierQuery(name).withUniqueGeneratedKeys[TierId]("tierid").attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
       _ <- EitherT(createTierConfigurationQuery(name, initialConfiguration).run.attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
-    } yield Tier(name, List(initialConfiguration))
+    } yield Tier(tierId, name, List(initialConfiguration))
 
     result.transact(transactor).value
   }
@@ -60,6 +60,8 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
     getTiersConfigurationQuery(tierId).to[List].transact(transactor).map(_.toTier)
   }
 
+  /** Returns default Tier */
+  override def getDefaultTier: F[Option[Tier]] = get(TierName("shared", "free"))
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)

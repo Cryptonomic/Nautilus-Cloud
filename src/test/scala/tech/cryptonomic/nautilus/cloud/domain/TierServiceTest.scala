@@ -48,6 +48,7 @@ class TierServiceTest
 
         // then
         tier.right.value.right.value shouldBe Tier(
+          tierId = 1,
           name = TierName("shared", "free"),
           configurations = List(
             TierConfiguration(
@@ -83,6 +84,7 @@ class TierServiceTest
 
         // then
         result shouldBe Tier(
+          tierId = 1,
           name = TierName("shared", "free"),
           configurations = List(
             TierConfiguration(
@@ -132,6 +134,7 @@ class TierServiceTest
 
         // then
         sut.getTier(TierName("shared", "free"))(adminSession).right.value.value shouldBe Tier(
+          tierId = 1,
           name = TierName("shared", "free"),
           configurations = List(
             TierConfiguration(

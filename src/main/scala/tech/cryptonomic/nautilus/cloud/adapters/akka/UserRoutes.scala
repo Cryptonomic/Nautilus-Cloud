@@ -10,9 +10,6 @@ import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
-// TODO:
-//   users/{user}/usage	  GET	Gets the number of queries used by the given user
-
 /** User routes implementation */
 class UserRoutes(userService: UserService[IO])
     extends UserEndpoints
@@ -59,6 +56,8 @@ class UserRoutes(userService: UserService[IO])
   /** Concatenated User routes */
   def routes(implicit session: Session): Route = concat(
     getCurrentUserRoute,
+    getCurrentUserKeysRoute,
+    getCurrentApiKeyUsageRoute,
     getUserRoute,
     getUserKeysRoute,
     updateUserRoute,

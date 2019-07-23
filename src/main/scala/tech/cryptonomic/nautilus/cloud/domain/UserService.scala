@@ -39,7 +39,6 @@ class UserService[F[_]: Monad](
       }.sequence
     }
 
-
   /** Returns API Keys usage for current user with given ID */
   def getCurrentUserApiKeysUsage(implicit session: Session): F[Option[List[UsageLeft]]] =
     userRepo.getUserByEmailAddress(session.email).flatMap { maybeUser =>

@@ -11,30 +11,12 @@ import doobie.util.transactor.Transactor
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{
-  ApiKeyRoutes,
-  HttpConfig,
-  ResourceRoutes,
-  Routes,
-  TierRoutes,
-  UserRoutes
-}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, ResourceRoutes, Routes, TierRoutes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
-  DoobieApiKeyRepository,
-  DoobieConfig,
-  DoobieResourceRepository,
-  DoobieTierRepository,
-  DoobieUserRepository
-}
-import tech.cryptonomic.nautilus.cloud.domain.{
-  ApiKeyService,
-  AuthenticationService,
-  ResourceService,
-  TierService,
-  UserService
-}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, ResourceService, TierService, UserService}
 
 import scala.concurrent.ExecutionContext
 
@@ -58,6 +40,7 @@ trait NautilusContext extends StrictLogging {
   lazy val sessionOperations = new SessionOperations(SessionConfig.fromConfig())
 
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
+  lazy val apiKeyGenerator = wire[ApiKeyGenerator]
 
   lazy val apiKeysRepository = wire[DoobieApiKeyRepository[IO]]
   lazy val userRepository = wire[DoobieUserRepository[IO]]

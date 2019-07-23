@@ -8,6 +8,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
@@ -29,9 +30,19 @@ class AuthenticationServiceTest
   val resourcesRespository = new InMemoryResourceRepository()
   val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   val clock = new FixedClock[Id](now)
+  val apiKeyGenerator = new ApiKeyGenerator
 
   val authenticationService =
-    new AuthenticationService[Id](DefaultNautilusContext.authConfig, authRepository, userRepository, apiKeyRepository, resourcesRespository, tiersRepository, clock)
+    new AuthenticationService[Id](
+      DefaultNautilusContext.authConfig,
+      authRepository,
+      userRepository,
+      apiKeyRepository,
+      resourcesRespository,
+      tiersRepository,
+      clock,
+      apiKeyGenerator
+    )
 
   override protected def afterEach(): Unit = {
     super.afterEach()
@@ -70,6 +81,7 @@ class AuthenticationServiceTest
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.getUser(1) should be(None)
+        createDefaultTier(tiersRepository)
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(

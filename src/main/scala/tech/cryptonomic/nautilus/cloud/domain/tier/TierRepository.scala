@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.tier
 
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
+
 import scala.language.higherKinds
 
 /** Trait representing Tier repo queries */
@@ -15,6 +17,9 @@ trait TierRepository[F[_]] {
   def get(name: TierName): F[Option[Tier]]
 
   /** Returns tier by ID */
-  def get(tierId: Int): F[Option[Tier]]
+  def get(tierId: TierId): F[Option[Tier]]
+
+  /** Returns default Tier */
+  def getDefaultTier: F[Option[Tier]]
 
 }

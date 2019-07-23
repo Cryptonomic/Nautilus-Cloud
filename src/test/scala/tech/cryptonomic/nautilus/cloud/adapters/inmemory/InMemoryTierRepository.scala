@@ -22,7 +22,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
       get(name).map {
         case Some(_) => Left(new RuntimeException)
         case None =>
-          val tier = Tier(name, List(initialConfiguration))
+          val tier = Tier(tiers.map(_.tierId).maximumOption.getOrElse(0) + 1, name, List(initialConfiguration))
           tiers = tiers :+ tier
           tier.asRight[Throwable]
       }
@@ -32,7 +32,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   override def addConfiguration(name: TierName, tierConfiguration: TierConfiguration): F[Either[Throwable, Unit]] =
     this.synchronized {
       tiers = tiers.collect {
-        case t @ Tier(`name`, _) => t.copy(configurations = t.configurations :+ tierConfiguration)
+        case t @ Tier(_, `name`, _) => t.copy(configurations = t.configurations :+ tierConfiguration)
         case it => it
       }
 
@@ -54,4 +54,8 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
     Option(tiers(tierId-1)).pure[F]
   }
 
+  /** Returns default Tier */
+  override def getDefaultTier: F[Option[Tier]] = this.synchronized {
+    get(TierName("shared", "free"))
+  }
 }

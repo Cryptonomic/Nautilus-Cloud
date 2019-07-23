@@ -6,21 +6,16 @@ import cats.Monad
 import cats.data.{EitherT, OptionT}
 import cats.effect.Clock
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyRepository, CreateApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{
-  AuthenticationConfiguration,
-  AuthenticationProviderRepository,
-  Session
-}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
-import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository}
+import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 
 import scala.concurrent.duration.MILLISECONDS
 import scala.language.higherKinds
-import scala.util.Random
 
 /** Authentication service */
 class AuthenticationService[F[_]: Monad](
@@ -30,7 +25,8 @@ class AuthenticationService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     resourcesRepository: ResourceRepository[F],
     tiersRepository: TierRepository[F],
-    clock: Clock[F]
+    clock: Clock[F],
+    apiKeyGenerator: ApiKeyGenerator
 ) {
 
   type Result[T] = Either[Throwable, T]
@@ -60,23 +56,34 @@ class AuthenticationService[F[_]: Monad](
     EitherT(userRepository.getUserByEmailAddress(email).map(Right(_)))
 
   private def createUser(email: String): EitherT[F, Throwable, User] = {
-    val createUser = CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
+    val createUser =
+      CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
     EitherT(userRepository.createUser(createUser).flatMap { userIdEither =>
       userIdEither.bitraverse(
         t => t.pure[F],
         userId =>
-          (
-            createApiKey(userId, Resource.defaultTezosDevAlphanetId, Tier.defaultTierId),
-            createApiKey(userId, Resource.defaultTezosProdMainnetId, Tier.defaultTierId)
-          ).mapN { (_, _) =>
-            createUser.toUser(userId)
+          tiersRepository.getDefaultTier.flatMap { maybeTier =>
+            (
+              createApiKey(
+                userId,
+                Resource.defaultTezosDevAlphanetId,
+                maybeTier.get.tierId // there always should be default tier
+              ),
+              createApiKey(
+                userId,
+                Resource.defaultTezosProdMainnetId,
+                maybeTier.get.tierId // there always should be default tier
+              )
+            ).mapN { (_, _) =>
+              createUser.toUser(userId)
+            }
           }
       )
     })
   }
 
   private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: Int): F[Option[String]] = {
-    val generatedKey = Random.alphanumeric.take(32).mkString
+    val generatedKey = apiKeyGenerator.generateKey
     (for {
       _ <- OptionT(resourcesRepository.getResource(resourceId))
       tier <- OptionT(tiersRepository.get(tierId))
@@ -86,10 +93,21 @@ class AuthenticationService[F[_]: Monad](
         instantNow = Instant.ofEpochMilli(now)
         dailyMonthly = tier.findValidDailyMonthlyHits(instantNow)
         _ <- apiKeyRepository.putApiKeyForUser(
-          CreateApiKey(generatedKey, resourceId, userId, tierId, instantNow, None)
+          CreateApiKey(
+            generatedKey,
+            resourceId,
+            userId,
+            tierId,
+            instantNow,
+            None
+          )
         )
-        _ <- apiKeyRepository.putApiKeyUsage(UsageLeft(generatedKey, dailyMonthly._1, dailyMonthly._2))
-      } yield generatedKey
+        _ <- apiKeyRepository.putApiKeyUsage(
+          UsageLeft(generatedKey, dailyMonthly._1, dailyMonthly._2)
+        )
+      } yield {
+        generatedKey
+      }
     }).value.flatMap(_.sequence)
   }
 }
