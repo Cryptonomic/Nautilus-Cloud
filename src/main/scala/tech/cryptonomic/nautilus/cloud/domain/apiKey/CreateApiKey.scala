@@ -11,11 +11,11 @@ case class CreateApiKey(
     resourceId: Int,
     userId: Int,
     tierId: Int,
-    dateIssued: Option[Instant],
+    dateIssued: Instant,
     dateSuspended: Option[Instant]
 ) {
 
   /** Transforms CreateApiKey into ApiKey with given KeyId */
   def toApiKey(keyId: KeyId): ApiKey =
-    this.into[ApiKey].withFieldConst(_.keyId, keyId).transform
+    this.into[ApiKey].withFieldConst(_.keyId, keyId).withFieldConst(_.dateIssued, Some(dateIssued)).transform
 }

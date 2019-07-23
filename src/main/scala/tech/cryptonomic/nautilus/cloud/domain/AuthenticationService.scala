@@ -81,13 +81,12 @@ class AuthenticationService[F[_]: Monad](
       _ <- OptionT(resourcesRepository.getResource(resourceId))
       tier <- OptionT(tiersRepository.get(tierId))
     } yield {
-      val dailMonthlyHits = clock
-        .realTime(MILLISECONDS)
-        .map(now => tier.findValidDailyMonthlyHits(Instant.ofEpochMilli(now)))
       for {
-        dailyMonthly <- dailMonthlyHits
+        now <- clock.realTime(MILLISECONDS)
+        instantNow = Instant.ofEpochMilli(now)
+        dailyMonthly = tier.findValidDailyMonthlyHits(instantNow)
         _ <- apiKeyRepository.putApiKeyForUser(
-          CreateApiKey(generatedKey, resourceId, userId, tierId, Some(Instant.now()), None)
+          CreateApiKey(generatedKey, resourceId, userId, tierId, instantNow, None)
         )
         _ <- apiKeyRepository.putApiKeyUsage(UsageLeft(generatedKey, dailyMonthly._1, dailyMonthly._2))
       } yield generatedKey

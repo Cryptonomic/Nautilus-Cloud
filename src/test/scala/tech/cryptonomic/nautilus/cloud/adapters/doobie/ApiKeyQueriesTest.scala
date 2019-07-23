@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import cats.effect.IO
 import doobie.scalatest._
 import doobie.util.transactor.Transactor
@@ -25,7 +27,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
       check(sut.getUserApiKeysQuery(0))
     }
     "check insertApiKey" in {
-      check(sut.putApiKey(CreateApiKey("", 0, 0, 0, None, None)))
+      check(sut.putApiKey(CreateApiKey("", 0, 0, 0, Instant.now, None)))
     }
     "check getUsageForUser" in {
       check(sut.getUsageForUser(0))

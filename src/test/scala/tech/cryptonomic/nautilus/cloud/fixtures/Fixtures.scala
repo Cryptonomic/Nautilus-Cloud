@@ -19,8 +19,8 @@ import scala.language.higherKinds
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
 
-  val exampleCreateApiKey = CreateApiKey("", 1, 2, 3, None, None)
-  val exampleApiKey = ApiKey(1, "", 1, 2, 3, None, None)
+  val exampleCreateApiKey = CreateApiKey("", 1, 2, 3, time, None)
+  val exampleApiKey = ApiKey(1, "", 1, 2, 3, Some(time), None)
 
   val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 
