@@ -3,10 +3,7 @@ package tech.cryptonomic.nautilus.cloud.domain
 import java.time.{Instant, ZonedDateTime}
 
 import cats.Id
-import cats.effect.IO
-import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
@@ -48,6 +45,7 @@ class AuthenticationServiceTest
     super.afterEach()
     authRepository.clear()
     userRepository.clear()
+    apiKeyRepository.clear()
   }
 
   "AuthenticationService" should {
@@ -82,6 +80,7 @@ class AuthenticationServiceTest
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.getUser(1) should be(None)
         createDefaultTier(tiersRepository)
+        createDefaultResources(resourcesRespository)
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(

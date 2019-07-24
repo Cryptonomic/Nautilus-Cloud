@@ -66,16 +66,17 @@ class AuthenticationService[F[_]: Monad](
     } yield createUser.toUser(userId)
   }
 
-  private def createApiKeyTwice(userId: UserId): F[EitherT[F, NoSuchFieldException, UserId]] = {
-    tiersRepository.getDefaultTier.map { maybeTier =>
-      for {
+  private def createApiKeyTwice(userId: UserId): EitherT[F, Throwable, UserId] = {
+    val result = tiersRepository.getDefaultTier.flatMap { maybeTier =>
+      (for {
         _ <- createApiKey(userId, Resource.defaultTezosDevAlphanetId, maybeTier.get.tierId) // there always should be default tier
         _ <- createApiKey(userId, Resource.defaultTezosProdMainnetId, maybeTier.get.tierId) // there always should be default tier
-      } yield userId
+      } yield userId).value
     }
+    EitherT(result)
   }
 
-  private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: TierId) = {
+  private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: TierId): EitherT[F, Throwable, String] = {
     val generatedKey = apiKeyGenerator.generateKey
     val res = (for {
       _ <- OptionT(resourcesRepository.getResource(resourceId))
@@ -100,6 +101,6 @@ class AuthenticationService[F[_]: Monad](
         )
       } yield generatedKey
     }).value.flatMap(_.sequence)
-    EitherT.fromOptionF(res, NoSuchFieldException)
+    EitherT.fromOptionF(res, new NoSuchFieldException)
   }
 }
