@@ -9,6 +9,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationServic
 object OpenApiDoc
     extends ApiKeyEndpoints
     with UserEndpoints
+    with ResourceEndpoints
     with openapi.model.OpenApiSchemas
     with openapi.JsonSchemaEntities {
 
@@ -19,8 +20,11 @@ object OpenApiDoc
     updateUser,
     getUser,
     getUserKeys,
-    getCurrentUser,
-    getApiKeyUsage
+    getApiKeyUsage,
+    getResourceEndpoint,
+    listResourcesEndpoint,
+    createResourceEndpoint,
+    getCurrentUser
   )
 
   override def created[A](

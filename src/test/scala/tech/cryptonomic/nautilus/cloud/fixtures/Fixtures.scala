@@ -2,18 +2,25 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 
 import java.time.{Instant, ZonedDateTime}
 
+import cats.Applicative
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, CreateApiKeyRequest, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
+import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 
+import scala.language.higherKinds
+
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
 
-  val exampleApiKey = ApiKey(0, "", 1, 2, 3, None, None)
+  val exampleCreateApiKey = CreateApiKey("", 1, 2, 3, time, None)
+  val exampleApiKey = ApiKey(1, "", 1, 2, 3, Some(time), None)
 
   val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 
@@ -26,6 +33,16 @@ trait Fixtures {
 
   val exampleCreateTier = CreateTier("some description", 1, 2, 3)
   val exampleUpdateTier = UpdateTier("some description", 1, 2, 3, Some(Instant.now))
+
+  val exampleUsageLeft = UsageLeft("apikey", 500, 15000)
+
+  val exampleResource = Resource(0, "dev", "Development", "tezos", "alphanet", "dev")
+
+  val exampleCreateResource = CreateResource("dev", "Development", "tezos", "alphanet", "dev")
+
+  val exampleCreateApiKeyRequest = CreateApiKeyRequest(1, 2)
+
+  val exampleCreateApiKeyRequestJson = """{"resourceId": 1, "tierId": 2}"""
 
   val exampleApiKeyAsJson =
     """
@@ -59,6 +76,15 @@ trait Fixtures {
       |}
     """.stripMargin
 
+    val exampleUsageJson =
+      """
+        |[{
+        |  "key":"apikey",
+        |  "daily":500,
+        |  "monthly":15000
+        |}]
+      """.stripMargin
+
   def stubAuthServiceFor(authCode: String, email: String): Unit = {
     val accessToken = """stubbed-access-token"""
 
@@ -87,4 +113,22 @@ trait Fixtures {
         )
     )
   }
+
+  def createDefaultResources[F[_]: Applicative](resourceRepository: ResourceRepository[F]): F[List[ResourceId]] = {
+    val createResources = List(
+      CreateResource("Tezos Alphanet Conseil Dev", "Conseil alphanet development environment", "tezos", "alphanet", "dev"),
+      CreateResource("Tezos Mainnet Conseil Dev", "Conseil mainnet development environment", "tezos", "mainnet", "dev"),
+      CreateResource("Tezos Alphanet Conseil Prod", "Conseil alphanet production environment", "tezos", "alphanet", "prod"),
+      CreateResource("Tezos Mainnet Conseil Prod", "Conseil mainnet production environment", "tezos", "mainnet", "prod")
+    )
+    createResources
+      .map(resourceRepository.createResource)
+      .sequence
+  }
+
+
+  def createDefaultTier[F[_]: Applicative](tierRepository: TierRepository[F]): F[Either[Throwable, Tier]] =
+    tierRepository.create(TierName("shared", "free"), TierConfiguration("free tier", 1000, 100, 10, Instant.now))
+
+
 }

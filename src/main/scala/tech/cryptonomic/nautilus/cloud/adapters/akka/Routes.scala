@@ -20,6 +20,7 @@ class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
     private val userRoutes: UserRoutes,
     private val sessionRoutes: SessionRoutes,
+    private val resourceRoutes: ResourceRoutes,
     private val tierRoutes: TierRoutes,
     private val sessionOperations: SessionOperations
 ) extends StrictLogging {
@@ -47,7 +48,8 @@ class Routes(
         concat(
           apiKeysRoutes.routes,
           userRoutes.routes,
-          tierRoutes.routes
+          tierRoutes.routes,
+          resourceRoutes.routes
         )
       }
     )

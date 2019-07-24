@@ -4,7 +4,8 @@ CREATE TABLE resources(
     resourcename text NOT NULL,
     description text NOT NULL,
     platform text NOT NULL,
-    network text NOT NULL
+    network text NOT NULL,
+    environment text NOT NULL
 );
 CREATE TABLE tiers(
     tierid serial PRIMARY KEY,
@@ -38,6 +39,7 @@ CREATE TABLE api_keys(
     tierid integer NOT NULL,
     dateissued timestamp with time zone,
     datesuspended timestamp with time zone,
+    UNIQUE(key),
     CONSTRAINT resourceid_fk FOREIGN KEY (resourceid)
       REFERENCES resources (resourceid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION,
@@ -48,3 +50,22 @@ CREATE TABLE api_keys(
       REFERENCES tiers (tierid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE NO ACTION
 );
+
+CREATE TABLE usage_left(
+    key text NOT NULL,
+    daily integer NOT NULL,
+    monthly integer NOT NULL,
+    CONSTRAINT keyid_fk FOREIGN KEY (key)
+      REFERENCES api_keys (key) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+--- Static resources described in #30
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Alphanet Conseil Dev', 'Conseil alphanet development environment', 'tezos', 'alphanet', 'dev');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Mainnet Conseil Dev', 'Conseil mainnet development environment', 'tezos', 'mainnet', 'dev');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Alphanet Conseil Prod', 'Conseil alphanet production environment', 'tezos', 'alphanet', 'prod');
+INSERT INTO resources (resourcename, description, platform, network, environment) VALUES('Tezos Mainnet Conseil Prod', 'Conseil mainnet production environment', 'tezos', 'mainnet', 'prod');
+
+INSERT INTO tiers (tier, subtier) VALUES('shared', 'free');
+INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate) VALUES('shared', 'free', 'free tier', 1000, 100, 10, current_timestamp);
+

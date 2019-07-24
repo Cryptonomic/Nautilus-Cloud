@@ -39,7 +39,8 @@ object InMemoryDatabase extends StrictLogging {
     "users",
     "tiers",
     "api_keys",
-    "resources"
+    "resources",
+    "usage_left"
   )
 
   if (isDatabaseRunning)

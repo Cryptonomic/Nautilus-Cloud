@@ -7,6 +7,8 @@ import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
+import cats.Applicative
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{
   CreateTier,

@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
 
 import scala.language.higherKinds
@@ -21,7 +22,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
       get(name).map {
         case Some(_) => Left(new RuntimeException)
         case None =>
-          val tier = Tier(name, List(initialConfiguration))
+          val tier = Tier(tiers.map(_.tierId).maximumOption.getOrElse(0) + 1, name, List(initialConfiguration))
           tiers = tiers :+ tier
           tier.asRight[Throwable]
       }
@@ -31,7 +32,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   override def addConfiguration(name: TierName, tierConfiguration: TierConfiguration): F[Either[Throwable, Unit]] =
     this.synchronized {
       tiers = tiers.collect {
-        case t @ Tier(`name`, _) => t.copy(configurations = t.configurations :+ tierConfiguration)
+        case t @ Tier(_, `name`, _) => t.copy(configurations = t.configurations :+ tierConfiguration)
         case it => it
       }
 
@@ -46,5 +47,15 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   /** Clears repository */
   def clear(): Unit = this.synchronized {
     tiers = List.empty
+  }
+
+  /** Returns tier by ID */
+  override def get(tierId: TierId): F[Option[Tier]] = this.synchronized {
+    Option(tiers(tierId-1)).pure[F]
+  }
+
+  /** Returns default Tier */
+  override def getDefaultTier: F[Option[Tier]] = this.synchronized {
+    get(TierName("shared", "free"))
   }
 }

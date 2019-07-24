@@ -1,19 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import cats.Id
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.OptionValues
-import org.scalatest.EitherValues
-import org.scalatest.Matchers
-import org.scalatest.WordSpec
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryUserRepository
+import org.scalamock.scalatest.MockFactory
+import org.scalatest._
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
-import tech.cryptonomic.nautilus.cloud.domain.user.Role
-import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
-import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
-import tech.cryptonomic.nautilus.cloud.domain.user.User
+import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 
 class UserServiceTest
@@ -22,7 +14,8 @@ class UserServiceTest
     with Fixtures
     with EitherValues
     with OptionValues
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with MockFactory {
 
   val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
   val userRepository = new InMemoryUserRepository[Id]()
@@ -109,7 +102,7 @@ class UserServiceTest
         apiKeyRepository.add(exampleApiKey.copy(keyId = 3, userId = 2))
 
         //
-        sut.getUserApiKeys(1).map(_.keyId) shouldBe List(1, 2)
+        sut.getUserApiKeys(1)(adminSession).right.value.map(_.keyId) shouldBe List(1, 2)
       }
     }
 }

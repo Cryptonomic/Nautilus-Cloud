@@ -13,4 +13,19 @@ trait ApiKeyRepository[F[_]] {
 
   /** Query returning API keys connected to user */
   def getUserApiKeys(userId: Int): F[List[ApiKey]]
+
+  /** Inserts API key */
+  def putApiKeyForUser(apiKey: CreateApiKey): F[Unit]
+
+  /** Inserts API key usage */
+  def putApiKeyUsage(usageLeft: UsageLeft): F[Unit]
+
+  /** Query returning API keys usage for given user */
+  def getKeysUsageForUser(userId: Int): F[List[UsageLeft]]
+
+  /** Query returning API key usage */
+  def getKeyUsage(key: String): F[Option[UsageLeft]]
+
+  /** Updates API key usage */
+  def updateKeyUsage(usage: UsageLeft): F[Unit]
 }

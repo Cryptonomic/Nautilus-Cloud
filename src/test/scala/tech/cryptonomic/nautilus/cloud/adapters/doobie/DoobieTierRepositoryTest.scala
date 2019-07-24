@@ -30,7 +30,7 @@ class DoobieTierRepositoryTest
 
         // then
         tier.right.value should equal(
-          Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now)))
+          Tier(1, TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now)))
         )
       }
 
@@ -46,6 +46,7 @@ class DoobieTierRepositoryTest
       // then
       sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
         Tier(
+          1,
           TierName("shared", "free"),
           List(
             TierConfiguration("description", 1, 2, 3, now),
@@ -68,6 +69,7 @@ class DoobieTierRepositoryTest
         result.left.value shouldBe a[NotAllowedConfigurationOverride]
         sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
           Tier(
+            1,
             TierName("shared", "free"),
             List(
               TierConfiguration("description", 1, 2, 3, now)
@@ -95,7 +97,7 @@ class DoobieTierRepositoryTest
         val tier = sut.get(TierName("shared", "free")).unsafeRunSync()
 
         // then
-        tier.value should equal(Tier(TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now))))
+        tier.value should equal(Tier(1, TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now))))
       }
 
       "get on when receiving an user which doesn't exist" in {

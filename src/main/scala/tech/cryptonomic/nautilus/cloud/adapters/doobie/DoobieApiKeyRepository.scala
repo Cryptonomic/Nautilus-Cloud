@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
 
 import scala.language.higherKinds
 
@@ -23,4 +23,25 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   /** Query returning API keys connected to user */
   override def getUserApiKeys(userId: Int): F[List[ApiKey]] =
     getUserApiKeysQuery(userId).to[List].transact(transactor)
+
+  /** Query returning API keys usage for given user */
+  override def updateKeyUsage(usage: UsageLeft): F[Unit] =
+    updateUsage(usage).run.map(_ => ()).transact(transactor)
+
+  /** Query returning API keys usage for given user */
+  override def getKeysUsageForUser(userId: Int): F[List[UsageLeft]] =
+    getUsageForUser(userId).to[List].transact(transactor)
+
+  /** Query returning API key usage */
+  override def getKeyUsage(key: String): F[Option[UsageLeft]] =
+    getUsageForKey(key).option.transact(transactor)
+
+  /** Inserts API key usage */
+  override def putApiKeyUsage(usageLeft: UsageLeft): F[Unit] =
+    putUsage(usageLeft).run.map(_ => ()).transact(transactor)
+
+  /** Inserts API key */
+  override def putApiKeyForUser(apiKey: CreateApiKey): F[Unit] =
+    putApiKey(apiKey).run.map(_ => ()).transact(transactor)
+
 }

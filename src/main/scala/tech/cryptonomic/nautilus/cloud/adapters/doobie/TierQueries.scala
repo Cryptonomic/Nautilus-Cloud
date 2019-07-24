@@ -5,6 +5,7 @@ import java.time.Instant
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName}
 
 /** Trait containing User related queries */
@@ -28,8 +29,16 @@ trait TierQueries {
 
   /** Returns tier */
   def getTiersConfigurationQuery(tierName: TierName): Query0[TierConfigurationDto] =
-    sql"""SELECT tier, subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate FROM tiers_configuration
-          WHERE tier = ${tierName.tier} and subtier = ${tierName.subTier}""".query[TierConfigurationDto]
+    sql"""SELECT tiers.tierid, tiers_configuration.tier, tiers_configuration.subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate
+          FROM tiers_configuration JOIN tiers ON tiers.tier = tiers_configuration.tier AND tiers.subtier = tiers_configuration.subtier
+          WHERE tiers_configuration.tier = ${tierName.tier} and tiers_configuration.subtier = ${tierName.subTier}"""
+      .query[TierConfigurationDto]
+
+  /** Returns tier */
+  def getTiersConfigurationQuery(tierId: TierId): Query0[TierConfigurationDto] =
+    sql"""SELECT tiers.tierid, tiers_configuration.tier, tiers_configuration.subtier, description, monthlyhits, dailyhits, maxResultSetSize, startdate
+          FROM tiers_configuration JOIN tiers ON tiers.tier = tiers_configuration.tier AND tiers.subtier = tiers_configuration.subtier
+          WHERE tierid = $tierId""".query[TierConfigurationDto]
 }
 
 object TierQueries {
@@ -38,12 +47,13 @@ object TierQueries {
   implicit class ExtendedTierDtoList(val tiers: List[TierConfigurationDto]) extends AnyVal {
     def toTier: Option[Tier] =
       tiers.headOption
-        .map(head => Tier(head.asTierName, tiers.map(_.asTierConfiguration)))
+        .map(head => Tier(head.tierid, head.asTierName, tiers.map(_.asTierConfiguration)))
   }
 }
 
 /* Dto for TierConfiguration */
 case class TierConfigurationDto(
+    tierid: TierId,
     tier: String,
     subtier: String,
     description: String,

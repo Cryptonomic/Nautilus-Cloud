@@ -6,13 +6,9 @@ import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.domain.UserService
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-
-// TODO:
-//   users/{user}/usage	  GET	Gets the number of queries used by the given user
 
 /** User routes implementation */
 class UserRoutes(userService: UserService[IO])
@@ -38,21 +34,35 @@ class UserRoutes(userService: UserService[IO])
   }
 
   /** User keys route implementation */
-  val getUserKeysRoute: Route = getUserKeys.implementedByAsync { userId =>
+  def getCurrentUserKeysRoute(implicit session: Session): Route = getCurrentUserKeys.implementedByAsync { _ =>
+    userService.getCurrentUserApiKeys.unsafeToFuture()
+  }
+
+  /** ApiKey usage route implementation */
+  def getCurrentApiKeyUsageRoute(implicit session: Session): Route = getCurrentUserUsage.implementedByAsync { _ =>
+    userService.getCurrentUserApiKeysUsage.unsafeToFuture()
+  }
+
+  /** User keys route implementation */
+  def getUserKeysRoute(implicit session: Session): Route = getUserKeys.implementedByAsync { userId =>
     userService.getUserApiKeys(userId).unsafeToFuture()
   }
 
   /** ApiKey usage route implementation */
-  val getApiKeyUsageRoute: Route = getApiKeyUsage.implementedBy { apiKey =>
-    Some(UsageLeft("dummyKey", 500, 15000))
+  def getApiKeyUsageRoute(implicit session: Session): Route = getApiKeyUsage.implementedByAsync { userId =>
+    userService.getUserApiKeysUsage(userId).unsafeToFuture()
   }
 
   /** Concatenated User routes */
   def routes(implicit session: Session): Route = concat(
     getCurrentUserRoute,
+    getCurrentUserKeysRoute,
+    getCurrentApiKeyUsageRoute,
     getUserRoute,
+    getUserKeysRoute,
     updateUserRoute,
     getUserKeysRoute,
     getApiKeyUsageRoute
   )
+
 }

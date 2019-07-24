@@ -8,7 +8,8 @@ import doobie.enum.SqlState
 import doobie.free.connection.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
+import tech.cryptonomic.nautilus.cloud.domain.tier._
 
 import scala.language.higherKinds
 
@@ -23,13 +24,13 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   /** Creates tier */
   override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] = {
     val result = for {
-      _ <- EitherT(createTierQuery(name).run.attemptSomeSqlState {
+      tierId <- EitherT(createTierQuery(name).withUniqueGeneratedKeys[TierId]("tierid").attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
       _ <- EitherT(createTierConfigurationQuery(name, initialConfiguration).run.attemptSomeSqlState {
         case UNIQUE_VIOLATION => DoobieUniqueTierViolationException("UNIQUE_VIOLATION"): Throwable
       })
-    } yield Tier(name, List(initialConfiguration))
+    } yield Tier(tierId, name, List(initialConfiguration))
 
     result.transact(transactor).value
   }
@@ -47,11 +48,20 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
     transaction.transact(transactor)
   }
 
-  /** Returns tier */
+  /** Returns tier by Tier Name */
   override def get(name: TierName): F[Option[Tier]] = {
     import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
     getTiersConfigurationQuery(name).to[List].transact(transactor).map(_.toTier)
   }
+
+  /** Returns tier by ID */
+  override def get(tierId: TierId): F[Option[Tier]] = {
+    import tech.cryptonomic.nautilus.cloud.adapters.doobie.TierQueries._
+    getTiersConfigurationQuery(tierId).to[List].transact(transactor).map(_.toTier)
+  }
+
+  /** Returns default Tier */
+  override def getDefaultTier: F[Option[Tier]] = get(TierName("shared", "free"))
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)

@@ -26,10 +26,12 @@ trait EndpointsStatusDefinitions extends algebra.Responses {
     final def withCreatedStatus(notFoundDocs: Documentation = None): Response[A] = created(response, notFoundDocs)
 
     /** syntax for `conflict` */
-    final def orConflict(conflictDocs: Documentation = None): Response[Either[Throwable, A]] = conflict(response, conflictDocs)
+    final def orConflict(conflictDocs: Documentation = None): Response[Either[Throwable, A]] =
+      conflict(response, conflictDocs)
 
     /** syntax for `bad request` */
-    final def orBadRequest(conflictDocs: Documentation = None): Response[Either[Throwable, A]] = badRequest(response, conflictDocs)
+    final def orBadRequest(conflictDocs: Documentation = None): Response[Either[Throwable, A]] =
+      badRequest(response, conflictDocs)
 
     /** syntax for `forbidden` */
     final def orForbidden(forbiddenDocs: Documentation = None): Response[Permission[A]] =

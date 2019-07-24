@@ -19,7 +19,7 @@ class DoobieUserRepositoryTest
 
   val sut = DefaultNautilusContext.userRepository
 
-  "ApiKeyRepo" should {
+  "UserRepo" should {
       "save and receive user" in {
         // when
         val id =
@@ -78,5 +78,6 @@ class DoobieUserRepositoryTest
         // then
         fetchedUser.value should equal(User(1, "login@domain.com", Role.User, now, Github, Some("brand new description")))
       }
+
     }
 }

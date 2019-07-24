@@ -2,10 +2,27 @@ package tech.cryptonomic.nautilus.cloud.domain.tier
 
 import java.time.Instant
 
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.{DailyMonthlyHits, TierId}
+
 case class Tier(
+    tierId: TierId,
     name: TierName,
     configurations: List[TierConfiguration]
-)
+) {
+
+  /** Returns valid daily/monthly hit rates */
+  def findValidDailyMonthlyHits(instant: Instant): DailyMonthlyHits =
+    configurations
+      .find(conf => conf.startDate.isAfter(instant))
+      .map(conf => conf.dailyHits -> conf.monthlyHits)
+      .getOrElse((0, 0)) // every tier should have valid configuration, but in case it doesn't we return (0, 0)
+
+}
+
+object Tier {
+  type TierId = Int
+  type DailyMonthlyHits = (Int, Int)
+}
 
 case class TierConfiguration(
     description: String,

@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import endpoints.algebra
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UsageLeft
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{CreateApiKeyRequest, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User}
 
 /** Schemas used for User endpoints */
@@ -18,4 +18,9 @@ trait UserSchemas extends algebra.JsonSchemas with ApiKeySchemas {
   /** Usage schema */
   implicit lazy val usageSchema: JsonSchema[UsageLeft] =
     genericJsonSchema[UsageLeft]
+
+  /** API key creation schema */
+  implicit lazy val apiKeyCreationRequestSchema: JsonSchema[CreateApiKeyRequest] =
+    genericJsonSchema[CreateApiKeyRequest]
+
 }
