@@ -20,6 +20,6 @@ trait TierRepository[F[_]] {
   def get(tierId: TierId): F[Option[Tier]]
 
   /** Returns default Tier */
-  def getDefaultTier: F[Option[Tier]]
+  def getDefaultTier: F[Tier]
 
 }

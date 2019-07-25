@@ -55,7 +55,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
   }
 
   /** Returns default Tier */
-  override def getDefaultTier: F[Option[Tier]] = this.synchronized {
-    get(TierName("shared", "free"))
+  override def getDefaultTier: F[Tier] = this.synchronized {
+    tiers.head.pure[F]
   }
 }

@@ -7,6 +7,7 @@ import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.ResourceService
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 
 class ResourceRoutesTest
@@ -44,7 +45,7 @@ class ResourceRoutesTest
     }
     "return single resource by id" in {
       //given
-      resourceRepo.createResource(CreateResource("dev", "development", "tezos", "alphanet", "dev"))
+      resourceRepo.createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development))
       val getRequest = HttpRequest(
         HttpMethods.GET,
         uri = "/resources/1"

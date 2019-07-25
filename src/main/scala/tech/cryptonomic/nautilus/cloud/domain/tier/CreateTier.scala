@@ -7,11 +7,10 @@ import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 /* case class for create tier */
 case class CreateTier(
     description: String,
-    monthlyHits: Int,
-    dailyHits: Int,
+    usage: Usage,
     maxResultSetSize: Int
 ) {
   def toConfiguration(instant: Instant) =
-    TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize, instant)
+    TierConfiguration(description, usage, maxResultSetSize, instant)
   def toTier(tierId: TierId, name: TierName, now: Instant) = Tier(tierId, name, List(toConfiguration(now)))
 }

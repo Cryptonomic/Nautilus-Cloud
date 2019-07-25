@@ -11,31 +11,16 @@ import doobie.util.transactor.Transactor
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
-import tech.cryptonomic.nautilus.cloud.adapters.akka.{
-  ApiKeyRoutes,
-  HttpConfig,
-  ResourceRoutes,
-  Routes,
-  TierRoutes,
-  UserRoutes
-}
+import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, ResourceRoutes, Routes, TierRoutes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
-import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
-  DoobieApiKeyRepository,
-  DoobieConfig,
-  DoobieResourceRepository,
-  DoobieTierRepository,
-  DoobieUserRepository
-}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
-import tech.cryptonomic.nautilus.cloud.domain.{
-  ApiKeyService,
-  AuthenticationService,
-  ResourceService,
-  TierService,
-  UserService
-}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
+import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
+import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, ResourceService, TierService, UserService}
 
 import scala.concurrent.ExecutionContext
 
@@ -61,11 +46,11 @@ trait NautilusContext extends StrictLogging {
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val apiKeyGenerator = wire[ApiKeyGenerator]
 
-  lazy val apiKeysRepository = wire[DoobieApiKeyRepository[IO]]
-  lazy val userRepository = wire[DoobieUserRepository[IO]]
-  lazy val tierRepository = wire[DoobieTierRepository[IO]]
-  lazy val authRepository = wire[SttpGithubAuthenticationProviderRepository[IO]]
-  lazy val resourcesRepository = wire[DoobieResourceRepository[IO]]
+  lazy val apiKeysRepository: ApiKeyRepository[IO] = wire[DoobieApiKeyRepository[IO]]
+  lazy val userRepository: UserRepository[IO] = wire[DoobieUserRepository[IO]]
+  lazy val tierRepository: TierRepository[IO] = wire[DoobieTierRepository[IO]]
+  lazy val authRepository: AuthenticationProviderRepository[IO] = wire[SttpGithubAuthenticationProviderRepository[IO]]
+  lazy val resourcesRepository: ResourceRepository[IO] = wire[DoobieResourceRepository[IO]]
 
   lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]

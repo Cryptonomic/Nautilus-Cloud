@@ -29,23 +29,21 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
   /** Create tier */
   def createTier(name: TierName, createTier: CreateTier)(
       implicit session: Session
-  ): F[Permission[Either[Throwable, Tier]]] =
-    requiredRole(Administrator) {
-      for {
-        now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
-        tier <- tierRepository.create(name, createTier.toConfiguration(now))
-      } yield tier
-    }
+  ): F[Permission[Either[Throwable, Tier]]] = requiredRole(Administrator) {
+    for {
+      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
+      tier <- tierRepository.create(name, createTier.toConfiguration(now))
+    } yield tier
+  }
 
   /** Update tier */
   def updateTier(name: TierName, updateTier: UpdateTier)(
       implicit session: Session
-  ): F[Permission[Either[Throwable, Unit]]] =
-    requiredRole(Administrator) {
-      ifDateIsNotFromThePast(updateTier) {
-        tierRepository.addConfiguration(name, _)
-      }
+  ): F[Permission[Either[Throwable, Unit]]] = requiredRole(Administrator) {
+    ifDateIsNotFromThePast(updateTier) {
+      tierRepository.addConfiguration(name, _)
     }
+  }
 
   private def ifDateIsNotFromThePast(
       tier: UpdateTier

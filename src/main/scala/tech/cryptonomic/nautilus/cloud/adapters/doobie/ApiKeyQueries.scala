@@ -1,16 +1,17 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import doobie.implicits._
+import doobie.util.{Get, Put}
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
 
 /** Trait containing api key related queries */
-trait ApiKeyQueries {
+trait ApiKeyQueries extends EnvironmentMappers {
 
   /** Query returning all API keys from the DB */
   def getAllApiKeysQuery: Query0[ApiKey] =
-    sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys"
+    sql"SELECT keyid, key, environment, userid, tierid, dateissued, datesuspended FROM api_keys"
       .query[ApiKey]
 
   /** Query checking if API key is valid */
@@ -20,29 +21,28 @@ trait ApiKeyQueries {
 
   /** Query returning API keys connected to user */
   def getUserApiKeysQuery(userId: Int): Query0[ApiKey] =
-    sql"SELECT keyid, key, resourceid, userid, tierid, dateissued, datesuspended FROM api_keys WHERE userid = $userId"
+    sql"SELECT keyid, key, environment, userid, tierid, dateissued, datesuspended FROM api_keys WHERE userid = $userId"
       .query[ApiKey]
 
   /** Inserts API key for user */
-  def putApiKey(apiKey: CreateApiKey): Update0 =
-    sql"INSERT INTO api_keys (key, resourceid, userid, tierid, dateissued, datesuspended) VALUES(${apiKey.key}, ${apiKey.resourceId}, ${apiKey.userId}, ${apiKey.tierId}, ${apiKey.dateIssued}, ${apiKey.dateSuspended})".update
+  def putApiKeyQuery(apiKey: CreateApiKey): Update0 =
+    sql"INSERT INTO api_keys (key, environment, userid, tierid, dateissued, datesuspended) VALUES(${apiKey.key}, ${apiKey.environment.name}, ${apiKey.userId}, ${apiKey.tierId}, ${apiKey.dateIssued}, ${apiKey.dateSuspended})".update
 
   /** Query returning API keys usage for given user */
-  def getUsageForUser(userId: Int): Query0[UsageLeft] =
+  def getUsageForUserQuery(userId: Int): Query0[UsageLeft] =
     sql"SELECT key, monthly, daily FROM api_keys JOIN usage_left USING(key) WHERE userid = $userId"
       .query[UsageLeft]
 
   /** Query returning usage for given key */
-  def getUsageForKey(key: String): Query0[UsageLeft] =
+  def getUsageForKeyQuery(key: String): Query0[UsageLeft] =
     sql"SELECT key, monthly, daily FROM usage_left WHERE key = $key"
       .query[UsageLeft]
 
   /** Query updates API keys usage */
-  def updateUsage(usage: UsageLeft): Update0 =
+  def updateUsageQuery(usage: UsageLeft): Update0 =
     sql"UPDATE usage_left SET daily = ${usage.daily}, monthly = ${usage.monthly} FROM api_keys a WHERE a.key = ${usage.key}".update
 
   /** Query updates API keys usage */
-  def putUsage(usage: UsageLeft): Update0 =
+  def putUsageQuery(usage: UsageLeft): Update0 =
     sql"INSERT INTO usage_left(key, daily, monthly) VALUES(${usage.key}, ${usage.daily}, ${usage.monthly})".update
-
 }

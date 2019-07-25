@@ -19,7 +19,8 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
 ) extends TierRepository[F]
     with TierQueries {
 
-  val UNIQUE_VIOLATION = SqlState("23505")
+  private val UNIQUE_VIOLATION = SqlState("23505")
+  private lazy val DEFAULT_TIER = get(TierName("shared", "free")).map(_.get) // there always should be default tier
 
   /** Creates tier */
   override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] = {
@@ -61,7 +62,7 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   }
 
   /** Returns default Tier */
-  override def getDefaultTier: F[Option[Tier]] = get(TierName("shared", "free"))
+  override def getDefaultTier: F[Tier] = DEFAULT_TIER // there always should be default tier
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)
