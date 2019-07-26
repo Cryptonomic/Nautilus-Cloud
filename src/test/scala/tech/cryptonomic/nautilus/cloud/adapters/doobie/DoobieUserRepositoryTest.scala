@@ -23,7 +23,7 @@ class DoobieUserRepositoryTest
       "save and receive user" in {
         // when
         val id =
-          sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+          sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
 
         // then
         id.right.value should equal(1)
@@ -37,10 +37,10 @@ class DoobieUserRepositoryTest
 
       "shouldn't save user when user with a given email address already exists" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
 
         // when
-        val id = sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync
+        val id = sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync
 
         // then
         id.isLeft shouldBe true
@@ -48,7 +48,7 @@ class DoobieUserRepositoryTest
 
       "fetch user by email" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
 
         // when
         val fetchedUser = sut.getUserByEmailAddress("login@domain.com").unsafeRunSync()
@@ -65,7 +65,7 @@ class DoobieUserRepositoryTest
 
       "update user" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, None)).unsafeRunSync()
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
 
         // when
         sut

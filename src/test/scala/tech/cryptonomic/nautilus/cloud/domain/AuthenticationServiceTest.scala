@@ -11,7 +11,7 @@ import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName,
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, FixedClock}
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, FixedClock, IdContext}
 
 class AuthenticationServiceTest
     extends WordSpec
@@ -19,38 +19,26 @@ class AuthenticationServiceTest
     with EitherValues
     with OptionValues
     with Fixtures
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with OneInstancePerTest {
 
-  val authRepository = new InMemoryAuthenticationProviderRepository()
-  val userRepository = new InMemoryUserRepository()
-  val apiKeyRepository = new InMemoryApiKeyRepository()
-  val tiersRepository = new InMemoryTierRepository()
-  val resourcesRespository = new InMemoryResourceRepository()
-  val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
-  val clock = new FixedClock[Id](now)
-  val apiKeyGenerator = new ApiKeyGenerator
-
-  val authenticationService =
-    new AuthenticationService[Id](
-      DefaultNautilusContext.authConfig,
-      authRepository,
-      userRepository,
-      new ApiKeyService(apiKeyRepository, resourcesRespository, tiersRepository, clock, apiKeyGenerator)
-    )
-
-  override protected def afterEach(): Unit = {
-    super.afterEach()
-    authRepository.clear()
-    userRepository.clear()
-    apiKeyRepository.clear()
-    tiersRepository.clear()
+  val context = new IdContext {
+    override lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   }
+  val authenticationService = context.authenticationService
+  val authRepository = context.authRepository
+  val userRepository = context.userRepository
+  val tiersRepository = context.tiersRepository
+  val apiKeyRepository = context.apiKeyRepository
+
+  override protected def afterEach(): Unit =
+    super.afterEach()
 
   "AuthenticationService" should {
       "resolve an auth code when user existdos" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, None))
+        userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, 1, None))
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -64,7 +52,7 @@ class AuthenticationServiceTest
       "resolve an auth code when user exists with administrator role" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, Instant.now(), Github, None))
+        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, Instant.now(), Github, 1, None))
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -78,7 +66,10 @@ class AuthenticationServiceTest
       "resolve an auth code when user doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        tiersRepository.create(TierName("shared", "free"), TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now))
+        tiersRepository.create(
+          TierName("shared", "free"),
+          TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now)
+        )
         userRepository.getUser(1) should be(None)
 
         // expect
@@ -93,7 +84,10 @@ class AuthenticationServiceTest
       "create an user when the user with a given email doesn't exist and generate keys and usage for him" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        tiersRepository.create(TierName("shared", "free"), TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now))
+        tiersRepository.create(
+          TierName("shared", "free"),
+          TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now)
+        )
         userRepository.getUser(1) should be(None)
 
         // when

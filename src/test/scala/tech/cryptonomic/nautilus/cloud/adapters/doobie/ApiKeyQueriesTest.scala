@@ -21,6 +21,9 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
     "check getAllApiKeys" in  {
       check(sut.getAllApiKeysQuery)
     }
+    "check getActiveApiKeysQuery" in  {
+      check(sut.getActiveApiKeysQuery(1))
+    }
     "check validation of ApiKey " in {
       check(sut.validateApiKeyQuery(""))
     }
@@ -28,7 +31,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
       check(sut.getUserApiKeysQuery(0))
     }
     "check insertApiKey" in {
-      check(sut.putApiKeyQuery(CreateApiKey("", Environment.Development, 0, 0, Instant.now, None)))
+      check(sut.putApiKeyQuery(CreateApiKey("", Environment.Development, 0, Instant.now, None)))
     }
     "check getUsageForUser" in {
       check(sut.getUsageForUserQuery(0))
@@ -41,6 +44,9 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
     }
     "check updateUsage" in {
       check(sut.updateUsageQuery(UsageLeft("", Usage.default)))
+    }
+    "check invalidateApiKey" in {
+      check(sut.invalidateApiKeyQuery(InvalidateApiKey(Environment.Development, 1, Instant.now())))
     }
   }
 }

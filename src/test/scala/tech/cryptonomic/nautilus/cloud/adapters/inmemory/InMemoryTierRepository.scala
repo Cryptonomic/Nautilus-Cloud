@@ -1,20 +1,25 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
+import java.time.Instant
+
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
-import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository, Usage}
 
 import scala.language.higherKinds
 
 class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
+
+  private lazy val defaultTier =
+    Tier(1, TierName("shared", "free"), List(TierConfiguration("description", Usage(1, 2), 1, Instant.now)))
 
   /** list of all tiers
     *
     * in order to be consistent with a real database we adjust reads and writes to keep indexing starting from 1 not
     * from 0
     */
-  private var tiers: List[Tier] = List.empty
+  private var tiers: List[Tier] = List(defaultTier)
 
   /** Creates tier */
   override def create(name: TierName, initialConfiguration: TierConfiguration): F[Either[Throwable, Tier]] =
@@ -49,13 +54,18 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
     tiers = List.empty
   }
 
+  /** Resets repository */
+  def reset(): Unit = this.synchronized {
+    tiers = List(defaultTier)
+  }
+
   /** Returns tier by ID */
   override def get(tierId: TierId): F[Option[Tier]] = this.synchronized {
-    Option(tiers(tierId-1)).pure[F]
+    Option(tiers(tierId - 1)).pure[F]
   }
 
   /** Returns default Tier */
   override def getDefault: F[Tier] = this.synchronized {
-    tiers.head.pure[F]
+    defaultTier.pure[F]
   }
 }

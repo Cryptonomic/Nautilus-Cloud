@@ -10,7 +10,6 @@ case class ApiKey(
     key: String,
     environment: Environment,
     userId: Int,
-    tierId: Int,
     dateIssued: Option[Instant],
     dateSuspended: Option[Instant]
 )

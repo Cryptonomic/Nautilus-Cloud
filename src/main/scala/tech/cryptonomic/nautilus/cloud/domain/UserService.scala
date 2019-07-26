@@ -1,7 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Monad
-import cats.implicits._
+import cats.Applicative
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, _}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
@@ -12,7 +11,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserReposi
 import scala.language.higherKinds
 
 /** User service implementation */
-class UserService[F[_]: Monad](
+class UserService[F[_]: Applicative](
     userRepo: UserRepository[F],
     apiKeyRepo: ApiKeyRepository[F]
 ) {
@@ -33,7 +32,7 @@ class UserService[F[_]: Monad](
 
   /** Returns API Keys for current user with given ID */
   def getCurrentUserApiKeys(implicit session: Session): F[List[ApiKey]] =
-    apiKeyRepo.getUserApiKeys(session.id)
+    apiKeyRepo.getCurrentActiveApiKeys(session.id)
 
   /** Returns API Keys usage for current user with given ID */
   def getCurrentUserApiKeysUsage(implicit session: Session): F[List[UsageLeft]] =

@@ -24,7 +24,8 @@ object OpenApiDoc
     getResourceEndpoint,
     listResourcesEndpoint,
     createResourceEndpoint,
-    getCurrentUser
+    getCurrentUser,
+    getCurrentUserKeys
   )
 
   override def created[A](

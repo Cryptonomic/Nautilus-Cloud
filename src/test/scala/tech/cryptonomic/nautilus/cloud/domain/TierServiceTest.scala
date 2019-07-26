@@ -1,15 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import java.time.Instant
-
-import cats.Id
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.OneSecondClock
+import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
 class TierServiceTest
     extends WordSpec
@@ -17,24 +13,19 @@ class TierServiceTest
     with Fixtures
     with EitherValues
     with OptionValues
-    with BeforeAndAfterEach {
+    with BeforeAndAfterEach
+    with OneInstancePerTest {
 
-  val now = Instant.parse("2019-07-03T16:22:24.971Z")
+  val context = new IdContext
+  val tierRepository = context.tiersRepository
 
-  val clock = new OneSecondClock(now)
-
-  val tierRepository = new InMemoryTierRepository[Id]()
-
-  val sut = new TierService[Id](tierRepository, clock)
-
-  override protected def afterEach(): Unit = {
-    super.afterEach()
-    tierRepository.clear()
-    clock.reset()
-  }
+  val sut = context.tierService
 
   "TierService" should {
       "save tier" in {
+        // given
+        tierRepository.clear()
+
         // when
         val tier = sut.createTier(
           TierName("shared", "free"),
@@ -57,7 +48,7 @@ class TierServiceTest
               description = "shared free",
               Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
-              startDate = now
+              startDate = context.now
             )
           )
         )
@@ -69,6 +60,9 @@ class TierServiceTest
       }
 
       "get existing tier" in {
+        // given
+        tierRepository.clear()
+
         // given
         sut.createTier(
           TierName("shared", "free"),
@@ -94,7 +88,7 @@ class TierServiceTest
               description = "shared free",
               Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
-              startDate = now
+              startDate = context.now
             )
           )
         )
@@ -111,6 +105,9 @@ class TierServiceTest
       }
 
       "update tier" in {
+        // given
+        tierRepository.clear()
+
         // given
         sut.createTier(
           TierName("shared", "free"),
@@ -131,7 +128,7 @@ class TierServiceTest
               monthly = 200
             ),
             maxResultSetSize = 40,
-            startDate = Some(now.plusSeconds(100))
+            startDate = Some(context.now.plusSeconds(100))
           )
         )(adminSession)
 
@@ -144,13 +141,13 @@ class TierServiceTest
               description = "shared free",
               Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
-              startDate = now
+              startDate = context.now
             ),
             TierConfiguration(
               description = "shared free",
               Usage(daily = 20, monthly = 200),
               maxResultSetSize = 40,
-              startDate = now.plusSeconds(100)
+              startDate = context.now.plusSeconds(100)
             )
           )
         )
@@ -160,7 +157,7 @@ class TierServiceTest
         // when
         val result = sut.updateTier(
           TierName("shared", "free"),
-          exampleUpdateTier.copy(startDate = Some(now.minusSeconds(1)))
+          exampleUpdateTier.copy(startDate = Some(context.now.minusSeconds(1)))
         )(adminSession)
 
         // then

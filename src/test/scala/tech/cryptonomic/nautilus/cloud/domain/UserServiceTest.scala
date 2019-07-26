@@ -30,7 +30,7 @@ class UserServiceTest
   "UserService" should {
       "get existing user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // expect
         sut
@@ -56,7 +56,7 @@ class UserServiceTest
 
       "get current user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // expect
         sut
@@ -71,7 +71,7 @@ class UserServiceTest
 
       "update user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github))
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // when
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
