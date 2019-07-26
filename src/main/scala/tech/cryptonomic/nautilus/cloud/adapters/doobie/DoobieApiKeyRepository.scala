@@ -44,4 +44,7 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   override def putApiKeyForUser(apiKey: CreateApiKey): F[Unit] =
     putApiKey(apiKey).run.map(_ => ()).transact(transactor)
 
+  /** Gets keys for environment */
+  override def getKeysForEnv(env: String): F[List[String]] =
+    getKeysForEnvQuery(env).to[List].transact(transactor)
 }

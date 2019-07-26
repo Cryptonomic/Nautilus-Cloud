@@ -23,8 +23,8 @@ class ApiKeyRoutes(apiKeysService: ApiKeyService[IO])
   }
 
   /** Routes implementation for getting all ApiKeys */
-  val getAllApiKeysConseilRoute: Route = getAllKeysConseil.implementedByAsync { key =>
-    apiKeysService.getAllApiKeysConseil(key).unsafeToFuture()
+  val getAllApiKeysForEnvRoute: Route = getAllKeysForEnv.implementedByAsync { case (env, key) =>
+    apiKeysService.getAllApiKeysForEnv(key, env).unsafeToFuture()
   }
 
   /** Routes implementation for validation of API Key */

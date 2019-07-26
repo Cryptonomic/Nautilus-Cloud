@@ -24,14 +24,14 @@ class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with Either
       }
       "getAllApiKeysConseil" in {
         apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
-        val allApiKeys = sut.getAllApiKeysConseil("key").right.value
+        val allApiKeys = sut.getAllApiKeysForEnv("key", "").right.value
 
         allApiKeys shouldBe List(exampleApiKey.key)
       }
 
       "getAllApiKeysConseil should not authorize" in {
         apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
-        val allApiKeys = sut.getAllApiKeysConseil("wrong_key").left.get
+        val allApiKeys = sut.getAllApiKeysForEnv("wrong_key", "").left.get
 
         allApiKeys shouldBe a[AccessDenied]
       }

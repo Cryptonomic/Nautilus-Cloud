@@ -53,7 +53,7 @@ class ApiKeyRoutesTest
         apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
+        Get("/apiKeys/someApiKey/validate") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
@@ -65,7 +65,7 @@ class ApiKeyRoutesTest
         apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/conseil/apiKeys") ~> addHeader("X-Api-Key", "key") ~> sut.getAllApiKeysConseilRoute ~> check {
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "key") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""["someApiKey"]""")
@@ -77,7 +77,7 @@ class ApiKeyRoutesTest
         apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/conseil/apiKeys") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysConseilRoute ~> check {
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.Forbidden
         }
       }

@@ -19,11 +19,11 @@ class ApiKeyService[F[_]: Applicative](apiKeysRepo: ApiKeyRepository[F], conseil
   }
 
   /** Returns all API keys from the DB */
-  def getAllApiKeysConseil(apiKey: String): F[Permission[List[String]]] =
+  def getAllApiKeysForEnv(apiKey: String, env: String): F[Permission[List[String]]] =
     Either
       .cond(
         conseilConfig.key == apiKey,
-        apiKeysRepo.getAllApiKeys.map(_.map(_.key)),
+        apiKeysRepo.getKeysForEnv(env),
         AccessDenied("Wrong API key").pure[F]
       )
       .bisequence

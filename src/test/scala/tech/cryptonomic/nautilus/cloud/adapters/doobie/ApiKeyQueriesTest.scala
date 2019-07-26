@@ -41,5 +41,8 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
       "check updateUsage" in {
         check(sut.updateUsage(UsageLeft("", 0, 0)))
       }
+      "check getKeysForEnvQuery" in {
+        check(sut.getKeysForEnvQuery(""))
+      }
     }
 }

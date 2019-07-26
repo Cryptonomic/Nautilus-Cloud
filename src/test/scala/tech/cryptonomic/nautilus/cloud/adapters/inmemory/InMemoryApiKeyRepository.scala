@@ -63,4 +63,9 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   /** Updates API key usage */
   override def updateKeyUsage(usage: UsageLeft): F[Unit] =
     (apiKeyUsage = usage :: apiKeyUsage.filterNot(_.key == usage.key)).pure[F]
+
+  /** Gets keys for environment */
+  override def getKeysForEnv(env: String): F[List[String]] = {
+    apiKeys.map(_.key).pure[F]
+  }
 }
