@@ -36,15 +36,15 @@ class ApiKeyService[F[_]: Monad](
 
   def initializeApiKeys(userId: UserId): F[Unit] = for {
       now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
-      defaultTier <- tiersRepository.getDefaultTier
+      defaultTier <- tiersRepository.getDefault
       apiKeys = createApiKeys(userId, now, defaultTier)
       initialUsages = createInitialUsages(apiKeys, defaultTier.getCurrentUsage(now))
       _ <- insert(apiKeys, initialUsages)
     } yield ()
 
   private def insert(apiKeys: List[CreateApiKey], initialUsages: List[UsageLeft]): F[Unit] = for {
-      _ <- apiKeys.map(apiKeyRepository.putApiKey).sequence
-      _ <- initialUsages.map(apiKeyRepository.putApiKeyUsage).sequence
+      _ <- apiKeys.traverse(apiKeyRepository.putApiKey)
+      _ <- initialUsages.traverse(apiKeyRepository.putApiKeyUsage)
     } yield ()
 
   private def createApiKeys(userId: UserId, now: Instant, defaultTier: Tier) =

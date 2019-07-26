@@ -62,7 +62,7 @@ class DoobieTierRepository[F[_]: Monad](transactor: Transactor[F])(
   }
 
   /** Returns default Tier */
-  override def getDefaultTier: F[Tier] = DEFAULT_TIER // there always should be default tier
+  override def getDefault: F[Tier] = DEFAULT_TIER // there always should be default tier
 }
 
 final case class DoobieUniqueTierViolationException(message: String) extends Throwable(message)

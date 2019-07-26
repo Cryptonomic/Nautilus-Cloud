@@ -1,15 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 
 import cats.Id
 import org.scalatest.EitherValues
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{
-  InMemoryApiKeyRepository,
-  InMemoryResourceRepository,
-  InMemoryTierRepository
-}
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryResourceRepository, InMemoryTierRepository}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyGenerator, CreateApiKey, Environment}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.FixedClock
@@ -32,7 +28,7 @@ class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with Either
             environment = Environment.Development,
             userId = 1,
             tierId = 2,
-            dateIssued = time,
+            dateIssued = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
             dateSuspended = None
           )
         )
@@ -46,11 +42,12 @@ class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with Either
             environment = Environment.Development,
             userId = 1,
             tierId = 2,
-            dateIssued = Some(time),
+            dateIssued = Some(ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant),
             dateSuspended = None
           )
         )
       }
+
       "validateApiKey" in {
         apiKeyRepo.putApiKey(
           CreateApiKey(
