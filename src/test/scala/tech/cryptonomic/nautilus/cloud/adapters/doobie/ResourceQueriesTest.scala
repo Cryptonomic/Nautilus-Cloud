@@ -1,6 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-
 import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
@@ -16,15 +15,15 @@ class ResourceQueriesTest extends WordSpec with Matchers with IOChecker with InM
 
   // check if all queries are valid
   "ResourceQueries" should {
-    "check selecting single resource" in {
-      check(sut.selectResource(0))
+      "check selecting single resource" in {
+        check(sut.selectResource(0))
+      }
+      "check creating resource " in {
+        check(sut.insertResource(CreateResource("", "", "", "", "")))
+      }
+      "check listing all resources" in {
+        check(sut.listResources)
+      }
     }
-    "check creating resource " in {
-      check(sut.insertResource(CreateResource("", "", "", "", "")))
-    }
-    "check listing all resources" in {
-      check(sut.listResources)
-    }
-  }
 
 }

@@ -51,7 +51,7 @@ class InMemoryTierRepository[F[_]: Monad] extends TierRepository[F] {
 
   /** Returns tier by ID */
   override def get(tierId: TierId): F[Option[Tier]] = this.synchronized {
-    Option(tiers(tierId-1)).pure[F]
+    Option(tiers(tierId - 1)).pure[F]
   }
 
   /** Returns default Tier */

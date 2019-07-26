@@ -95,42 +95,41 @@ class NautilusCloudStarterE2ETest
         response.code shouldBe HTTP_OK
         response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
-    "return user apiKeys and usageLeft generated with first login" in {
-      // given
-      createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
-      createDefaultResources(nautilusContext.resourcesRepository)
-        .unsafeRunSync()
-      stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
+      "return user apiKeys and usageLeft generated with first login" in {
+        // given
+        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
+        createDefaultResources(nautilusContext.resourcesRepository)
+          .unsafeRunSync()
+        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
-      val authCodeResult =
-        sttp
-          .get(uri"http://localhost:1235/github-callback?code=auth-code")
-          .followRedirects(false)
+        val authCodeResult =
+          sttp
+            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .followRedirects(false)
+            .send()
+
+        // when
+        val apiKeys = sttp
+          .get(uri"http://localhost:1235/users/me/apiKeys")
+          .cookies(authCodeResult.cookies)
           .send()
 
-      // when
-      val apiKeys = sttp
-        .get(uri"http://localhost:1235/users/me/apiKeys")
-        .cookies(authCodeResult.cookies)
-        .send()
+        // then
+        val exampleKey = "exampleApiKey"
+        apiKeys.code shouldBe HTTP_OK
+        apiKeys.body.right.value should include(exampleKey)
 
-      // then
-      val exampleKey = "exampleApiKey"
-      apiKeys.code shouldBe HTTP_OK
-      apiKeys.body.right.value should include(exampleKey)
+        // when
+        val usageLeft = sttp
+          .get(uri"http://localhost:1235/users/me/usage")
+          .cookies(authCodeResult.cookies)
+          .send()
 
-      // when
-      val usageLeft = sttp
-        .get(uri"http://localhost:1235/users/me/usage")
-        .cookies(authCodeResult.cookies)
-        .send()
-
-      // then
-      usageLeft.code shouldBe HTTP_OK
-      usageLeft.body.right.value should include(exampleKey)
+        // then
+        usageLeft.code shouldBe HTTP_OK
+        usageLeft.body.right.value should include(exampleKey)
+      }
     }
-  }
-
 
   "github-callback endpoint" should {
 

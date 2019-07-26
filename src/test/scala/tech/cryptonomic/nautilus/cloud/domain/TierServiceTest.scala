@@ -116,7 +116,7 @@ class TierServiceTest
             description = "shared free",
             monthlyHits = 100,
             dailyHits = 10,
-            maxResultSetSize = 20,
+            maxResultSetSize = 20
           )
         )(adminSession)
 

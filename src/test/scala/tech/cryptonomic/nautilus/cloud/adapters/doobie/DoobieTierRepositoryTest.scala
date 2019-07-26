@@ -34,29 +34,29 @@ class DoobieTierRepositoryTest
         )
       }
 
-    "update a tier" in {
-      // given
-      sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+      "update a tier" in {
+        // given
+        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
-      // when
-      sut
-        .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.plusSeconds(1)))
-        .unsafeRunSync()
+        // when
+        sut
+          .addConfiguration(TierName("shared", "free"), TierConfiguration("description", 2, 3, 4, now.plusSeconds(1)))
+          .unsafeRunSync()
 
-      // then
-      sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
-        Tier(
-          1,
-          TierName("shared", "free"),
-          List(
-            TierConfiguration("description", 1, 2, 3, now),
-            TierConfiguration("description", 2, 3, 4, now.plusSeconds(1))
+        // then
+        sut.get(TierName("shared", "free")).unsafeRunSync().value should equal(
+          Tier(
+            1,
+            TierName("shared", "free"),
+            List(
+              TierConfiguration("description", 1, 2, 3, now),
+              TierConfiguration("description", 2, 3, 4, now.plusSeconds(1))
+            )
           )
         )
-      )
-    }
+      }
 
-    "not update an user when new configuration start date override previous configurations" in {
+      "not update an user when new configuration start date override previous configurations" in {
         // given
         sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
@@ -78,16 +78,17 @@ class DoobieTierRepositoryTest
         )
       }
 
-    "get DoobieUniqueTierViolationException when saving a duplicated user" in {
-      // given
-      sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+      "get DoobieUniqueTierViolationException when saving a duplicated user" in {
+        // given
+        sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
-      // when
-      val tier = sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        // when
+        val tier =
+          sut.create(TierName("shared", "free"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
 
-      // then
-      tier.left.value shouldBe a[DoobieUniqueTierViolationException]
-    }
+        // then
+        tier.left.value shouldBe a[DoobieUniqueTierViolationException]
+      }
 
       "receive an tier" in {
         // given
@@ -97,7 +98,9 @@ class DoobieTierRepositoryTest
         val tier = sut.get(TierName("shared", "free")).unsafeRunSync()
 
         // then
-        tier.value should equal(Tier(1, TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now))))
+        tier.value should equal(
+          Tier(1, TierName("shared", "free"), List(TierConfiguration("description", 1, 2, 3, now)))
+        )
       }
 
       "get on when receiving an user which doesn't exist" in {

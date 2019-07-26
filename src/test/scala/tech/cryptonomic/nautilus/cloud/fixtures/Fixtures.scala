@@ -76,8 +76,8 @@ trait Fixtures {
       |}
     """.stripMargin
 
-    val exampleUsageJson =
-      """
+  val exampleUsageJson =
+    """
         |[{
         |  "key":"apikey",
         |  "daily":500,
@@ -116,9 +116,21 @@ trait Fixtures {
 
   def createDefaultResources[F[_]: Applicative](resourceRepository: ResourceRepository[F]): F[List[ResourceId]] = {
     val createResources = List(
-      CreateResource("Tezos Alphanet Conseil Dev", "Conseil alphanet development environment", "tezos", "alphanet", "dev"),
+      CreateResource(
+        "Tezos Alphanet Conseil Dev",
+        "Conseil alphanet development environment",
+        "tezos",
+        "alphanet",
+        "dev"
+      ),
       CreateResource("Tezos Mainnet Conseil Dev", "Conseil mainnet development environment", "tezos", "mainnet", "dev"),
-      CreateResource("Tezos Alphanet Conseil Prod", "Conseil alphanet production environment", "tezos", "alphanet", "prod"),
+      CreateResource(
+        "Tezos Alphanet Conseil Prod",
+        "Conseil alphanet production environment",
+        "tezos",
+        "alphanet",
+        "prod"
+      ),
       CreateResource("Tezos Mainnet Conseil Prod", "Conseil mainnet production environment", "tezos", "mainnet", "prod")
     )
     createResources
@@ -126,9 +138,7 @@ trait Fixtures {
       .sequence
   }
 
-
   def createDefaultTier[F[_]: Applicative](tierRepository: TierRepository[F]): F[Either[Throwable, Tier]] =
     tierRepository.create(TierName("shared", "free"), TierConfiguration("free tier", 1000, 100, 10, Instant.now))
-
 
 }

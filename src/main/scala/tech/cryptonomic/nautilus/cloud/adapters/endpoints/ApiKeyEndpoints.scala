@@ -20,6 +20,14 @@ trait ApiKeyEndpoints
       tags = List("ApiKeys")
     )
 
+  /** Endpoint definition for getting all ApiKeys */
+  def getAllKeysConseil: Endpoint[String, Permission[List[String]]] =
+    endpoint(
+      request = get(url = path / "conseil" / "apiKeys", headers = header("X-Api-Key")),
+      response = jsonResponse[List[String]]().orForbidden(),
+      tags = List("ApiKeys")
+    )
+
   /** Endpoint definition for validation of API Key */
   def validateApiKey: Endpoint[String, Boolean] =
     endpoint(

@@ -76,7 +76,9 @@ class DoobieUserRepositoryTest
         val fetchedUser = sut.getUser(1).unsafeRunSync()
 
         // then
-        fetchedUser.value should equal(User(1, "login@domain.com", Role.User, now, Github, Some("brand new description")))
+        fetchedUser.value should equal(
+          User(1, "login@domain.com", Role.User, now, Github, Some("brand new description"))
+        )
       }
 
     }

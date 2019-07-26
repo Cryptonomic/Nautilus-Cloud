@@ -7,7 +7,7 @@ trait NautilusE2EContext {
   val nautilusContext: NautilusContext = new NautilusContext {
     override lazy val apiKeyGenerator: ApiKeyGenerator = new ApiKeyGenerator {
       private var counter = 0
-      override def generateKey: String = this.synchronized{
+      override def generateKey: String = this.synchronized {
         counter += 1
         s"exampleApiKey$counter"
       }
