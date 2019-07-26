@@ -28,7 +28,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** Query checking if API key is valid */
   override def validateApiKey(apiKey: String): F[Boolean] = this.synchronized {
-    apiKeys.exists(_.key == apiKey).pure[F]
+    apiKeys.exists(it => it.key == apiKey && it.dateSuspended.isEmpty).pure[F]
   }
 
   /** Query returning API keys connected to user */

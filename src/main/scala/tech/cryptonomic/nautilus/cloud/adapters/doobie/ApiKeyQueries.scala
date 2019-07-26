@@ -21,7 +21,7 @@ trait ApiKeyQueries extends EnvironmentMappers {
 
   /** Query checking if API key is valid */
   def validateApiKeyQuery(apiKey: String): Query0[Boolean] =
-    sql"SELECT exists (SELECT 1 FROM api_keys WHERE key = $apiKey LIMIT 1)"
+    sql"SELECT exists (SELECT 1 FROM api_keys WHERE key = $apiKey and datesuspended IS NULL LIMIT 1)"
       .query[Boolean]
 
   /** Query returning API keys connected to user */

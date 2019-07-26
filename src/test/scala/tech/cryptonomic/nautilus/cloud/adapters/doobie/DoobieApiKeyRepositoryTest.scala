@@ -44,6 +44,44 @@ class DoobieApiKeyRepositoryTest
         )
       }
 
+      "feth all apiKey" in {
+        // when
+        sut
+          .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, None))
+          .unsafeRunSync()
+
+        // when
+        val fetchedApiKeys = sut.getAllApiKeys.unsafeRunSync()
+
+        // then
+        fetchedApiKeys should equal(
+          List(ApiKey(1, "cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, Some(now), None))
+        )
+      }
+
+      "validate apiKey" in {
+        // given
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(false)
+
+        // when
+        sut
+          .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, None))
+          .unsafeRunSync()
+
+        // then
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(true)
+      }
+
+      "suspended apiKey should not be valid" in {
+        // when
+        sut
+          .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, Some(Instant.now())))
+          .unsafeRunSync()
+
+        // then
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(false)
+      }
+
       "refresh apiKey" in {
         // when
         sut
