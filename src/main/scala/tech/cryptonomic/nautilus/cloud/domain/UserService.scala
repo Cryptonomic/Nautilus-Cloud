@@ -32,20 +32,12 @@ class UserService[F[_]: Monad](
   }
 
   /** Returns API Keys for current user with given ID */
-  def getCurrentUserApiKeys(implicit session: Session): F[Option[List[ApiKey]]] =
-    userRepo.getUserByEmailAddress(session.email).flatMap { maybeUser =>
-      maybeUser.map { user =>
-        apiKeyRepo.getUserApiKeys(user.userId)
-      }.sequence
-    }
+  def getCurrentUserApiKeys(implicit session: Session): F[List[ApiKey]] =
+    apiKeyRepo.getUserApiKeys(session.id)
 
   /** Returns API Keys usage for current user with given ID */
-  def getCurrentUserApiKeysUsage(implicit session: Session): F[Option[List[UsageLeft]]] =
-    userRepo.getUserByEmailAddress(session.email).flatMap { maybeUser =>
-      maybeUser.map { user =>
-        apiKeyRepo.getKeysUsageForUser(user.userId)
-      }.sequence
-    }
+  def getCurrentUserApiKeysUsage(implicit session: Session): F[List[UsageLeft]] =
+    apiKeyRepo.getKeysUsageForUser(session.id)
 
   /** Returns API Keys for user with given ID */
   def getUserApiKeys(userId: UserId)(implicit session: Session): F[Permission[List[ApiKey]]] =

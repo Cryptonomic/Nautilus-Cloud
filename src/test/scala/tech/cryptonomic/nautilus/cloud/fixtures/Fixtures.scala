@@ -25,8 +25,8 @@ trait Fixtures {
 
   val exampleUpdateUser = UpdateUser(Role.User, None)
 
-  val userSession = Session("email@example.com", AuthenticationProvider.Github, Role.User)
-  val adminSession = Session("email@example.com", AuthenticationProvider.Github, Role.Administrator)
+  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User)
+  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator)
 
   val exampleCreateTier = CreateTier("some description", Usage(1, 2), 3)
   val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Some(Instant.now))

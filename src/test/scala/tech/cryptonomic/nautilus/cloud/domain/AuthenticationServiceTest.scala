@@ -54,9 +54,10 @@ class AuthenticationServiceTest
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
-          "name@domain.com",
-          Github,
-          Role.User
+          id = 1,
+          email = "name@domain.com",
+          provider = Github,
+          role = Role.User
         )
       }
 
@@ -67,9 +68,10 @@ class AuthenticationServiceTest
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
-          "name@domain.com",
-          Github,
-          Role.Administrator
+          id = 1,
+          email = "name@domain.com",
+          provider = Github,
+          role = Role.Administrator
         )
       }
 
@@ -81,9 +83,10 @@ class AuthenticationServiceTest
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
-          "name@domain.com",
-          Github,
-          Role.User
+          id = 1,
+          email = "name@domain.com",
+          provider = Github,
+          role = Role.User
         )
       }
 

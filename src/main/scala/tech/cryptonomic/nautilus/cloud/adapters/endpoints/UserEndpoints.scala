@@ -31,18 +31,18 @@ trait UserEndpoints
     )
 
   /** Currently logged-in user api keys endpoint definition */
-  def getCurrentUserKeys: Endpoint[Unit, Option[List[ApiKey]]] =
+  def getCurrentUserKeys: Endpoint[Unit, List[ApiKey]] =
     endpoint(
       request = get(url = path / "users" / "me" / "apiKeys"),
-      response = jsonResponse[List[ApiKey]]().orNotFound(),
+      response = jsonResponse[List[ApiKey]](),
       tags = List("User")
     )
 
   /** Currently logged-in user api keys usage left endpoint definition */
-  def getCurrentUserUsage: Endpoint[Unit, Option[List[UsageLeft]]] =
+  def getCurrentUserUsage: Endpoint[Unit, List[UsageLeft]] =
     endpoint(
       request = get(url = path / "users" / "me" / "usage"),
-      response = jsonResponse[List[UsageLeft]]().orNotFound(),
+      response = jsonResponse[List[UsageLeft]](),
       tags = List("User")
     )
 

@@ -50,12 +50,12 @@ class ApiKeyService[F[_]: Monad](
   private def createApiKeys(userId: UserId, now: Instant, defaultTier: Tier) =
     Environment.all.map { environment =>
       CreateApiKey(
-        apiKeyGenerator.generateKey,
-        environment,
-        userId,
-        defaultTier.tierId,
-        now,
-        None
+        key = apiKeyGenerator.generateKey,
+        environment = environment,
+        userId = userId,
+        tierId = defaultTier.tierId,
+        dateIssued = now,
+        dateSuspended = None
       )
     }
 
