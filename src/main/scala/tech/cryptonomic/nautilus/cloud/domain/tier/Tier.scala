@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain.tier
 
 import java.time.Instant
 
-import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.{DailyMonthlyHits, TierId}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 
 case class Tier(
     tierId: TierId,
@@ -11,26 +11,29 @@ case class Tier(
 ) {
 
   /** Returns valid daily/monthly hit rates */
-  def findValidDailyMonthlyHits(instant: Instant): DailyMonthlyHits =
+  def getCurrentUsage(now: Instant): Usage =
     configurations
-      .find(conf => conf.startDate.isAfter(instant))
-      .map(conf => conf.dailyHits -> conf.monthlyHits)
-      .getOrElse((0, 0)) // every tier should have valid configuration, but in case it doesn't we return (0, 0)
-
+      .find(conf => conf.startDate.isAfter(now))
+      .map(_.usage)
+      .getOrElse(Usage.default)
 }
 
 object Tier {
   type TierId = Int
-  type DailyMonthlyHits = (Int, Int)
 }
 
 case class TierConfiguration(
     description: String,
-    monthlyHits: Int,
-    dailyHits: Int,
+    usage: Usage,
     maxResultSetSize: Int,
     startDate: Instant
 )
+
+case class Usage(daily: Int, monthly: Int)
+
+object Usage {
+  lazy val default = Usage(0, 0)
+}
 
 case class TierName(tier: String, subTier: String) {
   override def toString: String = s"${tier}_$subTier"

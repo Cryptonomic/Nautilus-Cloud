@@ -2,25 +2,22 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 
 import java.time.{Instant, ZonedDateTime}
 
-import cats.Applicative
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, CreateApiKeyRequest, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
-import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user._
 
 import scala.language.higherKinds
 
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
 
-  val exampleCreateApiKey = CreateApiKey("", 1, 2, 3, time, None)
-  val exampleApiKey = ApiKey(1, "", 1, 2, 3, Some(time), None)
+  val exampleCreateApiKey =
+    CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, 3, time, None)
+  val exampleApiKey = ApiKey(1, "cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 1, 3, Some(time), None)
 
   val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 
@@ -28,19 +25,17 @@ trait Fixtures {
 
   val exampleUpdateUser = UpdateUser(Role.User, None)
 
-  val userSession = Session("user@domain.com", AuthenticationProvider.Github, Role.User)
-  val adminSession = Session("user@domain.com", AuthenticationProvider.Github, Role.Administrator)
+  val userSession = Session("email@example.com", AuthenticationProvider.Github, Role.User)
+  val adminSession = Session("email@example.com", AuthenticationProvider.Github, Role.Administrator)
 
-  val exampleCreateTier = CreateTier("some description", 1, 2, 3)
-  val exampleUpdateTier = UpdateTier("some description", 1, 2, 3, Some(Instant.now))
+  val exampleCreateTier = CreateTier("some description", Usage(1, 2), 3)
+  val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Some(Instant.now))
 
-  val exampleUsageLeft = UsageLeft("apikey", 500, 15000)
+  val exampleUsageLeft = UsageLeft("apikey", Usage(500, 15000))
 
-  val exampleResource = Resource(0, "dev", "Development", "tezos", "alphanet", "dev")
+  val exampleResource = Resource(0, "dev", "Development", "tezos", "alphanet", Environment.Development)
 
-  val exampleCreateResource = CreateResource("dev", "Development", "tezos", "alphanet", "dev")
-
-  val exampleCreateApiKeyRequest = CreateApiKeyRequest(1, 2)
+  val exampleCreateResource = CreateResource("dev", "Development", "tezos", "alphanet", Environment.Development)
 
   val exampleCreateApiKeyRequestJson = """{"resourceId": 1, "tierId": 2}"""
 
@@ -76,8 +71,8 @@ trait Fixtures {
       |}
     """.stripMargin
 
-    val exampleUsageJson =
-      """
+  val exampleUsageJson =
+    """
         |[{
         |  "key":"apikey",
         |  "daily":500,
@@ -113,22 +108,4 @@ trait Fixtures {
         )
     )
   }
-
-  def createDefaultResources[F[_]: Applicative](resourceRepository: ResourceRepository[F]): F[List[ResourceId]] = {
-    val createResources = List(
-      CreateResource("Tezos Alphanet Conseil Dev", "Conseil alphanet development environment", "tezos", "alphanet", "dev"),
-      CreateResource("Tezos Mainnet Conseil Dev", "Conseil mainnet development environment", "tezos", "mainnet", "dev"),
-      CreateResource("Tezos Alphanet Conseil Prod", "Conseil alphanet production environment", "tezos", "alphanet", "prod"),
-      CreateResource("Tezos Mainnet Conseil Prod", "Conseil mainnet production environment", "tezos", "mainnet", "prod")
-    )
-    createResources
-      .map(resourceRepository.createResource)
-      .sequence
-  }
-
-
-  def createDefaultTier[F[_]: Applicative](tierRepository: TierRepository[F]): F[Either[Throwable, Tier]] =
-    tierRepository.create(TierName("shared", "free"), TierConfiguration("free tier", 1000, 100, 10, Instant.now))
-
-
 }

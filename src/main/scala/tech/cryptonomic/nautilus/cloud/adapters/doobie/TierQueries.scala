@@ -6,7 +6,7 @@ import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
 import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
-import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, Usage}
 
 /** Trait containing User related queries */
 trait TierQueries {
@@ -24,8 +24,8 @@ trait TierQueries {
   /** Creates tier configuration */
   def createTierConfigurationQuery(name: TierName, configuration: TierConfiguration): Update0 =
     sql"""INSERT INTO tiers_configuration (tier, subtier, description, monthlyhits, dailyhits, maxresultsetsize, startdate)
-          VALUES (${name.tier}, ${name.subTier}, ${configuration.description}, ${configuration.monthlyHits},
-                  ${configuration.dailyHits}, ${configuration.maxResultSetSize}, ${configuration.startDate})""".update
+          VALUES (${name.tier}, ${name.subTier}, ${configuration.description}, ${configuration.usage.monthly},
+                  ${configuration.usage.daily}, ${configuration.maxResultSetSize}, ${configuration.startDate})""".update
 
   /** Returns tier */
   def getTiersConfigurationQuery(tierName: TierName): Query0[TierConfigurationDto] =
@@ -63,5 +63,5 @@ case class TierConfigurationDto(
     startdate: Instant
 ) {
   lazy val asTierName = TierName(tier, subtier)
-  lazy val asTierConfiguration = TierConfiguration(description, monthlyhits, dailyhits, maxResultSetSize, startdate)
+  lazy val asTierConfiguration = TierConfiguration(description, Usage(dailyhits, monthlyhits), maxResultSetSize, startdate)
 }

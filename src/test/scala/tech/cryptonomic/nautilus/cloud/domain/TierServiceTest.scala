@@ -40,8 +40,10 @@ class TierServiceTest
           TierName("shared", "free"),
           CreateTier(
             description = "shared free",
-            monthlyHits = 100,
-            dailyHits = 10,
+            Usage(
+              daily = 10,
+              monthly = 100
+            ),
             maxResultSetSize = 20
           )
         )(adminSession)
@@ -53,8 +55,7 @@ class TierServiceTest
           configurations = List(
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
+              Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
               startDate = now
             )
@@ -73,8 +74,10 @@ class TierServiceTest
           TierName("shared", "free"),
           CreateTier(
             description = "shared free",
-            monthlyHits = 100,
-            dailyHits = 10,
+            Usage(
+              daily = 10,
+              monthly = 100
+            ),
             maxResultSetSize = 20
           )
         )(adminSession)
@@ -89,8 +92,7 @@ class TierServiceTest
           configurations = List(
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
+              Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
               startDate = now
             )
@@ -114,9 +116,8 @@ class TierServiceTest
           TierName("shared", "free"),
           CreateTier(
             description = "shared free",
-            monthlyHits = 100,
-            dailyHits = 10,
-            maxResultSetSize = 20,
+            Usage(daily = 10, monthly = 100),
+            maxResultSetSize = 20
           )
         )(adminSession)
 
@@ -125,8 +126,10 @@ class TierServiceTest
           TierName("shared", "free"),
           UpdateTier(
             description = "shared free",
-            monthlyHits = 200,
-            dailyHits = 20,
+            usage = Usage(
+              daily = 20,
+              monthly = 200
+            ),
             maxResultSetSize = 40,
             startDate = Some(now.plusSeconds(100))
           )
@@ -139,15 +142,13 @@ class TierServiceTest
           configurations = List(
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
+              Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
               startDate = now
             ),
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 200,
-              dailyHits = 20,
+              Usage(daily = 20, monthly = 200),
               maxResultSetSize = 40,
               startDate = now.plusSeconds(100)
             )

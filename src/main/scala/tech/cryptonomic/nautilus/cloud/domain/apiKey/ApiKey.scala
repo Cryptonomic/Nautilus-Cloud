@@ -8,7 +8,7 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey.KeyId
 case class ApiKey(
     keyId: KeyId,
     key: String,
-    resourceId: Int,
+    environment: Environment,
     userId: Int,
     tierId: Int,
     dateIssued: Option[Instant],

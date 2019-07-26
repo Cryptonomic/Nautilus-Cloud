@@ -7,6 +7,7 @@ import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -34,11 +35,7 @@ class AuthenticationServiceTest
       DefaultNautilusContext.authConfig,
       authRepository,
       userRepository,
-      apiKeyRepository,
-      resourcesRespository,
-      tiersRepository,
-      clock,
-      apiKeyGenerator
+      new ApiKeyService(apiKeyRepository, resourcesRespository, tiersRepository, clock, apiKeyGenerator)
     )
 
   override protected def afterEach(): Unit = {
@@ -46,6 +43,7 @@ class AuthenticationServiceTest
     authRepository.clear()
     userRepository.clear()
     apiKeyRepository.clear()
+    tiersRepository.clear()
   }
 
   "AuthenticationService" should {
@@ -78,9 +76,8 @@ class AuthenticationServiceTest
       "resolve an auth code when user doesn't exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        tiersRepository.create(TierName("shared", "free"), TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now))
         userRepository.getUser(1) should be(None)
-        createDefaultTier(tiersRepository)
-        createDefaultResources(resourcesRespository)
 
         // expect
         authenticationService.resolveAuthCode("authCode").right.value shouldBe Session(
@@ -93,8 +90,7 @@ class AuthenticationServiceTest
       "create an user when the user with a given email doesn't exist and generate keys and usage for him" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        createDefaultTier(tiersRepository)
-        createDefaultResources(resourcesRespository)
+        tiersRepository.create(TierName("shared", "free"), TierConfiguration("free tier", Usage(100, 1000), 10, Instant.now))
         userRepository.getUser(1) should be(None)
 
         // when

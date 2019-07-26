@@ -4,11 +4,10 @@ import java.time.Instant
 
 case class UpdateTier(
     description: String,
-    monthlyHits: Int,
-    dailyHits: Int,
+    usage: Usage,
     maxResultSetSize: Int,
     startDate: Option[Instant] = None
 ) {
   def toConfiguration(now: Instant) =
-    TierConfiguration(description, monthlyHits, dailyHits, maxResultSetSize, startDate.getOrElse(now))
+    TierConfiguration(description, usage, maxResultSetSize, startDate.getOrElse(now))
 }
