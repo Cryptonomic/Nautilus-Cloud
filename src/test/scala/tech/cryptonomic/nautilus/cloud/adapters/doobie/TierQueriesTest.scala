@@ -6,7 +6,7 @@ import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
+import tech.cryptonomic.nautilus.cloud.application.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {

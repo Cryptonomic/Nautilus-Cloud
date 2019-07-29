@@ -6,8 +6,8 @@ import com.softwaremill.sttp._
 import io.circe.generic.auto._
 import io.circe.parser._
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.GithubConfig
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository._
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository._
 
 import scala.language.higherKinds
 import scala.util.Try

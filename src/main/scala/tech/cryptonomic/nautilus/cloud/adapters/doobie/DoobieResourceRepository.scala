@@ -4,8 +4,8 @@ import cats.Monad
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource, ResourceRepository}
 
 import scala.language.higherKinds
 

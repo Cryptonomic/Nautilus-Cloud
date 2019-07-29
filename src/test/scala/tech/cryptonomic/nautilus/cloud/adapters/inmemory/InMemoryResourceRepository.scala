@@ -2,8 +2,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource, ResourceRepository}
 
 import scala.language.higherKinds
 

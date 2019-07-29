@@ -8,8 +8,8 @@ import doobie.enum.SqlState
 import doobie.free.connection.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
-import tech.cryptonomic.nautilus.cloud.domain.tier._
+import tech.cryptonomic.nautilus.cloud.application.domain.tier.Tier.TierId
+import tech.cryptonomic.nautilus.cloud.application.domain.tier._
 
 import scala.language.higherKinds
 

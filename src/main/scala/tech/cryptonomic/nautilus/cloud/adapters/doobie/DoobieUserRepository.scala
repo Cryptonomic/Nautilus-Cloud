@@ -5,8 +5,8 @@ import cats.effect.Bracket
 import doobie.enum.SqlState
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.language.higherKinds
 

@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.Directives.{complete, onComplete, parameters, p
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route}
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
-import tech.cryptonomic.nautilus.cloud.domain.AuthenticationApplication
+import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
 
 import scala.util.{Failure, Success}
 

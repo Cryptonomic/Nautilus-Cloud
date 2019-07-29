@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
 class DoobieResourceRepositoryTest extends WordSpec

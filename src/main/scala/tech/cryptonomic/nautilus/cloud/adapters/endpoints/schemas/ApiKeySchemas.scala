@@ -1,9 +1,9 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import endpoints.generic
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
-import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.application.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.application.domain.user.{AuthenticationProvider, Role}
 
 /** Schemas used for ApiKey endpoints */
 trait ApiKeySchemas extends generic.JsonSchemas with InstantSchema with EnvironmentSchema {

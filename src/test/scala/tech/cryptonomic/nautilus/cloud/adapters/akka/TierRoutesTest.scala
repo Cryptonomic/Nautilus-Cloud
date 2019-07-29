@@ -8,7 +8,7 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.{Clock, IO}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
+import tech.cryptonomic.nautilus.cloud.application.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedClock, JsonMatchers}
 

@@ -2,11 +2,11 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.AccessToken
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Code
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository.AccessToken
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository.Code
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository.Result
 
 import scala.language.higherKinds
 

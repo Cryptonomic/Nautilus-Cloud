@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, Usage}
+import tech.cryptonomic.nautilus.cloud.application.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, InMemoryDatabase}
 
 class DoobieTierRepositoryTest

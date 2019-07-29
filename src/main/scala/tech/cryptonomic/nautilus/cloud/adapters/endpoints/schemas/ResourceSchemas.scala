@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import endpoints.generic
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
 
 /** JSON schemas for resource related models */
 trait ResourceSchemas extends generic.JsonSchemas with EnvironmentSchema {

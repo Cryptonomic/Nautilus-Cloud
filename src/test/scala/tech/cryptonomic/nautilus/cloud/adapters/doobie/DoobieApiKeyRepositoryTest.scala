@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, RefreshApiKey}
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, CreateApiKey, Environment, RefreshApiKey}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 

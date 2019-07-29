@@ -3,12 +3,12 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 import java.time.{Instant, ZonedDateTime}
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
-import tech.cryptonomic.nautilus.cloud.domain.tier._
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user._
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.application.domain.tier._
+import tech.cryptonomic.nautilus.cloud.application.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.application.domain.user._
 
 import scala.language.higherKinds
 

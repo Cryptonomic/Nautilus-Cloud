@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import doobie.util.{Get, Put}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
 
 /* Mappers for Environment */
 trait EnvironmentMappers {

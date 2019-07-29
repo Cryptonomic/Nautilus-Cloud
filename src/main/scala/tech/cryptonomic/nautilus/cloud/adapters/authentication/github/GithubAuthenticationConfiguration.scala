@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.authentication.github
 
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationConfiguration
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationConfiguration
+import tech.cryptonomic.nautilus.cloud.application.domain.user.AuthenticationProvider
 
 /* Github authentication configuration */
 case class GithubAuthenticationConfiguration(config: GithubConfig) extends AuthenticationConfiguration {

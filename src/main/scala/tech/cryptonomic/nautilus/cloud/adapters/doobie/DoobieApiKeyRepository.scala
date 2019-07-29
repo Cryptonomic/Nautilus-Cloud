@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{
   ApiKey,
   ApiKeyRepository,
   CreateApiKey,
@@ -13,7 +13,7 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.{
   RefreshApiKey,
   UsageLeft
 }
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
 import DoobieApiKeyRepository.ExtendedRefreshApiKey
 
 import scala.language.higherKinds

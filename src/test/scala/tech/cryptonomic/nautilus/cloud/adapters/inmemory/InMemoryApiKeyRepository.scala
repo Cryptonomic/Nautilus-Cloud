@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieApiKeyRepository._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, RefreshApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, RefreshApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
 
 import scala.language.higherKinds
 

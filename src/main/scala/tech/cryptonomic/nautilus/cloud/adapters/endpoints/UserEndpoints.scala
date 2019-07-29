@@ -2,9 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.UserSchemas
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.user.{UpdateUser, User}
 
 /** User relevant endpoints */
 trait UserEndpoints

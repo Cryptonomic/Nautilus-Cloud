@@ -8,7 +8,7 @@ import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import endpoints.algebra.Documentation
 import tech.cryptonomic.nautilus.cloud.adapters.akka.ResponseMappers.ResponseMapper
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
 
 /** Utility trait for extending Endpoints functionality */
 trait EndpointStatusSyntax extends EndpointsStatusDefinitions with server.JsonSchemaEntities with StrictLogging {

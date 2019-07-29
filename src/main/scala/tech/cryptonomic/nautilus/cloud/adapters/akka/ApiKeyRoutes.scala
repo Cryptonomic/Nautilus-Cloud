@@ -7,8 +7,8 @@ import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ApiKeyEndpoints
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
-import tech.cryptonomic.nautilus.cloud.domain.ApiKeyApplication
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.application.ApiKeyApplication
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
 
 /** API Keys routes implementation */
 class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])

@@ -2,9 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ApiKeySchemas
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
 
 /** ApiKey relevant endpoints */
 trait ApiKeyEndpoints

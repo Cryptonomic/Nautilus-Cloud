@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.domain.user.Role
+import tech.cryptonomic.nautilus.cloud.application.domain.user.Role
 
 class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,

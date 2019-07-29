@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
 
 /** Trait containing api key related queries */
 trait ApiKeyQueries extends EnvironmentMappers {

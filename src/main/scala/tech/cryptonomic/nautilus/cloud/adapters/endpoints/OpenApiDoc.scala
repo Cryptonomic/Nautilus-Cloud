@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 import endpoints.algebra.Documentation
 import endpoints.openapi
 import endpoints.openapi.model.{Info, MediaType, OpenApi, Schema}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
 
 /** OpenAPI documentation definition */
 object OpenApiDoc
