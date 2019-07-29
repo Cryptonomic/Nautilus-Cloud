@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Applicative
-import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import java.time.Instant
@@ -42,7 +40,7 @@ class ApiKeyService[F[_]: Monad](
     Either
       .cond(
         conseilConfig.key == apiKey,
-        apiKeysRepo.getKeysForEnv(env),
+        apiKeyRepository.getKeysForEnv(env),
         AccessDenied("Wrong API key").pure[F]
       )
       .bisequence

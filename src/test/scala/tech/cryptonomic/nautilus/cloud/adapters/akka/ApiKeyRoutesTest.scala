@@ -26,8 +26,6 @@ class ApiKeyRoutesTest
       val context = new DefaultNautilusContextWithInMemoryImplementations
 
       val sut = context.apiKeysRoutes
-      val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
-      val conseilConf = ConseilConfig("key")
 
       "return list containing one api key" in {
         // when
@@ -64,10 +62,10 @@ class ApiKeyRoutesTest
 
       "return list of api keys with a single key from conseil route" in {
         // when
-        apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "key") ~> sut.getAllApiKeysForEnvRoute ~> check {
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""["someApiKey"]""")
@@ -76,7 +74,7 @@ class ApiKeyRoutesTest
 
       "return 403 when uses wrong conseil key" in {
         // when
-        apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
         Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
