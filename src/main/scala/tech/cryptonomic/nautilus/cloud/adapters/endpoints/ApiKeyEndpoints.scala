@@ -40,10 +40,20 @@ trait ApiKeyEndpoints
       tags = List("ApiKeys")
     )
 
+  type Env = String
+
+  /** Endpoint definition for getting all ApiKeys */
+  def getAllKeysForEnv: Endpoint[(Env, String), Permission[List[String]]] =
+    endpoint(
+      request = get(url = path / "apiKeys" / segment[Env]("environment"), headers = header("X-Api-Key")),
+      response = jsonResponse[List[String]]().orForbidden(),
+      tags = List("ApiKeys")
+    )
+
   /** Endpoint definition for validation of API Key */
   def validateApiKey: Endpoint[String, Boolean] =
     endpoint(
-      request = get(url = path / "apiKeys" / segment[String]("apiKey")),
+      request = get(url = path / "apiKeys" / segment[String]("apiKey") / "valid"),
       response = jsonResponse[Boolean](),
       tags = List("ApiKeys")
     )

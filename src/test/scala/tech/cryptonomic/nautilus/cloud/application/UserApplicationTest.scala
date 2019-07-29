@@ -44,16 +44,12 @@ class UserApplicationTest
 
       "get None when there is no existing user" in {
         // expect
-        sut.getUser(1)(adminSession)
-          .right
-          .value shouldBe None
+        sut.getUser(1)(adminSession).right.value shouldBe None
       }
 
       "get PermissionDenied when requesting user is not an admin" in {
         // expect
-        sut.getUser(1)(userSession)
-          .left
-          .value shouldBe a[AccessDenied]
+        sut.getUser(1)(userSession).left.value shouldBe a[AccessDenied]
       }
 
       "get current user" in {

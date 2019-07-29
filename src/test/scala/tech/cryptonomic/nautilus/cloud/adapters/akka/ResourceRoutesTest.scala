@@ -72,7 +72,6 @@ class ResourceRoutesTest
         uri = "/resources",
         entity = HttpEntity(MediaTypes.`application/json`, """{"resourceName":"dev","description":"development","platform":"tezos","network":"alphanet","environment":"dev"}""")
       )
-
       //when
       postRequest ~> sut.createResource ~> check {
         //then

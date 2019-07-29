@@ -79,4 +79,9 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   override def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]] =
     apiKeys.filter(_.userId == id).filter(_.dateSuspended.isEmpty).pure[F]
+
+  /** Gets keys for environment */
+  override def getKeysForEnv(env: String): F[List[String]] = {
+    apiKeys.map(_.key).pure[F]
+  }
 }

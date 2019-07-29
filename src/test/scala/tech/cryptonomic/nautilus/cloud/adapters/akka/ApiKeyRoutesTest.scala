@@ -50,7 +50,7 @@ class ApiKeyRoutesTest
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
+        Get("/apiKeys/someApiKey/valid") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
@@ -117,6 +117,28 @@ class ApiKeyRoutesTest
                                               |    "userId": 1
                                               |  }]
                                             """.stripMargin)
+        }
+      }
+
+      "return list of api keys with a single key from conseil route" in {
+        // when
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+
+        // expect
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""["someApiKey"]""")
+        }
+      }
+
+      "return 403 when uses wrong conseil key" in {
+        // when
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+
+        // expect
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
+          status shouldEqual StatusCodes.Forbidden
         }
       }
 

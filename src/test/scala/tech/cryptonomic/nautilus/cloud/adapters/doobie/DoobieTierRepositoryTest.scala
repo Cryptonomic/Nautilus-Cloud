@@ -56,7 +56,7 @@ class DoobieTierRepositoryTest
       )
     }
 
-    "not update an user when new configuration start date override previous configurations" in {
+      "not update an user when new configuration start date override previous configurations" in {
         // given
         sut.create(TierName("shared", "free"), TierConfiguration("description", Usage(1, 2), 3, now)).unsafeRunSync()
 
@@ -85,9 +85,9 @@ class DoobieTierRepositoryTest
       // when
       val tier = sut.create(TierName("shared", "free"), TierConfiguration("description", Usage(1, 2), 3, now)).unsafeRunSync()
 
-      // then
-      tier.left.value shouldBe a[DoobieUniqueTierViolationException]
-    }
+        // then
+        tier.left.value shouldBe a[DoobieUniqueTierViolationException]
+      }
 
       "receive an tier" in {
         // given

@@ -1,6 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
@@ -20,6 +19,11 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
   /** Routes implementation for getting all ApiKeys */
   def getAllApiKeysRoute(implicit session: Session): Route = getAllKeys.implementedByAsync { _ =>
     apiKeysApplication.getAllApiKeys.unsafeToFuture()
+  }
+
+  /** Routes implementation for getting all ApiKeys */
+  val getAllApiKeysForEnvRoute: Route = getAllKeysForEnv.implementedByAsync { case (env, key) =>
+    apiKeysApplication.getApiKeysForEnv(key, env).unsafeToFuture()
   }
 
   /** Routes implementation for validation of API Key */

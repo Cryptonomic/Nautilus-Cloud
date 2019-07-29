@@ -44,6 +44,7 @@ class Routes(
         redirect("/site", Found)
       },
       sessionRoutes.routes,
+      apiKeysRoutes.getAllApiKeysForEnvRoute,
       sessionOperations.requiredSession { implicit session =>
         concat(
           // current routes must be at the beginning to avoid unwanted overriding

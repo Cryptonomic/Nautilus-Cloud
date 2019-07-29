@@ -48,5 +48,8 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
     "check invalidateApiKey" in {
       check(sut.invalidateApiKeyQuery(InvalidateApiKey(Environment.Development, 1, Instant.now())))
     }
+    "check getKeysForEnvQuery" in {
+      check(sut.getKeysForEnvQuery(""))
+    }
   }
 }
