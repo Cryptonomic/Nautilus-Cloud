@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
+import java.time.ZonedDateTime
+
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
@@ -7,7 +9,7 @@ import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
-class TierServiceTest
+class TierApplicationTest
     extends WordSpec
     with Matchers
     with Fixtures
@@ -16,10 +18,12 @@ class TierServiceTest
     with BeforeAndAfterEach
     with OneInstancePerTest {
 
-  val context = new IdContext
+  val context = new IdContext {
+    override lazy val now = ZonedDateTime.parse("2019-07-29T15:13:05.136Z").toInstant
+  }
   val tierRepository = context.tiersRepository
 
-  val sut = context.tierService
+  val sut = context.tierApplication
 
   "TierService" should {
       "save tier" in {
@@ -63,7 +67,6 @@ class TierServiceTest
         // given
         tierRepository.clear()
 
-        // given
         sut.createTier(
           TierName("shared", "free"),
           CreateTier(
@@ -161,12 +164,22 @@ class TierServiceTest
         )(adminSession)
 
         // then
-        result.right.value.left.value shouldBe a[NotAllowedConfigurationOverride]
+        val resultValue = result.right.value.left.value
+        resultValue shouldBe a[NotAllowedConfigurationOverride]
+        resultValue.getMessage should equal(
+          "Given time 2019-07-29T15:13:04.136Z is from the past. Current time: 2019-07-29T15:13:05.136Z"
+        )
       }
 
       "get AccessDenied when user updating tier is not an admin" in {
+        // when
+        val result = sut.updateTier(TierName("shared", "free"), exampleUpdateTier)(userSession)
+
         // expect
-        sut.updateTier(TierName("shared", "free"), exampleUpdateTier)(userSession).left.value shouldBe a[AccessDenied]
+        result.left.value shouldBe a[AccessDenied]
+        result.left.value.message should equal(
+          "Access denied for email@example.com. Required role: Administrator, given role: User"
+        )
       }
     }
 }

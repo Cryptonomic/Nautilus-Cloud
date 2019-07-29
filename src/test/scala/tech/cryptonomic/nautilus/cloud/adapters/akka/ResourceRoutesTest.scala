@@ -2,13 +2,11 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryResourceRepository
-import tech.cryptonomic.nautilus.cloud.domain.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
+import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
 class ResourceRoutesTest
   extends WordSpec
@@ -18,11 +16,9 @@ class ResourceRoutesTest
     with BeforeAndAfterEach {
 
 
-  val resourceRepo = new InMemoryResourceRepository[IO]
-
-  val resourceService = new ResourceService(resourceRepo)
-
-  val sut = new ResourceRoutes(resourceService)
+  val context = new DefaultNautilusContextWithInMemoryImplementations
+  val resourceRepo = context.resourcesRepository
+  val sut = context.resourceRoutes
 
   override def beforeEach(): Unit = {
     super.beforeEach()
@@ -54,10 +50,10 @@ class ResourceRoutesTest
       getRequest ~> sut.getResource ~> check {
         //then
         status shouldEqual StatusCodes.OK
-        responseAs[String] should matchJson("""{"resourceid":1,"resourcename":"dev","description":"development","platform":"tezos","network":"alphanet","environment":"dev"}""")
+        responseAs[String] should matchJson("""{"resourceId":1,"resourceName":"dev","description":"development","platform":"tezos","network":"alphanet","environment":"dev"}""")
       }
     }
-    "return 404 when resource does not exists" in {
+    "return 404 when resource does not exist" in {
       //given
       val getRequest = HttpRequest(
         HttpMethods.GET,
@@ -76,6 +72,7 @@ class ResourceRoutesTest
         uri = "/resources",
         entity = HttpEntity(MediaTypes.`application/json`, """{"resourceName":"dev","description":"development","platform":"tezos","network":"alphanet","environment":"dev"}""")
       )
+
       //when
       postRequest ~> sut.createResource ~> check {
         //then

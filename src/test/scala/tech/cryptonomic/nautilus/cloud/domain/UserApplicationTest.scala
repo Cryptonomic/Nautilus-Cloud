@@ -7,8 +7,9 @@ import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyReposito
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
-class UserServiceTest
+class UserApplicationTest
     extends WordSpec
     with Matchers
     with Fixtures
@@ -17,10 +18,11 @@ class UserServiceTest
     with BeforeAndAfterEach
     with MockFactory {
 
-  val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
-  val userRepository = new InMemoryUserRepository[Id]()
+  val context = new IdContext()
+  val apiKeyRepository = context.apiKeyRepository
+  val userRepository = context.userRepository
 
-  val sut = new UserService[Id](userRepository, apiKeyRepository)
+  val sut = context.userApplication
 
   override protected def afterEach(): Unit = {
     super.afterEach()
@@ -93,16 +95,6 @@ class UserServiceTest
 
         // then
         sut.getUser(1)(userSession).left.value shouldBe a[AccessDenied]
-      }
-
-      "getUserApiKeys" in {
-        // given
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 1, userId = 1))
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 2, userId = 1))
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 3, userId = 2))
-
-        // expect
-        sut.getUserApiKeys(1)(adminSession).right.value.map(_.keyId) shouldBe List(1, 2)
       }
     }
 }

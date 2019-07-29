@@ -1,19 +1,14 @@
-package tech.cryptonomic.nautilus.cloud.domain
+package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
 import java.time.Instant
 
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
-import tech.cryptonomic.nautilus.cloud.domain.user.Role
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
-import scala.concurrent.duration.MILLISECONDS
 import scala.language.higherKinds
 
 /** API keys service implementation */
@@ -25,22 +20,33 @@ class ApiKeyService[F[_]: Monad](
 ) {
 
   /** Returns all API keys from the DB */
-  def getAllApiKeys(implicit session: Session): F[Permission[List[ApiKey]]] = requiredRole(Role.Administrator) {
-    apiKeyRepository.getAllApiKeys
-  }
+  def getAllApiKeys: F[List[ApiKey]] = apiKeyRepository.getAllApiKeys
+
+  /** Returns API Keys usage for current user with given ID */
+  def getCurrentUserApiKeysUsage(userId: UserId): F[List[UsageLeft]] =
+    apiKeyRepository.getKeysUsageForUser(userId)
+
+  /** Returns API Keys for user with given ID */
+  def getUserApiKeys(userId: UserId): F[List[ApiKey]] =
+    apiKeyRepository.getUserApiKeys(userId)
+
+  /** Returns API Keys usage for user with given ID */
+  def getApiKeysUsage(userId: UserId): F[List[UsageLeft]] =
+    apiKeyRepository.getKeysUsageForUser(userId)
 
   /** Returns all API keys from the DB */
-  def getCurrentActiveApiKeys(implicit session: Session): F[List[ApiKey]] =
-    apiKeyRepository.getCurrentActiveApiKeys(session.id)
+  def getActiveApiKeys(userId: UserId): F[List[ApiKey]] =
+    apiKeyRepository.getCurrentActiveApiKeys(userId)
 
   /** Checks if API key is valid */
   def validateApiKey(apiKey: String): F[Boolean] =
     apiKeyRepository.validateApiKey(apiKey)
 
-  def refreshApiKey(environment: Environment)(implicit session: Session): F[Unit] =
+  /** Refreshes api key */
+  def refreshApiKey(userId: UserId, environment: Environment): F[Unit] =
     for {
       now <- clock.currentInstant
-      _ <- apiKeyRepository.updateApiKey(RefreshApiKey(session.id, environment, apiKeyGenerator.generateKey, now))
+      _ <- apiKeyRepository.updateApiKey(RefreshApiKey(userId, environment, apiKeyGenerator.generateKey, now))
     } yield ()
 
   /** Initialize api keys for the newly created user */

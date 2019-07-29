@@ -1,10 +1,10 @@
-package tech.cryptonomic.nautilus.cloud.domain
+package tech.cryptonomic.nautilus.cloud.domain.authentication
 
 import cats.Monad
 import cats.data.EitherT
 import cats.effect.Clock
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationConfiguration, AuthenticationProviderRepository, Session}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}

@@ -24,6 +24,7 @@ class NautilusCloudStarterE2ETest
 
   override def beforeEach() = {
     super.beforeEach()
+    nautilusContext.apiKeyGenerator.asInstanceOf[FixedApiKeyGenerator].reset
     applySchemaWithFixtures()
   }
 
@@ -117,10 +118,75 @@ class NautilusCloudStarterE2ETest
 
         // then
         apiKeys.code shouldBe HTTP_OK
-        apiKeys.body.right.value should include("exampleApiKey")
+        apiKeys.body.right.value should matchJson("""[
+                                             |  {
+                                             |    "keyId": 1,
+                                             |    "key": "exampleApiKey0",
+                                             |    "environment": "prod",
+                                             |    "userId": 1
+                                             |  },
+                                             |  {
+                                             |    "keyId": 2,
+                                             |    "key": "exampleApiKey1",
+                                             |    "environment": "dev",
+                                             |    "userId": 1
+                                             |  }
+                                             |]""".stripMargin)
       }
 
-      "return user usageLeft generated with first login" in {
+      "refresh apiKeys" in {
+        // given
+        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
+
+        val authCodeResult =
+          sttp
+            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .followRedirects(false)
+            .send()
+
+        sttp
+          .get(uri"http://localhost:1235/users/me/apiKeys")
+          .cookies(authCodeResult.cookies)
+          .send()
+          .body
+          .right
+          .value should matchJson("""[
+                                            |  {
+                                            |    "key": "exampleApiKey0",
+                                            |    "environment": "prod"
+                                            |  },
+                                            |  {
+                                            |    "key": "exampleApiKey1",
+                                            |    "environment": "dev"
+                                            |  }
+                                            |]""".stripMargin)
+
+        // when
+        val apiKeys = sttp
+          .post(uri"http://localhost:1235/users/me/apiKeys/prod/refresh")
+          .cookies(authCodeResult.cookies)
+          .send()
+
+        // then
+        sttp
+          .get(uri"http://localhost:1235/users/me/apiKeys")
+          .cookies(authCodeResult.cookies)
+          .send()
+          .body
+          .right
+          .value should matchJson("""[
+                                    |  {
+                                    |    "key": "exampleApiKey2",
+                                    |    "environment": "prod"
+                                    |  },
+                                    |  {
+                                    |    "key": "exampleApiKey1",
+                                    |    "environment": "dev"
+                                    |  }
+                                    |]""".stripMargin)
+      }
+
+      "return initial usageLeft generated for a user with first login" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
@@ -138,7 +204,22 @@ class NautilusCloudStarterE2ETest
 
         // then
         usageLeft.code shouldBe HTTP_OK
-        usageLeft.body.right.value should include("exampleApiKey")
+        usageLeft.body.right.value should matchJson("""[
+                                                    |  {
+                                                    |    "key": "exampleApiKey0",
+                                                    |    "usage": {
+                                                    |      "daily": 0,
+                                                    |      "monthly": 0
+                                                    |    }
+                                                    |  },
+                                                    |  {
+                                                    |    "key": "exampleApiKey1",
+                                                    |    "usage": {
+                                                    |      "daily": 0,
+                                                    |      "monthly": 0
+                                                    |    }
+                                                    |  }
+                                                    |]""".stripMargin)
       }
     }
 

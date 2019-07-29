@@ -46,10 +46,26 @@ class Routes(
       sessionRoutes.routes,
       sessionOperations.requiredSession { implicit session =>
         concat(
-          apiKeysRoutes.routes,
-          userRoutes.routes,
-          tierRoutes.routes,
-          resourceRoutes.routes
+          // current routes must be at the beginning to avoid unwanted overriding
+          userRoutes.getCurrentUserRoute,
+          apiKeysRoutes.getCurrentUserKeysRoute,
+          apiKeysRoutes.getCurrentApiKeyUsageRoute,
+
+          apiKeysRoutes.refreshKeysRoute,
+          apiKeysRoutes.getAllApiKeysRoute,
+          apiKeysRoutes.validateApiKeyRoute,
+          apiKeysRoutes.getUserKeysRoute,
+          apiKeysRoutes.getApiKeyUsageRoute,
+
+          userRoutes.getUserRoute,
+          userRoutes.updateUserRoute,
+
+          tierRoutes.createTierRoute,
+          tierRoutes.getTierRoute,
+
+          resourceRoutes.getResource,
+          resourceRoutes.createResource,
+          resourceRoutes.listResources
         )
       }
     )

@@ -9,7 +9,12 @@ import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationService
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
+import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
+import tech.cryptonomic.nautilus.cloud.domain.user.UserService
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
 
 object DefaultNautilusContext extends NautilusContext
 
@@ -29,12 +34,22 @@ class IdContext {
   lazy val clock = new FixedClock[Id](now)
 
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()
+
   lazy val authRepository = new InMemoryAuthenticationProviderRepository()
   lazy val userRepository = new InMemoryUserRepository()
   lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   lazy val tiersRepository = new InMemoryTierRepository()
+  lazy val resourceRepository = new InMemoryResourceRepository()
 
   lazy val apiKeyService = wire[ApiKeyService[Id]]
   lazy val authenticationService = wire[AuthenticationService[Id]]
   lazy val tierService = wire[TierService[Id]]
+  lazy val userService = wire[UserService[Id]]
+  lazy val resourceService = wire[ResourceService[Id]]
+
+  lazy val apiKeyApplication = wire[ApiKeyApplication[Id]]
+  lazy val authenticationApplication = wire[AuthenticationApplication[Id]]
+  lazy val tierApplication = wire[TierApplication[Id]]
+  lazy val userApplication = wire[UserApplication[Id]]
+  lazy val resourceApplication = wire[ResourceApplication[Id]]
 }

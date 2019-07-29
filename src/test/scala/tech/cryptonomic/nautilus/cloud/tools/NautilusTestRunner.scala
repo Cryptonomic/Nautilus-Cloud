@@ -20,6 +20,7 @@ trait NautilusTestRunner extends BeforeAndAfterEach with StrictLogging { self: T
       new NautilusCloud(nautilusContext)
     }
   }
+
   thread.start()
 
   // wait for a Nautilus to start

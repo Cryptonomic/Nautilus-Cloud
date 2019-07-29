@@ -7,11 +7,11 @@ import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyApplication, UserApplication}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** User routes implementation */
-class UserRoutes(userService: UserService[IO], apiKeyService: ApiKeyService[IO])
+class UserRoutes(userService: UserApplication[IO], apiKeyService: ApiKeyApplication[IO])
     extends UserEndpoints
     with server.Endpoints
     with EndpointStatusSyntax
@@ -32,43 +32,4 @@ class UserRoutes(userService: UserService[IO], apiKeyService: ApiKeyService[IO])
   def getCurrentUserRoute(implicit session: Session): Route = getCurrentUser.implementedByAsync { _ =>
     userService.getCurrentUser.unsafeToFuture()
   }
-
-  /** User keys route implementation */
-  def getCurrentUserKeysRoute(implicit session: Session): Route = getCurrentUserKeys.implementedByAsync { _ =>
-    userService.getCurrentUserApiKeys.unsafeToFuture()
-  }
-
-  /** User keys refresh implementation */
-  def refreshKeysRoute(implicit session: Session): Route = refreshUserKeys.implementedByAsync { env =>
-    apiKeyService.refreshApiKey(env).unsafeToFuture()
-  }
-
-  /** ApiKey usage route implementation */
-  def getCurrentApiKeyUsageRoute(implicit session: Session): Route = getCurrentUserUsage.implementedByAsync { _ =>
-    userService.getCurrentUserApiKeysUsage.unsafeToFuture()
-  }
-
-  /** User keys route implementation */
-  def getUserKeysRoute(implicit session: Session): Route = getUserKeys.implementedByAsync { userId =>
-    userService.getUserApiKeys(userId).unsafeToFuture()
-  }
-
-  /** ApiKey usage route implementation */
-  def getApiKeyUsageRoute(implicit session: Session): Route = getApiKeyUsage.implementedByAsync { userId =>
-    userService.getUserApiKeysUsage(userId).unsafeToFuture()
-  }
-
-  /** Concatenated User routes */
-  def routes(implicit session: Session): Route = concat(
-    getCurrentUserRoute,
-    getCurrentUserKeysRoute,
-    getCurrentApiKeyUsageRoute,
-    getUserRoute,
-    getUserKeysRoute,
-    updateUserRoute,
-    getUserKeysRoute,
-    getApiKeyUsageRoute,
-    refreshKeysRoute
-  )
-
 }

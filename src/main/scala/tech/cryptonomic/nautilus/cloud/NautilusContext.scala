@@ -15,12 +15,12 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, 
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
-import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
-import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
-import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
-import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, ResourceService, TierService, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository, ApiKeyService}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, AuthenticationService}
+import tech.cryptonomic.nautilus.cloud.domain.resources.{ResourceRepository, ResourceService}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{TierRepository, TierService}
+import tech.cryptonomic.nautilus.cloud.domain.user.{UserRepository, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
 
 import scala.concurrent.ExecutionContext
 
@@ -57,6 +57,12 @@ trait NautilusContext extends StrictLogging {
   lazy val tierService = wire[TierService[IO]]
   lazy val userService = wire[UserService[IO]]
   lazy val resourceService = wire[ResourceService[IO]]
+
+  lazy val authenticationApplication = wire[AuthenticationApplication[IO]]
+  lazy val apiKeysApplication = wire[ApiKeyApplication[IO]]
+  lazy val tierApplication = wire[TierApplication[IO]]
+  lazy val userApplication = wire[UserApplication[IO]]
+  lazy val resourceApplication = wire[ResourceApplication[IO]]
 
   lazy val apiKeysRoutes = wire[ApiKeyRoutes]
   lazy val userRoutes = wire[UserRoutes]

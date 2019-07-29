@@ -5,24 +5,24 @@ import akka.http.scaladsl.server.Directives.{complete, onComplete, parameters, p
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route}
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
-import tech.cryptonomic.nautilus.cloud.domain.AuthenticationService
+import tech.cryptonomic.nautilus.cloud.domain.AuthenticationApplication
 
 import scala.util.{Failure, Success}
 
 class SessionRoutes(
-    private val authService: AuthenticationService[IO],
+    private val authenticationApplication: AuthenticationApplication[IO],
     private val sessionOperations: SessionOperations
 ) extends StrictLogging {
 
   lazy val routes: Route =
     concat(
       path("github-login") {
-        redirect(authService.loginUrl, Found)
+        redirect(authenticationApplication.loginUrl, Found)
       },
       path("github-callback") {
         parameters('code) {
           code =>
-            onComplete(authService.resolveAuthCode(code).unsafeToFuture()) {
+            onComplete(authenticationApplication.resolveAuthCode(code).unsafeToFuture()) {
               case Success(Right(session)) =>
                 sessionOperations.setSession(session) { ctx =>
                   ctx.redirect("/", SeeOther)

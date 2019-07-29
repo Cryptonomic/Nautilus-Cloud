@@ -1,23 +1,22 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository}
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository, ResourceService}
 
 import scala.language.higherKinds
 
 /** Service for handling resources operations */
-class ResourceService[F[_]](resourcesRepo: ResourceRepository[F]) {
+class ResourceApplication[F[_]](resourceService: ResourceService[F]) {
 
   /** Creates new resource */
   def createResource(createResource: CreateResource): F[ResourceId] =
-    resourcesRepo.createResource(createResource)
+    resourceService.createResource(createResource)
 
   /** Returns all resources */
   def getResources: F[List[Resource]] =
-    resourcesRepo.getResources
+    resourceService.getResources
 
   /** Returns single resource by id */
   def getResource(resourceId: ResourceId): F[Option[Resource]] =
-    resourcesRepo.getResource(resourceId)
-
+    resourceService.getResource(resourceId)
 }
