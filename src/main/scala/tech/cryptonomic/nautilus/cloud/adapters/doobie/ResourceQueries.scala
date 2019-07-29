@@ -1,13 +1,15 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import doobie.implicits._
+import doobie.util.{Get, Put}
 import doobie.util.query.Query0
 import doobie.util.update.Update0
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 
 /** Queries for resources table */
-trait ResourceQueries {
+trait ResourceQueries extends EnvironmentMappers {
 
   /** Inserts resource */
   def insertResource(createResource: CreateResource): Update0 =

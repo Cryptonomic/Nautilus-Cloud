@@ -1,19 +1,17 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import cats.effect.IO
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryUserRepository}
-import tech.cryptonomic.nautilus.cloud.domain.UserService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.JsonMatchers
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, JsonMatchers}
 
 class UserRoutesTest
     extends WordSpec
@@ -24,12 +22,10 @@ class UserRoutesTest
     with MockFactory
     with OneInstancePerTest {
 
-  val userRepository = new InMemoryUserRepository[IO]()
-  val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
-
-  val sut = new UserRoutes(
-    new UserService[IO](userRepository, apiKeyRepository)
-  )
+  val context = new DefaultNautilusContextWithInMemoryImplementations
+  val userRepository = context.userRepository
+  val apiKeyRepository = context.apiKeysRepository
+  val sut = context.userRoutes
 
   "The User route" should {
 
@@ -41,6 +37,7 @@ class UserRoutesTest
             Role.User,
             ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
             Github,
+            1,
             None
           )
         )
@@ -79,6 +76,7 @@ class UserRoutesTest
             Role.User,
             ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
             Github,
+            1,
             None
           )
         )
@@ -153,9 +151,8 @@ class UserRoutesTest
           ApiKey(
             keyId = 1,
             key = "apiKey",
-            resourceId = 1,
+            environment = Environment.Development,
             userId = 1,
-            tierId = 1,
             dateIssued = None,
             dateSuspended = None
           )
@@ -170,8 +167,7 @@ class UserRoutesTest
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""
                                                     |  [{
-                                                    |    "resourceId": 1,
-                                                    |    "tierId": 1,
+                                                    |    "environment": "dev",
                                                     |    "keyId": 1,
                                                     |    "key": "apiKey",
                                                     |    "userId": 1
@@ -179,27 +175,20 @@ class UserRoutesTest
                                                   """.stripMargin)
         }
       }
+
       "get current user API keys" in {
         // given
         apiKeyRepository.add(
           ApiKey(
             keyId = 1,
             key = "apiKey",
-            resourceId = 1,
+            environment = Environment.Production,
             userId = 1,
-            tierId = 1,
             dateIssued = None,
             dateSuspended = None
           )
         )
-        userRepository.createUser(
-          CreateUser(
-            userEmail = "user@domain.com",
-            userRole = Role.User,
-            registrationDate = Instant.now,
-            accountSource = AuthenticationProvider.Github
-          )
-        )
+        userRepository.createUser(exampleCreateUser)
 
         // when
         val result = Get("/users/me/apiKeys") ~> sut.getCurrentUserKeysRoute(userSession)
@@ -210,8 +199,7 @@ class UserRoutesTest
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""
                                               |  [{
-                                              |    "resourceId": 1,
-                                              |    "tierId": 1,
+                                              |    "environment": "prod",
                                               |    "keyId": 1,
                                               |    "key": "apiKey",
                                               |    "userId": 1
@@ -222,32 +210,17 @@ class UserRoutesTest
 
       "get current user API key usage" in {
         // given
-        apiKeyRepository.add(
-          ApiKey(
-            keyId = 1,
-            key = "apiKey",
-            resourceId = 1,
-            userId = 1,
-            tierId = 1,
-            dateIssued = None,
-            dateSuspended = None
-          )
-        )
-        userRepository.createUser(
-          CreateUser(
-            userEmail = "user@domain.com",
-            userRole = Role.User,
-            registrationDate = Instant.now,
-            accountSource = AuthenticationProvider.Github
-          )
-        )
+        apiKeyRepository.add(exampleApiKey.copy(key = "apiKey", userId = 1))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
         apiKeyRepository.putApiKeyUsage(
-          UsageLeft(key = "apiKey", daily = 10, monthly = 100)
+          UsageLeft(
+            key = "apiKey",
+            Usage(daily = 10, monthly = 100)
+          )
         )
 
-        println(userRepository.getUser(1))
         // when
-        val result = Get("/users/me/usage") ~> sut.getCurrentApiKeyUsageRoute(userSession)
+        val result = Get("/users/me/usage") ~> sut.getCurrentApiKeyUsageRoute(userSession.copy(email = "email@example.com"))
 
         // then
         result ~> check {
@@ -256,8 +229,10 @@ class UserRoutesTest
           responseAs[String] should matchJson("""
                                               |  [{
                                               |    "key": "apiKey",
-                                              |    "daily": 10,
-                                              |    "monthly": 100
+                                              |    "usage": {
+                                              |      "daily": 10,
+                                              |      "monthly": 100
+                                              |    }
                                               |  }]
                                             """.stripMargin)
         }

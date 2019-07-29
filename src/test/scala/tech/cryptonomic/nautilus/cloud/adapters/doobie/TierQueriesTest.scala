@@ -6,7 +6,7 @@ import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
@@ -28,8 +28,7 @@ class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
             TierName("shared", "free"),
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
+              Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
               Instant.now
             )
@@ -42,8 +41,7 @@ class TierQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
             TierName("shared", "free"),
             TierConfiguration(
               description = "shared free",
-              monthlyHits = 100,
-              dailyHits = 10,
+              Usage(daily = 10, monthly = 100),
               maxResultSetSize = 20,
               Instant.now
             )

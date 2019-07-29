@@ -2,14 +2,16 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import cats.effect.IO
 import com.stephenn.scalatest.jsonassert.JsonMatchers
+import org.scalatest.{Matchers, WordSpec}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
 class ApiKeyRoutesTest
     extends WordSpec
@@ -21,15 +23,16 @@ class ApiKeyRoutesTest
 
   "The API Keys route" should {
 
+      val context = new DefaultNautilusContextWithInMemoryImplementations
+
+      val sut = context.apiKeysRoutes
       val apiKeyRepository = new InMemoryApiKeyRepository[IO]()
       val conseilConf = ConseilConfig("key")
 
-      val sut = new ApiKeyRoutes(new ApiKeyService[IO](apiKeyRepository, conseilConf))
-
       "return list containing one api key" in {
         // when
-        apiKeyRepository.add(
-          ApiKey(keyId = 0, key = "", resourceId = 1, userId = 2, tierId = 3, dateIssued = None, dateSuspended = None)
+        context.apiKeysRepository.add(
+          ApiKey(keyId = 0, key = "", Environment.Development, userId = 2, dateIssued = None, dateSuspended = None)
         )
 
         // expect
@@ -38,8 +41,7 @@ class ApiKeyRoutesTest
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""
                                                     |  [{
-                                                    |    "resourceId": 1,
-                                                    |    "tierId": 3,
+                                                    |    "environment": "dev",
                                                     |    "keyId": 0,
                                                     |    "key": "",
                                                     |    "userId": 2
@@ -50,7 +52,7 @@ class ApiKeyRoutesTest
 
       "return correctly validated api key" in {
         // when
-        apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
         Get("/apiKeys/someApiKey/validate") ~> sut.validateApiKeyRoute ~> check {

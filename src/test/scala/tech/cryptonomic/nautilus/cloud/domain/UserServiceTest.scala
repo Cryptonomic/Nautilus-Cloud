@@ -30,9 +30,7 @@ class UserServiceTest
   "UserService" should {
       "get existing user" in {
         // given
-        userRepository.createUser(
-          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github)
-        )
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // expect
         sut
@@ -54,9 +52,7 @@ class UserServiceTest
 
       "get current user" in {
         // given
-        userRepository.createUser(
-          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github)
-        )
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // expect
         sut
@@ -66,14 +62,12 @@ class UserServiceTest
 
       "get None when there is no current user" in {
         // expect
-        sut.getCurrentUser(adminSession.copy("non-existing-user@domain.com")) shouldBe None
+        sut.getCurrentUser(adminSession.copy(email = "non-existing-user@domain.com")) shouldBe None
       }
 
       "update user" in {
         // given
-        userRepository.createUser(
-          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github)
-        )
+        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
 
         // when
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
@@ -103,7 +97,7 @@ class UserServiceTest
         apiKeyRepository.add(exampleApiKey.copy(keyId = 2, userId = 1))
         apiKeyRepository.add(exampleApiKey.copy(keyId = 3, userId = 2))
 
-        //
+        // expect
         sut.getUserApiKeys(1)(adminSession).right.value.map(_.keyId) shouldBe List(1, 2)
       }
     }

@@ -8,9 +8,8 @@ import io.scalaland.chimney.dsl._
 /** Model for creating API key */
 case class CreateApiKey(
     key: String,
-    resourceId: Int,
+    environment: Environment,
     userId: Int,
-    tierId: Int,
     dateIssued: Instant,
     dateSuspended: Option[Instant]
 ) {

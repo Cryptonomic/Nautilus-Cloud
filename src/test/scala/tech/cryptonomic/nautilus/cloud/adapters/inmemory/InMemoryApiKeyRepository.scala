@@ -2,7 +2,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Monad
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieApiKeyRepository._
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, RefreshApiKey, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -27,7 +28,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
 
   /** Query checking if API key is valid */
   override def validateApiKey(apiKey: String): F[Boolean] = this.synchronized {
-    apiKeys.exists(_.key == apiKey).pure[F]
+    apiKeys.exists(it => it.key == apiKey && it.dateSuspended.isEmpty).pure[F]
   }
 
   /** Query returning API keys connected to user */
@@ -41,8 +42,20 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   }
 
   /** Inserts API key */
-  override def putApiKeyForUser(apiKey: CreateApiKey): F[Unit] = this.synchronized {
+  override def putApiKey(apiKey: CreateApiKey): F[Unit] = this.synchronized {
     (apiKeys = apiKeys :+ apiKey.toApiKey(apiKeys.map(_.keyId).maximumOption.getOrElse(0) + 1)).pure[F]
+  }
+
+  /** Query updating API keys connected to user */
+  override def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit] = this.synchronized {
+    apiKeys = apiKeys.collect {
+        case apiKey: ApiKey
+            if (apiKey.environment == refreshApiKey.environment && apiKey.userId == refreshApiKey.userId) =>
+          apiKey.copy(dateSuspended = Some(refreshApiKey.now))
+        case it => it
+      } :+ refreshApiKey.toCreateApiKey.toApiKey(apiKeys.map(_.keyId).maximumOption.getOrElse(0) + 1)
+
+    ().pure[F]
   }
 
   private var apiKeyUsage: List[UsageLeft] = List.empty
@@ -63,6 +76,9 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   /** Updates API key usage */
   override def updateKeyUsage(usage: UsageLeft): F[Unit] =
     (apiKeyUsage = usage :: apiKeyUsage.filterNot(_.key == usage.key)).pure[F]
+
+  override def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]] =
+    apiKeys.filter(_.userId == id).filter(_.dateSuspended.isEmpty).pure[F]
 
   /** Gets keys for environment */
   override def getKeysForEnv(env: String): F[List[String]] = {

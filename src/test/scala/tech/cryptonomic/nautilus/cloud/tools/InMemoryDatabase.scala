@@ -22,10 +22,24 @@ trait InMemoryDatabase extends BeforeAndAfterAll with BeforeAndAfterEach {
   val database = InMemoryDatabase
   val testTransactor = database.testTransactor
 
-  override protected def beforeEach(): Unit =
+  override protected def beforeEach(): Unit = {
+    applySchemaWithFixtures()
+
     database.allTables.map { table =>
       Fragment.const(s"TRUNCATE $table RESTART IDENTITY CASCADE").update.run.transact(testTransactor).unsafeRunSync()
     }
+  }
+
+  def applySchemaWithFixtures(): Unit = {
+    Fragment
+      .const("DROP SCHEMA public CASCADE; CREATE SCHEMA public;")
+      .update
+      .run
+      .transact(testTransactor)
+      .unsafeRunSync()
+
+    Fragment.const(database.dbSchema).update.run.transact(testTransactor).unsafeRunSync()
+  }
 }
 
 object InMemoryDatabase extends StrictLogging {
@@ -34,6 +48,8 @@ object InMemoryDatabase extends StrictLogging {
   private val config = context.doobieConfig
 
   val testTransactor = context.transactor
+
+  val dbSchema = Source.fromFile("./doc/nautilus.sql").getLines().mkString("\n")
 
   private val allTables = List(
     "users",
@@ -66,8 +82,6 @@ object InMemoryDatabase extends StrictLogging {
     val pgConfigs = List("-c", "full_page_writes=off")
 
     val dbInstance = new EmbeddedPostgres(Version.V9_5_15)
-
-    val dbSchema = Source.fromFile("./doc/nautilus.sql").getLines().mkString("\n")
 
     logger.info(s"Starting embedded PostgreSQL on port ${config.port}")
     dbInstance.start(

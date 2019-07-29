@@ -27,11 +27,9 @@ class AuthenticationService[F[_]: Monad](
     config: AuthenticationConfiguration,
     authenticationRepository: AuthenticationProviderRepository[F],
     userRepository: UserRepository[F],
-    apiKeyRepository: ApiKeyRepository[F],
-    resourcesRepository: ResourceRepository[F],
     tiersRepository: TierRepository[F],
-    clock: Clock[F],
-    apiKeyGenerator: ApiKeyGenerator
+    apiKeyService: ApiKeyService[F],
+    clock: Clock[F]
 ) {
 
   type Result[T] = Either[Throwable, T]
@@ -61,50 +59,13 @@ class AuthenticationService[F[_]: Monad](
     EitherT(userRepository.getUserByEmailAddress(email).map(Right(_)))
 
   private def createUser(email: String): EitherT[F, Throwable, User] = {
-    val createUser =
-      CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
-
     for {
+      defaultTier <- EitherT.right(tiersRepository.getDefault)
+      now <- EitherT.right(clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli))
+      currentUsage = defaultTier.getCurrentUsage(now)
+      createUser = CreateUser(email, Role.defaultRole, now, config.provider, defaultTier.tierId)
       userId <- EitherT(userRepository.createUser(createUser))
-      _ <- createApiKeyTwice(userId)
+      _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
     } yield createUser.toUser(userId)
-  }
-
-  private def createApiKeyTwice(userId: UserId): EitherT[F, Throwable, UserId] = {
-    val result = tiersRepository.getDefaultTier.flatMap { maybeTier =>
-      (for {
-        _ <- createApiKey(userId, Resource.defaultTezosDevAlphanetId, maybeTier.get.tierId) // there always should be default tier
-        _ <- createApiKey(userId, Resource.defaultTezosProdMainnetId, maybeTier.get.tierId) // there always should be default tier
-      } yield userId).value
-    }
-    EitherT(result)
-  }
-
-  private def createApiKey(userId: UserId, resourceId: ResourceId, tierId: TierId): EitherT[F, Throwable, String] = {
-    val generatedKey = apiKeyGenerator.generateKey
-    val res = (for {
-      _ <- OptionT(resourcesRepository.getResource(resourceId))
-      tier <- OptionT(tiersRepository.get(tierId))
-    } yield {
-      for {
-        now <- clock.realTime(MILLISECONDS)
-        instantNow = Instant.ofEpochMilli(now)
-        dailyMonthly = tier.findValidDailyMonthlyHits(instantNow)
-        _ <- apiKeyRepository.putApiKeyForUser(
-          CreateApiKey(
-            generatedKey,
-            resourceId,
-            userId,
-            tierId,
-            instantNow,
-            None
-          )
-        )
-        _ <- apiKeyRepository.putApiKeyUsage(
-          UsageLeft(generatedKey, dailyMonthly._1, dailyMonthly._2)
-        )
-      } yield generatedKey
-    }).value.flatMap(_.sequence)
-    EitherT.fromOptionF(res, new NoSuchFieldException)
   }
 }

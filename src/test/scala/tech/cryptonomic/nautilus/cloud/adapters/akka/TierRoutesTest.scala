@@ -10,7 +10,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryTierRepository
 import tech.cryptonomic.nautilus.cloud.domain.TierService
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, TierConfiguration, TierName}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{FixedClock, JsonMatchers}
 
@@ -44,8 +44,10 @@ class TierRoutesTest
               MediaTypes.`application/json`,
               """{
                                                       |  "description": "some description",
-                                                      |  "monthlyHits": 100,
-                                                      |  "dailyHits": 10,
+                                                      |  "usage": {
+                                                      |    "daily": 10,
+                                                      |    "monthly": 100
+                                                      |  },
                                                       |  "maxResultSetSize": 20
                                                       |}""".stripMargin
             )
@@ -60,8 +62,10 @@ class TierRoutesTest
                                                 |  "configurations": [
                                                 |    {
                                                 |      "description": "some description",
-                                                |      "monthlyHits": 100,
-                                                |      "dailyHits": 10,
+                                                |      "usage": {
+                                                |        "daily": 10,
+                                                |        "monthly": 100
+                                                |      },
                                                 |      "maxResultSetSize": 20
                                                 |    }
                                                 |  ]
@@ -71,7 +75,7 @@ class TierRoutesTest
 
       "update tier" in {
         // given
-        tierRepository.create(TierName("a_b"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        tierRepository.create(TierName("a_b"), TierConfiguration("description", Usage(1, 2), 3, now)).unsafeRunSync()
 
         // when
         val response: RouteTestResult = HttpRequest(
@@ -81,8 +85,10 @@ class TierRoutesTest
               MediaTypes.`application/json`,
               """{
               |  "description": "some other description",
-              |  "monthlyHits": 100,
-              |  "dailyHits": 10,
+              |  "usage": {
+              |    "daily": 10,
+              |    "monthly": 100
+              |  },
               |  "maxResultSetSize": 20,
               |  "startDate": "2019-05-27T18:03:48.081+01:00"
               |}""".stripMargin
@@ -101,15 +107,19 @@ class TierRoutesTest
               |  "configurations": [
               |    {
               |      "description": "description",
-              |      "monthlyHits": 1,
-              |      "dailyHits": 2,
+              |      "usage": {
+              |        "daily": 1,
+              |        "monthly": 2
+              |      },
               |      "maxResultSetSize": 3,
               |      "startDate": "2019-05-27T11:03:48.081Z"
               |    },
               |    {
               |      "description": "some other description",
-              |      "monthlyHits": 100,
-              |      "dailyHits": 10,
+              |      "usage": {
+              |        "daily": 10,
+              |        "monthly": 100
+              |      },
               |      "maxResultSetSize": 20,
               |      "startDate": "2019-05-27T17:03:48.081Z"
               |    }
@@ -120,7 +130,7 @@ class TierRoutesTest
 
       "return 409 when updated tier tries to override an existing tier" in {
         // given
-        tierRepository.create(TierName("a_b"), TierConfiguration("description", 1, 2, 3, now)).unsafeRunSync()
+        tierRepository.create(TierName("a_b"), TierConfiguration("description", Usage(1, 2), 3, now)).unsafeRunSync()
 
         // when
         val response: RouteTestResult = HttpRequest(
@@ -130,8 +140,10 @@ class TierRoutesTest
               MediaTypes.`application/json`,
               s"""{
               |  "description": "some other description",
-              |  "monthlyHits": 100,
-              |  "dailyHits": 10,
+              |  "usage": {
+              |    "daily": 10,
+              |    "monthly": 100
+              |  },
               |  "maxResultSetSize": 20,
               |  "startDate": "${now.minusSeconds(1)}"
               |}""".stripMargin
@@ -154,8 +166,10 @@ class TierRoutesTest
             MediaTypes.`application/json`,
             """{
                                                       |  "description": "some description",
-                                                      |  "monthlyHits": 100,
-                                                      |  "dailyHits": 10,
+                                                      |  "usage": {
+                                                      |    "daily": 10,
+                                                      |    "monthly": 100
+                                                      |  },
                                                       |  "maxResultSetSize": 20
                                                       |}""".stripMargin
           )
@@ -172,8 +186,10 @@ class TierRoutesTest
                                                 |  "configurations": [
                                                 |    {
                                                 |      "description": "some description",
-                                                |      "monthlyHits": 100,
-                                                |      "dailyHits": 10,
+                                                |      "usage": {
+                                                |        "daily": 10,
+                                                |        "monthly": 100
+                                                |      },
                                                 |      "maxResultSetSize": 20
                                                 |    }
                                                 |  ]

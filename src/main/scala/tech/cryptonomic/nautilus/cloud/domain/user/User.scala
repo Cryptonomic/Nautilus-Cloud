@@ -14,7 +14,7 @@ case class User(
     accountSource: AuthenticationProvider,
     accountDescription: Option[String] = None
 ) {
-  lazy val asSession = Session(userEmail, accountSource, userRole)
+  lazy val asSession = Session(userId, userEmail, accountSource, userRole)
 }
 
 object User {

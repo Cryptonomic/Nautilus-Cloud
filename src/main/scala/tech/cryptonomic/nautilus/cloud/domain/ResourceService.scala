@@ -16,7 +16,7 @@ class ResourceService[F[_]](resourcesRepo: ResourceRepository[F]) {
   def getResources: F[List[Resource]] =
     resourcesRepo.getResources
 
-  /** Resturns single resource by id */
+  /** Returns single resource by id */
   def getResource(resourceId: ResourceId): F[Option[Resource]] =
     resourcesRepo.getResource(resourceId)
 

@@ -25,6 +25,7 @@ object OpenApiDoc
     listResourcesEndpoint,
     createResourceEndpoint,
     getCurrentUser,
+    getCurrentUserKeys
     getAllKeysForEnv
   )
 

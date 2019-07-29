@@ -22,6 +22,11 @@ class NautilusCloudStarterE2ETest
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
+  override def beforeEach() = {
+    super.beforeEach()
+    applySchemaWithFixtures()
+  }
+
   "users API" should {
 
       "return HTTP 403 FORBIDDEN when user is not logged-in" in {
@@ -83,8 +88,6 @@ class NautilusCloudStarterE2ETest
       "should return email address and current role (user is default)" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
-        createDefaultResources(nautilusContext.resourcesRepository).unsafeRunSync()
         val authCodeResult =
           sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
 
@@ -95,11 +98,9 @@ class NautilusCloudStarterE2ETest
         response.code shouldBe HTTP_OK
         response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
-      "return user apiKeys and usageLeft generated with first login" in {
+
+      "return user apiKeys generated with first login" in {
         // given
-        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
-        createDefaultResources(nautilusContext.resourcesRepository)
-          .unsafeRunSync()
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         val authCodeResult =
@@ -115,9 +116,19 @@ class NautilusCloudStarterE2ETest
           .send()
 
         // then
-        val exampleKey = "exampleApiKey"
         apiKeys.code shouldBe HTTP_OK
-        apiKeys.body.right.value should include(exampleKey)
+        apiKeys.body.right.value should include("exampleApiKey")
+      }
+
+      "return user usageLeft generated with first login" in {
+        // given
+        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
+
+        val authCodeResult =
+          sttp
+            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .followRedirects(false)
+            .send()
 
         // when
         val usageLeft = sttp
@@ -127,7 +138,7 @@ class NautilusCloudStarterE2ETest
 
         // then
         usageLeft.code shouldBe HTTP_OK
-        usageLeft.body.right.value should include(exampleKey)
+        usageLeft.body.right.value should include("exampleApiKey")
       }
     }
 
@@ -136,8 +147,6 @@ class NautilusCloudStarterE2ETest
       "set a cookie after successfull log-in" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
-        createDefaultResources(nautilusContext.resourcesRepository).unsafeRunSync()
 
         // when
         val response =
@@ -151,8 +160,6 @@ class NautilusCloudStarterE2ETest
       "logout endpoint should invalidate session" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-        createDefaultTier(nautilusContext.tierRepository).unsafeRunSync()
-        createDefaultResources(nautilusContext.resourcesRepository).unsafeRunSync()
         val authCodeResult =
           sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
 

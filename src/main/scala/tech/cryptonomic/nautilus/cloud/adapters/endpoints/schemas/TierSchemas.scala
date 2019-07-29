@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 import endpoints.algebra
 import endpoints.algebra.Urls
 import endpoints.generic.JsonSchemas
-import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier, Usage}
 
 import scala.util.Try
 
@@ -21,6 +21,9 @@ trait TierSchemas extends algebra.JsonSchemas with JsonSchemas with Urls with In
 
   /** Tier configuration schema */
   implicit lazy val tierConfigurationSchema: JsonSchema[TierConfiguration] = genericJsonSchema[TierConfiguration]
+
+  /** Usage schema */
+  implicit lazy val usageSchema: JsonSchema[Usage] = genericJsonSchema[Usage]
 
   /** Tier schema */
   implicit lazy val tierSchema: JsonSchema[Tier] = genericJsonSchema[Tier]

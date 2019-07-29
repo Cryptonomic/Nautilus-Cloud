@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+
 import scala.language.higherKinds
 
 /** Trait representing API Key repo queries */
@@ -8,14 +10,19 @@ trait ApiKeyRepository[F[_]] {
   /** Query returning all API keys from the DB */
   def getAllApiKeys: F[List[ApiKey]]
 
+  def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]]
+
   /** Query checking if API key is valid */
   def validateApiKey(apiKey: String): F[Boolean]
 
   /** Query returning API keys connected to user */
   def getUserApiKeys(userId: Int): F[List[ApiKey]]
 
+  /** Query updating API keys connected to user */
+  def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit]
+
   /** Inserts API key */
-  def putApiKeyForUser(apiKey: CreateApiKey): F[Unit]
+  def putApiKey(apiKey: CreateApiKey): F[Unit]
 
   /** Inserts API key usage */
   def putApiKeyUsage(usageLeft: UsageLeft): F[Unit]

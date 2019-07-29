@@ -1,46 +1,71 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import cats.Id
 import org.scalatest.{EitherValues, Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
 class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with EitherValues with OneInstancePerTest {
 
-  val apiKeyRepo = new InMemoryApiKeyRepository()
-
-  val conseilConf = ConseilConfig("key")
-  val sut = new ApiKeyService[Id](apiKeyRepo, conseilConf)
+  val context: IdContext = new IdContext {}
+  val sut = context.apiKeyService
+  val apiKeyRepo = context.apiKeyRepository
+  val now = context.now
 
   "ApiKeyService" should {
-      "getAllApiKeys" in {
-        apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
+      "initialize ApiKeys" in {
+        // given
+        sut.getAllApiKeys(adminSession).right.value shouldBe List.empty
 
-        val allApiKeys = sut.getAllApiKeys(adminSession).right.value
+        // when
+        sut.initializeApiKeys(userId = 1, Usage(1, 2)) //@todo check usage
 
-        allApiKeys shouldBe List(exampleApiKey)
+        // then
+        sut.getAllApiKeys(adminSession).right.value shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(2, "exampleApiKey1", Environment.Development, 1, Some(now), None)
+        )
       }
-      "getAllApiKeysConseil" in {
-        apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
-        val allApiKeys = sut.getAllApiKeysForEnv("key", "").right.value
 
-        allApiKeys shouldBe List(exampleApiKey.key)
-      }
-
-      "getAllApiKeysConseil should not authorize" in {
-        apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
-        val allApiKeys = sut.getAllApiKeysForEnv("wrong_key", "").left.get
-
-        allApiKeys shouldBe a[AccessDenied]
-      }
       "validateApiKey" in {
-        apiKeyRepo.putApiKeyForUser(exampleCreateApiKey)
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default) // creates two api keys: exampleApiKey0 and exampleApiKey1
 
-        val validationResult = sut.validateApiKey(exampleCreateApiKey.key)
+        // expect
+        sut.validateApiKey("exampleApiKey0") shouldBe true
+        sut.validateApiKey("exampleApiKey1") shouldBe true
+        sut.validateApiKey("exampleApiKey2") shouldBe false
+      }
 
-        validationResult shouldBe true
+      "refresh ApiKeys" in {
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default)
+
+        // when
+        sut.refreshApiKey(Environment.Development)(userSession)
+
+        // then
+        sut.getAllApiKeys(adminSession).right.value shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(2, "exampleApiKey1", Environment.Development, 1, Some(now), Some(now)),
+          ApiKey(3, "exampleApiKey2", Environment.Development, 1, Some(now), None)
+        )
+      }
+
+      "get active ApiKeys" in {
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default)
+        sut.refreshApiKey(Environment.Development)(userSession)
+
+        // when
+        val result = sut.getCurrentActiveApiKeys(adminSession)
+
+        // then
+        result shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(3, "exampleApiKey2", Environment.Development, 1, Some(now), None)
+        )
       }
     }
 }
