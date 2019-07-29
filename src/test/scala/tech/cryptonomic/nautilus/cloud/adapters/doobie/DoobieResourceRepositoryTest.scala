@@ -7,12 +7,13 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
-class DoobieResourceRepositoryTest extends WordSpec
-  with Matchers
-  with EitherValues
-  with OptionValues
-  with InMemoryDatabase
-  with OneInstancePerTest {
+class DoobieResourceRepositoryTest
+    extends WordSpec
+    with Matchers
+    with EitherValues
+    with OptionValues
+    with InMemoryDatabase
+    with OneInstancePerTest {
 
   val now: Instant = Instant.now()
 
@@ -24,11 +25,11 @@ class DoobieResourceRepositoryTest extends WordSpec
       val id =
         sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development)).unsafeRunSync()
 
-      // then
-      id should equal(1)
+        // then
+        id should equal(1)
 
-      // when
-      val fetchedResource = sut.getResource(1).unsafeRunSync()
+        // when
+        val fetchedResource = sut.getResource(1).unsafeRunSync()
 
       // then
       fetchedResource.value should equal(Resource(1, "dev", "development", "tezos", "alphanet", Environment.Development))
@@ -39,8 +40,8 @@ class DoobieResourceRepositoryTest extends WordSpec
       sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development)).unsafeRunSync()
       sut.createResource(CreateResource("dev", "development", "tezos", "mainnet", Environment.Development)).unsafeRunSync()
 
-      // when
-      val fetchedResources = sut.getResources.unsafeRunSync()
+        // when
+        val fetchedResources = sut.getResources.unsafeRunSync()
 
       // then
       fetchedResources should contain theSameElementsAs List(

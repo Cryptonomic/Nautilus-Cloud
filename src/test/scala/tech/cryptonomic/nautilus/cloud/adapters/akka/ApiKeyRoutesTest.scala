@@ -5,10 +5,21 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
+import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
+import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
+import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
-class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonMatchers with Fixtures {
+class ApiKeyRoutesTest
+    extends WordSpec
+    with Matchers
+    with ScalatestRouteTest
+    with JsonMatchers
+    with Fixtures
+    with OneInstancePerTest {
 
   "The API Keys route" should {
 
@@ -42,12 +53,35 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/someApiKey") ~> sut.validateApiKeyRoute ~> check {
+        Get("/apiKeys/someApiKey/valid") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
         }
       }
+
+      "return list of api keys with a single key from conseil route" in {
+        // when
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+
+        // expect
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""["someApiKey"]""")
+        }
+      }
+
+      "return 403 when uses wrong conseil key" in {
+        // when
+        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+
+        // expect
+        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
+          status shouldEqual StatusCodes.Forbidden
+        }
+      }
+
     }
 
 }

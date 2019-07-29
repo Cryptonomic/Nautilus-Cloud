@@ -134,11 +134,11 @@ class TierRoutesTest
 
         // when
         val response: RouteTestResult = HttpRequest(
-          HttpMethods.POST,
-          uri = "/tiers/a_b/configurations",
-          entity = HttpEntity(
-            MediaTypes.`application/json`,
-            s"""{
+            HttpMethods.POST,
+            uri = "/tiers/a_b/configurations",
+            entity = HttpEntity(
+              MediaTypes.`application/json`,
+              s"""{
               |  "description": "some other description",
               |  "usage": {
               |    "daily": 10,
@@ -147,8 +147,8 @@ class TierRoutesTest
               |  "maxResultSetSize": 20,
               |  "startDate": "${now.minusSeconds(1)}"
               |}""".stripMargin
-          )
-        ) ~> sut.updateTierRoute(adminSession)
+            )
+          ) ~> sut.updateTierRoute(adminSession)
 
         // then
         response ~> check {

@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
+import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository}
 import java.time.Instant
 
 import cats.Monad
@@ -7,6 +9,7 @@ import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, Session}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
@@ -20,7 +23,8 @@ class ApiKeyService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     tiersRepository: TierRepository[F],
     clock: Clock[F],
-    apiKeyGenerator: ApiKeyGenerator
+    apiKeyGenerator: ApiKeyGenerator,
+    conseilConfig: ConseilConfig
 ) {
 
   /** Returns all API keys from the DB */
@@ -30,6 +34,16 @@ class ApiKeyService[F[_]: Monad](
 
   /** Returns all API keys from the DB */
   def getCurrentActiveApiKeys(implicit session: Session): F[List[ApiKey]] = apiKeyRepository.getCurrentActiveApiKeys(session.id)
+
+  /** Returns all API keys from the DB */
+  def getAllApiKeysForEnv(apiKey: String, env: String): F[Permission[List[String]]] =
+    Either
+      .cond(
+        conseilConfig.keys.contains(apiKey),
+        apiKeyRepository.getKeysForEnv(env),
+        AccessDenied("Wrong API key").pure[F]
+      )
+      .bisequence
 
   /** Checks if API key is valid */
   def validateApiKey(apiKey: String): F[Boolean] =

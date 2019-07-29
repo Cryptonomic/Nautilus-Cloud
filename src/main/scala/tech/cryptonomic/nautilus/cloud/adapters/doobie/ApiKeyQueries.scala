@@ -54,4 +54,9 @@ trait ApiKeyQueries extends EnvironmentMappers {
   /** Query updates API keys usage */
   def putUsageQuery(usage: UsageLeft): Update0 =
     sql"INSERT INTO usage_left(key, daily, monthly) VALUES(${usage.key}, ${usage.daily}, ${usage.monthly})".update
+
+  /** Query selecting API keys for given env */
+  def getKeysForEnvQuery(env: String): Query0[String] =
+    sql"SELECT key FROM api_keys WHERE environment = $env AND datesuspended IS NULL".query[String]
+
 }

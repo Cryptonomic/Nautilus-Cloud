@@ -14,6 +14,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations,
 import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, ResourceRoutes, Routes, TierRoutes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
+import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository
@@ -33,6 +34,7 @@ trait NautilusContext extends StrictLogging {
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
+  lazy val conseilConfig = loadConfig[ConseilConfig](namespace = "conseil").toOption.get
 
   implicit lazy val cs: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
   implicit lazy val sttpBackend: SttpBackend[IO, Nothing] =

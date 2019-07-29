@@ -1,6 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-
 import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor

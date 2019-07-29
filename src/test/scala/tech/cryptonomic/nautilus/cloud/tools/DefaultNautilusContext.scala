@@ -8,6 +8,7 @@ import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
+import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, AuthenticationService, TierService}
 
@@ -24,6 +25,7 @@ class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext 
 class IdContext {
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
+  lazy val conseilConfig = loadConfig[ConseilConfig](namespace = "conseil").toOption.get
 
   lazy val now = Instant.now()
   lazy val clock = new FixedClock[Id](now)

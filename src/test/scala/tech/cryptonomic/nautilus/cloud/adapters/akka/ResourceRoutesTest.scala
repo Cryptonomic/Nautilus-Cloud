@@ -11,12 +11,11 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 
 class ResourceRoutesTest
-  extends WordSpec
+    extends WordSpec
     with Matchers
     with ScalatestRouteTest
     with JsonMatchers
     with BeforeAndAfterEach {
-
 
   val resourceRepo = new InMemoryResourceRepository[IO]
 

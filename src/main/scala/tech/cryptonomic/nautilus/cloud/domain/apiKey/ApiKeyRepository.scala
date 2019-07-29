@@ -35,4 +35,8 @@ trait ApiKeyRepository[F[_]] {
 
   /** Updates API key usage */
   def updateKeyUsage(usage: UsageLeft): F[Unit]
+
+  /** Gets keys for environment */
+  def getKeysForEnv(env: String): F[List[String]]
+
 }
