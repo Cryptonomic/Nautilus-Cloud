@@ -19,6 +19,7 @@ import tech.cryptonomic.nautilus.cloud.domain.tier.{
   UpdateTier
 }
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
+import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
 import scala.concurrent.duration.MILLISECONDS
 import scala.language.higherKinds
@@ -31,7 +32,7 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
       implicit session: Session
   ): F[Permission[Either[Throwable, Tier]]] = requiredRole(Administrator) {
     for {
-      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
+      now <- clock.currentInstant
       tier <- tierRepository.create(name, createTier.toConfiguration(now))
     } yield tier
   }
@@ -49,7 +50,7 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
       tier: UpdateTier
   )(f: TierConfiguration => F[Either[Throwable, Unit]]): F[Either[Throwable, Unit]] =
     for {
-      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
+      now <- clock.currentInstant
       isValid = tier.startDate.exists(_ isAfter now)
       tierConfiguration = tier.toConfiguration(now)
       tier <- if (isValid)

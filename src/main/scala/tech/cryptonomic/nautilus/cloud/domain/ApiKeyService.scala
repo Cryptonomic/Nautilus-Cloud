@@ -11,6 +11,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
 import scala.concurrent.duration.MILLISECONDS
 import scala.language.higherKinds
@@ -29,20 +30,23 @@ class ApiKeyService[F[_]: Monad](
   }
 
   /** Returns all API keys from the DB */
-  def getCurrentActiveApiKeys(implicit session: Session): F[List[ApiKey]] = apiKeyRepository.getCurrentActiveApiKeys(session.id)
+  def getCurrentActiveApiKeys(implicit session: Session): F[List[ApiKey]] =
+    apiKeyRepository.getCurrentActiveApiKeys(session.id)
 
   /** Checks if API key is valid */
   def validateApiKey(apiKey: String): F[Boolean] =
     apiKeyRepository.validateApiKey(apiKey)
 
-  def refreshApiKey(environment: Environment)(implicit session: Session): F[Unit] = currentInstant.flatMap { now =>
-    apiKeyRepository.updateApiKey(RefreshApiKey(session.id, environment, apiKeyGenerator.generateKey, now))
-  }
+  def refreshApiKey(environment: Environment)(implicit session: Session): F[Unit] =
+    for {
+      now <- clock.currentInstant
+      _ <- apiKeyRepository.updateApiKey(RefreshApiKey(session.id, environment, apiKeyGenerator.generateKey, now))
+    } yield ()
 
   /** Initialize api keys for the newly created user */
   def initializeApiKeys(userId: UserId, usage: Usage): F[Unit] =
     for {
-      now <- currentInstant
+      now <- clock.currentInstant
       defaultTier <- tiersRepository.getDefault
       apiKeys = createApiKeys(userId, now, defaultTier)
       initialUsages = createInitialUsages(apiKeys, usage)
@@ -70,6 +74,4 @@ class ApiKeyService[F[_]: Monad](
     apiKeys.map { apiKey =>
       UsageLeft(apiKey.key, currentUsage)
     }
-
-  private def currentInstant = clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
 }
