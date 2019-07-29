@@ -7,11 +7,11 @@ import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
-import tech.cryptonomic.nautilus.cloud.domain.UserService
+import tech.cryptonomic.nautilus.cloud.domain.{ApiKeyService, UserService}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** User routes implementation */
-class UserRoutes(userService: UserService[IO])
+class UserRoutes(userService: UserService[IO], apiKeyService: ApiKeyService[IO])
     extends UserEndpoints
     with server.Endpoints
     with EndpointStatusSyntax
@@ -38,6 +38,11 @@ class UserRoutes(userService: UserService[IO])
     userService.getCurrentUserApiKeys.unsafeToFuture()
   }
 
+  /** User keys refresh implementation */
+  def refreshKeysRoute(implicit session: Session): Route = refreshUserKeys.implementedByAsync { env =>
+    apiKeyService.refreshApiKey(env).unsafeToFuture()
+  }
+
   /** ApiKey usage route implementation */
   def getCurrentApiKeyUsageRoute(implicit session: Session): Route = getCurrentUserUsage.implementedByAsync { _ =>
     userService.getCurrentUserApiKeysUsage.unsafeToFuture()
@@ -62,7 +67,8 @@ class UserRoutes(userService: UserService[IO])
     getUserKeysRoute,
     updateUserRoute,
     getUserKeysRoute,
-    getApiKeyUsageRoute
+    getApiKeyUsageRoute,
+    refreshKeysRoute
   )
 
 }

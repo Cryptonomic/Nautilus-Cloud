@@ -14,6 +14,10 @@
 <p>
     Get login request status: <span id="current_login_status_code"></span>
 </p>
+<p>
+    Api keys:
+    <ul id="api_keys"></ul>
+</p>
 
 <form id="login_form">
     <a href="/github-login">login with github</a>
@@ -23,16 +27,27 @@
     <input type="submit" value="Logout" id="do_logout" />
 </form>
 
+<form id="refresh_keys_dev_form">
+    <input type="submit" value="Refresh key for dev" id="refresh_keys_dev" />
+</form>
+
+<form id="refresh_keys_prod_form">
+    <input type="submit" value="Refresh key for prod" id="refresh_keys_prod" />
+</form>
+
 <script>
     var $loginForm = $('#login_form');
     var $logoutForm = $('#logout_form');
     var $currentLogin = $('#current_login');
     var $currentRole = $('#current_role');
+    var $apiKeys = $('#api_keys');
+    var $refreshKeysDev = $('#refresh_keys_dev_form');
+    var $refreshKeysProd = $('#refresh_keys_prod_form');
     var $currentLoginStatus = $('#current_login_status_code');
     $loginForm.hide();
     $logoutForm.hide();
 
-    function handleResponse(data, status) {
+    function handleCurrentLoginResponse(data, status) {
         if (status == 'success') {
             $loginForm.hide();
             $logoutForm.show();
@@ -43,6 +58,7 @@
         } else {
             $loginForm.show();
             $logoutForm.hide();
+            $apiKeys.hide();
 
             $currentLogin.text('');
             $currentRole.text('');
@@ -50,12 +66,30 @@
         }
     }
 
+    function handleApiKeysResponse(data, status) {
+        if (status == 'success') {
+            console.log(data);
+            $apiKeys.html(data.map(function(item) {
+                return "<li>" + item.environment + ": " + item.key + "</li>";
+            }));
+        } else {
+            console.log(data);
+        }
+    }
+
     function getCurrentLogin() {
         $.ajax({
             url: '/users/me',
             type: 'GET',
-            success: handleResponse,
-            error: handleResponse
+            success: handleCurrentLoginResponse,
+            error: handleCurrentLoginResponse
+        });
+
+        $.ajax({
+            url: '/users/me/apiKeys',
+            type: 'GET',
+            success: handleApiKeysResponse,
+            error: handleApiKeysResponse
         });
     }
 
@@ -66,6 +100,26 @@
             url: '/login',
             type: 'POST',
             data: $('#login').val(),
+            success: getCurrentLogin
+        });
+        e.preventDefault();
+        return false;
+    });
+
+    $('#refresh_keys_dev').click(function(e) {
+        $.ajax({
+            url: '/users/me/apiKeys/dev/refresh',
+            type: 'POST',
+            success: getCurrentLogin
+        });
+        e.preventDefault();
+        return false;
+    });
+
+    $('#refresh_keys_prod').click(function(e) {
+        $.ajax({
+            url: '/users/me/apiKeys/prod/refresh',
+            type: 'POST',
             success: getCurrentLogin
         });
         e.preventDefault();

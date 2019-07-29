@@ -19,7 +19,7 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
       "return list containing one api key" in {
         // when
         context.apiKeysRepository.add(
-          ApiKey(keyId = 0, key = "", Environment.Development, userId = 2, tierId = 3, dateIssued = None, dateSuspended = None)
+          ApiKey(keyId = 0, key = "", Environment.Development, userId = 2, dateIssued = None, dateSuspended = None)
         )
 
         // expect
@@ -29,7 +29,6 @@ class ApiKeyRoutesTest extends WordSpec with Matchers with ScalatestRouteTest wi
           responseAs[String] should matchJson("""
                                                     |  [{
                                                     |    "environment": "dev",
-                                                    |    "tierId": 3,
                                                     |    "keyId": 0,
                                                     |    "key": "",
                                                     |    "userId": 2

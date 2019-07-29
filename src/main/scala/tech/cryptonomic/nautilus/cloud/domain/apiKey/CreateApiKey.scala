@@ -10,7 +10,6 @@ case class CreateApiKey(
     key: String,
     environment: Environment,
     userId: Int,
-    tierId: Int,
     dateIssued: Instant,
     dateSuspended: Option[Instant]
 ) {

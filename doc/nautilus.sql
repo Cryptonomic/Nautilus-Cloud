@@ -41,7 +41,6 @@ create TABLE api_keys(
     key text NOT NULL,
     environment varchar(11) NOT NULL,
     userid integer NOT NULL,
-    tierid integer NOT NULL,
     dateissued timestamp with time zone,
     datesuspended timestamp with time zone,
     UNIQUE(key),
@@ -50,9 +49,6 @@ create TABLE api_keys(
       ON update NO ACTION ON delete NO ACTION,
     CONSTRAINT userid_fk FOREIGN KEY (userid)
       REFERENCES users (userid) MATCH SIMPLE
-      ON update NO ACTION ON delete NO ACTION,
-    CONSTRAINT tierid_fk FOREIGN KEY (tierid)
-      REFERENCES tiers (tierid) MATCH SIMPLE
       ON update NO ACTION ON delete NO ACTION
 );
 create TABLE usage_left(

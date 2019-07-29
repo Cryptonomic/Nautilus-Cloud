@@ -6,9 +6,8 @@ import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, requiredRole}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceRepository
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -19,7 +18,6 @@ import scala.language.higherKinds
 /** API keys service implementation */
 class ApiKeyService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
-    resourcesRepository: ResourceRepository[F],
     tiersRepository: TierRepository[F],
     clock: Clock[F],
     apiKeyGenerator: ApiKeyGenerator
@@ -30,19 +28,29 @@ class ApiKeyService[F[_]: Monad](
     apiKeyRepository.getAllApiKeys
   }
 
+  /** Returns all API keys from the DB */
+  def getCurrentActiveApiKeys(implicit session: Session): F[List[ApiKey]] = apiKeyRepository.getCurrentActiveApiKeys(session.id)
+
   /** Checks if API key is valid */
   def validateApiKey(apiKey: String): F[Boolean] =
     apiKeyRepository.validateApiKey(apiKey)
 
-  def initializeApiKeys(userId: UserId): F[Unit] = for {
-      now <- clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
+  def refreshApiKey(environment: Environment)(implicit session: Session): F[Unit] = currentInstant.flatMap { now =>
+    apiKeyRepository.updateApiKey(RefreshApiKey(session.id, environment, apiKeyGenerator.generateKey, now))
+  }
+
+  /** Initialize api keys for the newly created user */
+  def initializeApiKeys(userId: UserId, usage: Usage): F[Unit] =
+    for {
+      now <- currentInstant
       defaultTier <- tiersRepository.getDefault
       apiKeys = createApiKeys(userId, now, defaultTier)
-      initialUsages = createInitialUsages(apiKeys, defaultTier.getCurrentUsage(now))
+      initialUsages = createInitialUsages(apiKeys, usage)
       _ <- insert(apiKeys, initialUsages)
     } yield ()
 
-  private def insert(apiKeys: List[CreateApiKey], initialUsages: List[UsageLeft]): F[Unit] = for {
+  private def insert(apiKeys: List[CreateApiKey], initialUsages: List[UsageLeft]): F[Unit] =
+    for {
       _ <- apiKeys.traverse(apiKeyRepository.putApiKey)
       _ <- initialUsages.traverse(apiKeyRepository.putApiKeyUsage)
     } yield ()
@@ -50,12 +58,11 @@ class ApiKeyService[F[_]: Monad](
   private def createApiKeys(userId: UserId, now: Instant, defaultTier: Tier) =
     Environment.all.map { environment =>
       CreateApiKey(
-        apiKeyGenerator.generateKey,
-        environment,
-        userId,
-        defaultTier.tierId,
-        now,
-        None
+        key = apiKeyGenerator.generateKey,
+        environment = environment,
+        userId = userId,
+        dateIssued = now,
+        dateSuspended = None
       )
     }
 
@@ -63,4 +70,6 @@ class ApiKeyService[F[_]: Monad](
     apiKeys.map { apiKey =>
       UsageLeft(apiKey.key, currentUsage)
     }
+
+  private def currentInstant = clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli)
 }

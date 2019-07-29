@@ -11,8 +11,17 @@ object CustomSessionSerializer {
   implicit def serializer: SessionSerializer[Session, String] = new MultiValueSessionSerializer(serialize, deserialize)
 
   private def serialize: Session => Map[String, String] =
-    session => Map("provider" -> session.provider.name, "role" -> session.role.name, "email" -> session.email)
+    session =>
+      Map(
+        "id" -> session.id.toString,
+        "provider" -> session.provider.name,
+        "role" -> session.role.name,
+        "email" -> session.email
+      )
 
   private def deserialize: Map[String, String] => Try[Session] =
-    map => Try(Session(map("email"), AuthenticationProvider.byName(map("provider")), Role.byName(map("role"))))
+    map =>
+      Try(
+        Session(map("id").toInt, map("email"), AuthenticationProvider.byName(map("provider")), Role.byName(map("role")))
+      )
 }

@@ -37,6 +37,7 @@ class UserRoutesTest
             Role.User,
             ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
             Github,
+            1,
             None
           )
         )
@@ -75,6 +76,7 @@ class UserRoutesTest
             Role.User,
             ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
             Github,
+            1,
             None
           )
         )
@@ -151,7 +153,6 @@ class UserRoutesTest
             key = "apiKey",
             environment = Environment.Development,
             userId = 1,
-            tierId = 1,
             dateIssued = None,
             dateSuspended = None
           )
@@ -167,7 +168,6 @@ class UserRoutesTest
           responseAs[String] should matchJson("""
                                                     |  [{
                                                     |    "environment": "dev",
-                                                    |    "tierId": 1,
                                                     |    "keyId": 1,
                                                     |    "key": "apiKey",
                                                     |    "userId": 1
@@ -184,7 +184,6 @@ class UserRoutesTest
             key = "apiKey",
             environment = Environment.Production,
             userId = 1,
-            tierId = 1,
             dateIssued = None,
             dateSuspended = None
           )
@@ -201,7 +200,6 @@ class UserRoutesTest
           responseAs[String] should matchJson("""
                                               |  [{
                                               |    "environment": "prod",
-                                              |    "tierId": 1,
                                               |    "keyId": 1,
                                               |    "key": "apiKey",
                                               |    "userId": 1

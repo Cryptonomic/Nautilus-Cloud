@@ -27,7 +27,9 @@ class AuthenticationService[F[_]: Monad](
     config: AuthenticationConfiguration,
     authenticationRepository: AuthenticationProviderRepository[F],
     userRepository: UserRepository[F],
-    apiKeyService: ApiKeyService[F]
+    tiersRepository: TierRepository[F],
+    apiKeyService: ApiKeyService[F],
+    clock: Clock[F]
 ) {
 
   type Result[T] = Either[Throwable, T]
@@ -57,11 +59,13 @@ class AuthenticationService[F[_]: Monad](
     EitherT(userRepository.getUserByEmailAddress(email).map(Right(_)))
 
   private def createUser(email: String): EitherT[F, Throwable, User] = {
-    val createUser = CreateUser(email, Role.defaultRole, Instant.now(), config.provider)
-
     for {
+      defaultTier <- EitherT.right(tiersRepository.getDefault)
+      now <- EitherT.right(clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli))
+      currentUsage = defaultTier.getCurrentUsage(now)
+      createUser = CreateUser(email, Role.defaultRole, now, config.provider, defaultTier.tierId)
       userId <- EitherT(userRepository.createUser(createUser))
-      _ <- EitherT.right(apiKeyService.initializeApiKeys(userId))
+      _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
     } yield createUser.toUser(userId)
   }
 }

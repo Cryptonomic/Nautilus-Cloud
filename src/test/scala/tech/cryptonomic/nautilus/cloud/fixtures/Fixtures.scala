@@ -16,17 +16,17 @@ trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
 
   val exampleCreateApiKey =
-    CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, 3, time, None)
-  val exampleApiKey = ApiKey(1, "cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 1, 3, Some(time), None)
+    CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, time, None)
+  val exampleApiKey = ApiKey(1, "cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 1, Some(time), None)
 
   val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
 
-  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, None)
+  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, None)
 
   val exampleUpdateUser = UpdateUser(Role.User, None)
 
-  val userSession = Session("email@example.com", AuthenticationProvider.Github, Role.User)
-  val adminSession = Session("email@example.com", AuthenticationProvider.Github, Role.Administrator)
+  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User)
+  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator)
 
   val exampleCreateTier = CreateTier("some description", Usage(1, 2), 3)
   val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Some(Instant.now))
@@ -43,7 +43,6 @@ trait Fixtures {
     """
       |  [{
       |    "resourceId": 1,
-      |    "tierId": 3,
       |    "keyId": 0,
       |    "key": "",
       |    "userId": 2

@@ -1,9 +1,20 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import cats.effect.Bracket
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{
+  ApiKey,
+  ApiKeyRepository,
+  CreateApiKey,
+  Environment,
+  RefreshApiKey,
+  UsageLeft
+}
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import DoobieApiKeyRepository.ExtendedRefreshApiKey
 
 import scala.language.higherKinds
 
@@ -28,6 +39,12 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   override def updateKeyUsage(usage: UsageLeft): F[Unit] =
     updateUsageQuery(usage).run.map(_ => ()).transact(transactor)
 
+  /** Query updating API keys connected to user */
+  override def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit] = (for {
+      _ <- invalidateApiKeyQuery(refreshApiKey.toInvalidateApiKey).run
+      _ <- putApiKeyQuery(refreshApiKey.toCreateApiKey).run
+    } yield ()).transact(transactor)
+
   /** Query returning API keys usage for given user */
   override def getKeysUsageForUser(userId: Int): F[List[UsageLeft]] =
     getUsageForUserQuery(userId).to[List].transact(transactor)
@@ -44,4 +61,20 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   override def putApiKey(apiKey: CreateApiKey): F[Unit] =
     putApiKeyQuery(apiKey).run.map(_ => ()).transact(transactor)
 
+  override def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]] =
+    getActiveApiKeysQuery(id).to[List].transact(transactor)
 }
+
+object DoobieApiKeyRepository {
+  implicit class ExtendedRefreshApiKey(val refreshApiKey: RefreshApiKey) extends AnyVal {
+    def toCreateApiKey =
+      CreateApiKey(refreshApiKey.apiKey, refreshApiKey.environment, refreshApiKey.userId, refreshApiKey.now, None)
+    def toInvalidateApiKey = InvalidateApiKey(refreshApiKey.environment, refreshApiKey.userId, refreshApiKey.now)
+  }
+}
+
+case class InvalidateApiKey(
+    environment: Environment,
+    userId: UserId,
+    now: Instant
+)

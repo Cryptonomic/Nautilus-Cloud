@@ -1,68 +1,71 @@
 package tech.cryptonomic.nautilus.cloud.domain
 
-import java.time.{Instant, ZonedDateTime}
-
-import cats.Id
-import org.scalatest.EitherValues
-import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryResourceRepository, InMemoryTierRepository}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyGenerator, CreateApiKey, Environment}
+import org.scalatest.{EitherValues, Matchers, OneInstancePerTest, WordSpec}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.FixedClock
+import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
-class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with EitherValues {
+class ApiKeyServiceTest extends WordSpec with Matchers with Fixtures with EitherValues with OneInstancePerTest {
 
-  val apiKeyRepo = new InMemoryApiKeyRepository()
-  val resourceRepo = new InMemoryResourceRepository()
-  val tiersRepo = new InMemoryTierRepository()
-  val apiKeyGenerator = new ApiKeyGenerator()
-
-  val sut =
-    new ApiKeyService[Id](apiKeyRepo, resourceRepo, tiersRepo, new FixedClock[Id](Instant.now()), apiKeyGenerator)
+  val context: IdContext = new IdContext {}
+  val sut = context.apiKeyService
+  val apiKeyRepo = context.apiKeyRepository
+  val now = context.now
 
   "ApiKeyService" should {
-      "getAllApiKeys" in {
-        apiKeyRepo.putApiKey(
-          CreateApiKey(
-            key = "c3686d8c-59ea-430e-97f3-90977952ab8b",
-            environment = Environment.Development,
-            userId = 1,
-            tierId = 2,
-            dateIssued = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            dateSuspended = None
-          )
-        )
+      "initialize ApiKeys" in {
+        // given
+        sut.getAllApiKeys(adminSession).right.value shouldBe List.empty
 
-        val allApiKeys = sut.getAllApiKeys(adminSession).right.value
+        // when
+        sut.initializeApiKeys(userId = 1, Usage(1, 2)) //@todo check usage
 
-        allApiKeys shouldBe List(
-          ApiKey(
-            keyId = 1,
-            key = "c3686d8c-59ea-430e-97f3-90977952ab8b",
-            environment = Environment.Development,
-            userId = 1,
-            tierId = 2,
-            dateIssued = Some(ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant),
-            dateSuspended = None
-          )
+        // then
+        sut.getAllApiKeys(adminSession).right.value shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(2, "exampleApiKey1", Environment.Development, 1, Some(now), None)
         )
       }
 
       "validateApiKey" in {
-        apiKeyRepo.putApiKey(
-          CreateApiKey(
-            key = "c3686d8c-59ea-430e-97f3-90977952ab8b",
-            environment = Environment.Development,
-            userId = 1,
-            tierId = 2,
-            dateIssued = time,
-            dateSuspended = None
-          )
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default) // creates two api keys: exampleApiKey0 and exampleApiKey1
+
+        // expect
+        sut.validateApiKey("exampleApiKey0") shouldBe true
+        sut.validateApiKey("exampleApiKey1") shouldBe true
+        sut.validateApiKey("exampleApiKey2") shouldBe false
+      }
+
+      "refresh ApiKeys" in {
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default)
+
+        // when
+        sut.refreshApiKey(Environment.Development)(userSession)
+
+        // then
+        sut.getAllApiKeys(adminSession).right.value shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(2, "exampleApiKey1", Environment.Development, 1, Some(now), Some(now)),
+          ApiKey(3, "exampleApiKey2", Environment.Development, 1, Some(now), None)
         )
+      }
 
-        val validationResult = sut.validateApiKey("c3686d8c-59ea-430e-97f3-90977952ab8b")
+      "get active ApiKeys" in {
+        // given
+        sut.initializeApiKeys(userId = 1, Usage.default)
+        sut.refreshApiKey(Environment.Development)(userSession)
 
-        validationResult shouldBe true
+        // when
+        val result = sut.getCurrentActiveApiKeys(adminSession)
+
+        // then
+        result shouldBe List(
+          ApiKey(1, "exampleApiKey0", Environment.Production, 1, Some(now), None),
+          ApiKey(3, "exampleApiKey2", Environment.Development, 1, Some(now), None)
+        )
       }
     }
 }
