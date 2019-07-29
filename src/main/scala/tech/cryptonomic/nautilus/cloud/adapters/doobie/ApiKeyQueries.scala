@@ -57,7 +57,6 @@ trait ApiKeyQueries extends EnvironmentMappers {
 
   /** Query selecting API keys for given env */
   def getKeysForEnvQuery(env: String): Query0[String] =
-    sql"SELECT key FROM api_keys WHERE environment = $env".query[String]
-
+    sql"SELECT key FROM api_keys WHERE environment = $env AND datesuspended IS NULL".query[String]
 
 }

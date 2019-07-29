@@ -39,7 +39,7 @@ class ApiKeyService[F[_]: Monad](
   def getAllApiKeysForEnv(apiKey: String, env: String): F[Permission[List[String]]] =
     Either
       .cond(
-        conseilConfig.key == apiKey,
+        conseilConfig.keys.contains(apiKey),
         apiKeyRepository.getKeysForEnv(env),
         AccessDenied("Wrong API key").pure[F]
       )
