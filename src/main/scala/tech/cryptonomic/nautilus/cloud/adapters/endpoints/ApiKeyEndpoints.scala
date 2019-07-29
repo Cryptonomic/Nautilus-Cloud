@@ -33,7 +33,7 @@ trait ApiKeyEndpoints
   /** Endpoint definition for validation of API Key */
   def validateApiKey: Endpoint[String, Boolean] =
     endpoint(
-      request = get(url = path / "apiKeys" / segment[String]("apiKey") / "validate"),
+      request = get(url = path / "apiKeys" / segment[String]("apiKey") / "valid"),
       response = jsonResponse[Boolean](),
       tags = List("ApiKeys")
     )

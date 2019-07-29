@@ -53,7 +53,7 @@ class ApiKeyRoutesTest
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/someApiKey/validate") ~> sut.validateApiKeyRoute ~> check {
+        Get("/apiKeys/someApiKey/valid") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
