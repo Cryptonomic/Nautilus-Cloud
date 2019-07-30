@@ -5,9 +5,6 @@ import java.time.Instant
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AccessDenied
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
 import tech.cryptonomic.nautilus.cloud.application.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.application.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId

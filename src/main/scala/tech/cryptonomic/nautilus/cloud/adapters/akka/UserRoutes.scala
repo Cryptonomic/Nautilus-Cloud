@@ -11,7 +11,7 @@ import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserAppli
 import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
 
 /** User routes implementation */
-class UserRoutes(userService: UserApplication[IO], apiKeyService: ApiKeyApplication[IO])
+class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKeyApplication[IO])
     extends UserEndpoints
     with server.Endpoints
     with EndpointStatusSyntax
@@ -20,16 +20,16 @@ class UserRoutes(userService: UserApplication[IO], apiKeyService: ApiKeyApplicat
   /** User update route implementation */
   def updateUserRoute(implicit session: Session): Route = updateUser.implementedByAsync {
     case (userId, user) =>
-      userService.updateUser(userId, user).unsafeToFuture()
+      userApplication.updateUser(userId, user).unsafeToFuture()
   }
 
   /** User route implementation */
   def getUserRoute(implicit session: Session): Route = getUser.implementedByAsync { userId =>
-    userService.getUser(userId).unsafeToFuture()
+    userApplication.getUser(userId).unsafeToFuture()
   }
 
   /** Current user route implementation */
   def getCurrentUserRoute(implicit session: Session): Route = getCurrentUser.implementedByAsync { _ =>
-    userService.getCurrentUser.unsafeToFuture()
+    userApplication.getCurrentUser.unsafeToFuture()
   }
 }
