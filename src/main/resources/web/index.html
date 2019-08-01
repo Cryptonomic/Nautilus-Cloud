@@ -1,74 +1,273 @@
 <html>
 <head>
+<style>
+body {
+  margin: 0px 0px 0px 0px;
+}
+.linkButton {
+     background: none;
+     border: none;
+     color: #0066cc;
+     text-decoration: underline;
+     cursor: pointer;
+}
+.apikey-text {
+    color: #FFFFFF;
+    font-size: 32px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.site-link{
+    color: #0066cc;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.site-link2{
+    color: #b7b7b7;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.env-text2{
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.env-text{
+    color: #000000;
+    font-size: 20px;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apikey {
+    width: 550px;
+    height: 220px;
+    background-image:url("/site/images/apibg.png");
+}
+
+.apikey2 {
+    background: #F5F5F5;
+    border: 0px;
+}
+
+td > * {
+    vertical-align : middle;
+}
+
+table table {border:solid 0px;margin: 0 auto}
+
+
+</style>
+    <title>Nautilus Cloud</title>
 </head>
 <body>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 
-<p>
-    Logged in as: <span id="current_login"></span>
-</p>
-<p>
-    Role: <span id="current_role"></span>
-</p>
-<p>
-    Get login request status: <span id="current_login_status_code"></span>
-</p>
-<p>
-    Api keys:
-    <ul id="api_keys"></ul>
-</p>
 
-<form id="login_form">
-    <a href="/github-login">login with github</a>
-</form>
 
-<form id="logout_form">
-    <input type="submit" value="Logout" id="do_logout" />
-</form>
+<table id="login_form" style="width: 100%; margin-left: auto; margin-right: auto;" border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+    <tr>
+        <td style="background-color: #5349d6; text-align: center;">&nbsp;</td>
+        <td style="width: 1024px; background-color: #5349d6; text-align: center;" rowspan="2"><img src="/site/images/welcome-head.png" alt="" usemap="#login"/></td>
+        <td style="background-color: #5349d6; height: 435px; text-align: center;">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="3" style="text-align: center;"><img src="/site/images/offering.png" usemap="#offering"></td>
+    </tr>
+    </tbody>
+</table>
+<map name="login">
+    <area shape="rect" coords="500,400,750,460" href="/github-login" alt="alttext">
+</map>
+<map name="offering">
+    <area shape="rect" coords="125,360,270,375" href="https://github.com/Cryptonomic/Conseil" alt="Conseil GitHub">
+    <area shape="rect" coords="725,350,790,375" href="http://arronax-beta.cryptonomic.tech/" alt="Arronax Explorer">
+    <area shape="rect" coords="962,385,1210,400" href="#" alt="Not Available">
+</map>
 
-<form id="refresh_keys_dev_form">
-    <input type="submit" value="Refresh key for dev" id="refresh_keys_dev" />
-</form>
 
-<form id="refresh_keys_prod_form">
-    <input type="submit" value="Refresh key for prod" id="refresh_keys_prod" />
-</form>
+<table  id="logout_form" style="width: 100%;" border="0" cellspacing="0" cellpadding="0">
+    <tbody>
+    <tr>
+        <td style="background-color: #ecf0f8;">&nbsp;</td>
+        <td style="background-color: #ecf0f8; width: 1400px;">
+            <table style="width: 100%;" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                    <td><img src="/site/images/header.png" /></td>
+                    <td style="vertical-align: middle; align-items : center; justify-content: center;">&nbsp;
+                        <form id="logout_form2">
+                            <input type="submit" value="Logout" id="do_logout" class="linkButton"/>
+                        </form></td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+        <td style="background-color: #ecf0f8;">&nbsp;</td>
+    </tr>
+    <tr>
+        <td style="background-color: #6973f1;">&nbsp;</td>
+        <td style="background-color: #6973f1; text-align: center;"><p>
+            <table style="width: 100%;" border="0" cellspacing="0" cellpadding="0">
+                <tbody>
+                <tr>
+                    <td>&nbsp;
+                        <table  border="0" cellspacing="10" cellpadding="0">
+                            <tbody>
+                            <tr>
+                                <td colspan="2" class="apikey-text">API Keys</td>
+                            </tr>
+                            <tr>
+                                <td class="apikey">
+                                    <table style="width: 100%; vertical-align: middle; margin: 5px 5px" border="0" cellspacing="2" cellpadding="2">
+                                        <tbody>
+                                        <tr>
+                                            <td class="env-text">Production</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link2">Conseil Mainnet Node</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link">https://conseil-prod.cryptonomic-infra.tech/</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link2">Tezos Mainnet Node</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link">https://tezos-prod.cryptonomic-infra.tech/</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table cellspacing="5" cellpadding="0" >
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="site-link2">API KEY</td>
+                                                        <td><span class="env-text2" id="api_keys_prod"></span></td>
+                                                        <td>&nbsp;<form><input type="image" src="/site/images/copy.png" alt="Submit" onclick="toClipboard('api_keys_prod')"/></form></td>
+                                                        <td valign="center">&nbsp;<form id="refresh_keys_prod_form">
+                                                            <input type="image" src="/site/images/refresh.png" alt="Submit" id="refresh_keys_prod" />
+                                                        </form></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+                                </td>
+                                <td class="apikey">
+                                    <table style="width: 100%; vertical-align: middle; margin: 5px 5px;" border="0" cellspacing="2" cellpadding="2">
+                                        <tbody>
+                                        <tr>
+                                            <td class="env-text">Development</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link2">Conseil Alphanet Node</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link">https://conseil-dev.cryptonomic-infra.tech/</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link2">Tezos Alphanet Node</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="site-link">https://tezos-dev.cryptonomic-infra.tech/</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table cellspacing="5" cellpadding="0" >
+                                                    <tbody>
+                                                    <tr>
+                                                        <td class="site-link2">API KEY</td>
+                                                        <td><span class="env-text2" id="api_keys_dev"></span></td>
+                                                        <td>&nbsp;<form><input type="image" src="/site/images/copy.png"  alt="Submit" onclick="toClipboard('api_keys_dev')"/></form></td>
+                                                        <td valign="center">&nbsp;<form id="refresh_keys_dev_form">
+                                                            <input type="image" src="/site/images/refresh.png"  alt="Submit" id="refresh_keys_dev" />
+                                                        </form></td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+
+
+
+            </td>
+        <td style="background-color: #6973f1;">&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    </tbody>
+</table>
+
+
+
+
+
 
 <script>
     var $loginForm = $('#login_form');
     var $logoutForm = $('#logout_form');
-    var $currentLogin = $('#current_login');
-    var $currentRole = $('#current_role');
     var $apiKeys = $('#api_keys');
     var $refreshKeysDev = $('#refresh_keys_dev_form');
     var $refreshKeysProd = $('#refresh_keys_prod_form');
-    var $currentLoginStatus = $('#current_login_status_code');
     $loginForm.hide();
     $logoutForm.hide();
+
+    function toClipboard(element) {
+      /* Get the text field */
+      var copyText = document.getElementById(element);
+      var textArea = document.createElement("textarea");
+      textArea.value = copyText.textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("Copy");
+      textArea.remove();
+    }
 
     function handleCurrentLoginResponse(data, status) {
         if (status == 'success') {
             $loginForm.hide();
             $logoutForm.show();
-
-            $currentLogin.text(data.userEmail);
-            $currentRole.text(data.userRole);
-            $currentLoginStatus.text(status);
+            document.getElementById("do_logout").value= data.userEmail;
         } else {
             $loginForm.show();
             $logoutForm.hide();
             $apiKeys.hide();
-
-            $currentLogin.text('');
-            $currentRole.text('');
-            $currentLoginStatus.text(status + ' (' + data.status + ')');
+            document.getElementById("do_logout").value= data.userEmail;
         }
     }
 
     function handleApiKeysResponse(data, status) {
         if (status == 'success') {
             console.log(data);
+            data.map(function(item) {
+                var $ele = $('#api_keys_' + item.environment);
+                $ele.text(item.key)
+            });
             $apiKeys.html(data.map(function(item) {
                 return "<li>" + item.environment + ": " + item.key + "</li>";
             }));

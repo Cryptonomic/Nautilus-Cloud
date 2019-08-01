@@ -17,13 +17,13 @@ import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
 class Routes(
-    private val apiKeysRoutes: ApiKeyRoutes,
-    private val userRoutes: UserRoutes,
-    private val sessionRoutes: SessionRoutes,
-    private val resourceRoutes: ResourceRoutes,
-    private val tierRoutes: TierRoutes,
-    private val sessionOperations: SessionOperations
-) extends StrictLogging {
+              private val apiKeysRoutes: ApiKeyRoutes,
+              private val userRoutes: UserRoutes,
+              private val sessionRoutes: SessionRoutes,
+              private val resourceRoutes: ResourceRoutes,
+              private val tierRoutes: TierRoutes,
+              private val sessionOperations: SessionOperations
+            ) extends StrictLogging {
 
   def getAll: Route =
     concat(
@@ -38,7 +38,16 @@ class Routes(
       },
       // @TODO should be removed when a proper login page is created
       pathPrefix("site") {
-        getFromResource("web/index.html")
+        pathEnd {
+          getFromResource("web/index.html")
+        } ~
+          pathPrefix("images") {
+            println("Image Requuested")
+            path(Segment) { s=>
+              println(s"Fetching $s")
+              getFromResource(s"web/images/$s")
+            }
+          }
       },
       path("") {
         redirect("/site", Found)
