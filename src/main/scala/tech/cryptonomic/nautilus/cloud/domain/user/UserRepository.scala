@@ -13,6 +13,9 @@ trait UserRepository[F[_]] {
   /** Updates user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit]
 
+  /** Delete user */
+  def deleteUser(id: UserId): F[Unit]
+
   /** Returns user */
   def getUser(id: UserId): F[Option[User]]
 

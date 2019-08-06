@@ -68,6 +68,10 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   /** Gets keys for environment */
   override def getKeysForEnv(environment: Environment): F[List[String]] =
     getKeysForEnvQuery(environment).to[List].transact(transactor)
+
+  /** Invalidate all API keys connected to user */
+  override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] =
+    invalidateApiKeysQuery(userId, now).run.map(_ => ()).transact(transactor)
 }
 
 object DoobieApiKeyRepository {

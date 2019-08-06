@@ -3,7 +3,6 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
@@ -81,5 +80,17 @@ class DoobieUserRepositoryTest
         )
       }
 
+      "delete user" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.getUser(1).unsafeRunSync() should not be empty
+
+        // when
+        sut.deleteUser(1).unsafeRunSync()
+
+        // then
+        sut.getUser(1).unsafeRunSync() shouldBe empty
+        sut.getUserByEmailAddress("login@domain.com").unsafeRunSync() shouldBe empty
+      }
     }
 }

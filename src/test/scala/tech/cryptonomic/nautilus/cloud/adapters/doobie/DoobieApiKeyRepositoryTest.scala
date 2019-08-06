@@ -44,7 +44,7 @@ class DoobieApiKeyRepositoryTest
         )
       }
 
-      "feth all apiKey" in {
+      "fetch all apiKey" in {
         // when
         sut
           .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, None))
@@ -105,6 +105,23 @@ class DoobieApiKeyRepositoryTest
             ApiKey(2, "new-api-key", Environment.Development, 1, Some(now.plusSeconds(1)), None)
           )
         )
+      }
+
+      "invalidate users api keys" in {
+        // when
+        sut
+          .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, None))
+          .unsafeRunSync()
+        sut
+          .putApiKey(CreateApiKey("12506413-8b79-49fd-8d11-e39b49efa24c", Environment.Development, 2, now, None))
+          .unsafeRunSync()
+
+        // when
+        sut.invalidateApiKeys(userId = 1, Instant.now()).unsafeRunSync()
+
+        // then (only api key for a given user should be invalidated)
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe false
+        sut.validateApiKey("12506413-8b79-49fd-8d11-e39b49efa24c").unsafeRunSync() shouldBe true
       }
 
       "get active apiKeys" in {

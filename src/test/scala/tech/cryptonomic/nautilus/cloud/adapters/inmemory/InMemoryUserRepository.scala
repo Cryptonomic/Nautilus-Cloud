@@ -39,6 +39,12 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
     ().pure[F]
   }
 
+  /** Delete user */
+  override def deleteUser(id: UserId): F[Unit] = this.synchronized {
+    users = users.filterNot(_.userId == id)
+    ().pure[F]
+  }
+
   /** Returns user */
   override def getUser(id: UserId): F[Option[User]] = this.synchronized {
     users.find(_.userId == id).pure[F]

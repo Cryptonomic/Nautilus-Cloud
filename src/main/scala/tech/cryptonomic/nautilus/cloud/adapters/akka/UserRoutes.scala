@@ -31,4 +31,9 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
   def getCurrentUserRoute(implicit session: Session): Route = getCurrentUser.implementedByAsync { _ =>
     userApplication.getCurrentUser.unsafeToFuture()
   }
+
+  /** Delete current user route implementation */
+  def deleteUserRoute(implicit userSession: Session): Route = deleteCurrentUser.implementedByAsync { _ =>
+    userApplication.deleteCurrentUser.unsafeToFuture()
+  }
 }
