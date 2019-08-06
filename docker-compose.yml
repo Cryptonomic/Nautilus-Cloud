@@ -10,7 +10,7 @@ services:
   nautilus-postgres:
     image: postgres:10.3-alpine
     ports:
-      - 5432:5432
+      - 5433:5432
     environment:
       POSTGRES_USER: "nautilususer"
       POSTGRES_PASSWORD: "p@ssw0rd"
