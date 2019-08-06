@@ -16,11 +16,11 @@ import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpG
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository, ApiKeyService}
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.{AuthenticationProviderRepository, AuthenticationService}
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.{ResourceRepository, ResourceService}
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.{TierRepository, TierService}
-import tech.cryptonomic.nautilus.cloud.application.domain.user.{UserRepository, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository, ApiKeyService}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, AuthenticationService}
+import tech.cryptonomic.nautilus.cloud.domain.resources.{ResourceRepository, ResourceService}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{TierRepository, TierService}
+import tech.cryptonomic.nautilus.cloud.domain.user.{UserRepository, UserService}
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
 
 import scala.concurrent.ExecutionContext

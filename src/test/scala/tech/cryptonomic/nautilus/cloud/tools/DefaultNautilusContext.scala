@@ -10,12 +10,18 @@ import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationService
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.ResourceService
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.TierService
-import tech.cryptonomic.nautilus.cloud.application.domain.user.UserService
-import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationService
+import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
+import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
+import tech.cryptonomic.nautilus.cloud.domain.user.UserService
+import tech.cryptonomic.nautilus.cloud.application.{
+  ApiKeyApplication,
+  AuthenticationApplication,
+  ResourceApplication,
+  TierApplication,
+  UserApplication
+}
 
 object DefaultNautilusContext extends NautilusContext
 

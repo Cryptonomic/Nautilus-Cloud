@@ -4,9 +4,9 @@ import doobie.implicits._
 import doobie.util.{Get, Put}
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 
 /** Queries for resources table */
 trait ResourceQueries extends EnvironmentMappers {

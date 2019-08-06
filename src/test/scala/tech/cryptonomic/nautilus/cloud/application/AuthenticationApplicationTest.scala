@@ -3,9 +3,9 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.application.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.application.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 

@@ -4,8 +4,8 @@ import java.time.ZonedDateTime
 
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.NotAllowedConfigurationOverride
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AccessDenied
-import tech.cryptonomic.nautilus.cloud.application.domain.tier._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
+import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 

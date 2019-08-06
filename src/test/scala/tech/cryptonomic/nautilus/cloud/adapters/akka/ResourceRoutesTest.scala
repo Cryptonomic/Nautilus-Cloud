@@ -4,8 +4,8 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.CreateResource
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
 class ResourceRoutesTest

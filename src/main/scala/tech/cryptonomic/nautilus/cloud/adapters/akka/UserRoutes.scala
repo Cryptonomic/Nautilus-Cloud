@@ -1,6 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
@@ -8,7 +7,7 @@ import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserApplication}
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** User routes implementation */
 class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKeyApplication[IO])

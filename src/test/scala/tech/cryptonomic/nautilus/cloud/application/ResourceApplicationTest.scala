@@ -1,8 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.application
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
@@ -19,7 +19,7 @@ class ResourceApplicationTest
   val sut = context.resourceApplication
 
   "ResourceApplication" should {
-      "store an application" in {
+      "store a resource" in {
         // given
         val id = sut.createResource(
           CreateResource(
@@ -48,7 +48,7 @@ class ResourceApplicationTest
         )
       }
 
-      "get all applications" in {
+      "get all resources" in {
         // given
         sut.createResource(
           CreateResource(

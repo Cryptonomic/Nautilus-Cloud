@@ -1,11 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.application
 
 import cats.Applicative
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.{Permission, _}
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.application.domain.user.Role.Administrator
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.application.domain.user.{UpdateUser, User, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, _}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User, UserService}
 
 import scala.language.higherKinds
 

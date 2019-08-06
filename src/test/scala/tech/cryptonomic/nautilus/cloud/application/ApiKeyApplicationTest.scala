@@ -1,8 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.application
 
 import org.scalatest.{EitherValues, Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment}
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 

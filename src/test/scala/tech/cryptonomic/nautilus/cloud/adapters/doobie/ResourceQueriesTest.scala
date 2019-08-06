@@ -4,8 +4,8 @@ import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.CreateResource
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class ResourceQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {

@@ -1,13 +1,12 @@
 package tech.cryptonomic.nautilus.cloud.application
 
-import cats.Monad
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthenticationProviderRepository.Result
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.{AuthenticationService, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, Session}
 
 import scala.language.higherKinds
 
 /** Authentication service */
-class AuthenticationApplication[F[_]: Monad](
+class AuthenticationApplication[F[_]](
     authenticationService: AuthenticationService[F]
 ) {
 

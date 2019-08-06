@@ -14,7 +14,7 @@ import akka.http.scaladsl.server.Route
 import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
-import tech.cryptonomic.nautilus.cloud.application.domain.user.Role
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 
 class Routes(
     private val apiKeysRoutes: ApiKeyRoutes,
@@ -47,13 +47,13 @@ class Routes(
       apiKeysRoutes.getAllApiKeysForEnvRoute,
       sessionOperations.requiredSession { implicit session =>
         concat(
-          // current routes must be at the beginning to avoid unwanted overriding
+          // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
           userRoutes.getCurrentUserRoute,
           apiKeysRoutes.getCurrentUserKeysRoute,
-          apiKeysRoutes.getCurrentApiKeyUsageRoute,
+          apiKeysRoutes.getCurrentKeyUsageRoute,
 
           apiKeysRoutes.refreshKeysRoute,
-          apiKeysRoutes.getAllApiKeysRoute,
+          apiKeysRoutes.getApiKeysRoute,
           apiKeysRoutes.validateApiKeyRoute,
           apiKeysRoutes.getUserKeysRoute,
           apiKeysRoutes.getApiKeyUsageRoute,

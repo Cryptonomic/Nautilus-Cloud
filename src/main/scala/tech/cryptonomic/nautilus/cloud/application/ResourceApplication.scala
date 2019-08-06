@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.application
 
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource, ResourceRepository, ResourceService}
+import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource, ResourceRepository, ResourceService}
 
 import scala.language.higherKinds
 

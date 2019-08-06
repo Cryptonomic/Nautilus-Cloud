@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieApiKeyRepository._
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, RefreshApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, CreateApiKey, Environment, RefreshApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
 
@@ -81,7 +81,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
     apiKeys.filter(_.userId == id).filter(_.dateSuspended.isEmpty).pure[F]
 
   /** Gets keys for environment */
-  override def getKeysForEnv(env: String): F[List[String]] = {
-    apiKeys.map(_.key).pure[F]
+  override def getKeysForEnv(environment: Environment): F[List[String]] = {
+    apiKeys.filter(_.environment == environment).map(_.key).pure[F]
   }
 }

@@ -2,9 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ApiKeySchemas
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** ApiKey relevant endpoints */
 trait ApiKeyEndpoints
@@ -40,12 +40,10 @@ trait ApiKeyEndpoints
       tags = List("ApiKeys")
     )
 
-  type Env = String
-
   /** Endpoint definition for getting all ApiKeys */
-  def getAllKeysForEnv: Endpoint[(Env, String), Permission[List[String]]] =
+  def getAllKeysForEnv: Endpoint[(Environment, String), Permission[List[String]]] =
     endpoint(
-      request = get(url = path / "apiKeys" / segment[Env]("environment"), headers = header("X-Api-Key")),
+      request = get(url = path / "apiKeys" / segment[Environment]("environment"), headers = header("X-Api-Key")),
       response = jsonResponse[List[String]]().orForbidden(),
       tags = List("ApiKeys")
     )
@@ -75,7 +73,7 @@ trait ApiKeyEndpoints
     )
 
   /** Refresh api keys endpoint definition */
-  def refreshUserKeys: Endpoint[Environment, Unit] =
+  def refreshKeys: Endpoint[Environment, Unit] =
     endpoint(
       request = post(url = path / "users" / "me" / "apiKeys" / segment[Environment]("env") / "refresh", emptyRequest),
       response = emptyResponse(),

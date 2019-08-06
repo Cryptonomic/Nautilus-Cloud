@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import endpoints.algebra.Documentation
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 
 /** Utility trait for extending Endpoints functionality */
 trait EndpointsStatusDefinitions extends algebra.Responses {

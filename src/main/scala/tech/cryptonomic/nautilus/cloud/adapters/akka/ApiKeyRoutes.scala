@@ -7,7 +7,7 @@ import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.ApiKeyEndpoints
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.application.ApiKeyApplication
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** API Keys routes implementation */
 class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
@@ -17,13 +17,13 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
     with StrictLogging {
 
   /** Routes implementation for getting all ApiKeys */
-  def getAllApiKeysRoute(implicit session: Session): Route = getAllKeys.implementedByAsync { _ =>
+  def getApiKeysRoute(implicit session: Session): Route = getAllKeys.implementedByAsync { _ =>
     apiKeysApplication.getAllApiKeys.unsafeToFuture()
   }
 
   /** Routes implementation for getting all ApiKeys */
-  val getAllApiKeysForEnvRoute: Route = getAllKeysForEnv.implementedByAsync { case (env, key) =>
-    apiKeysApplication.getApiKeysForEnv(key, env).unsafeToFuture()
+  val getAllApiKeysForEnvRoute: Route = getAllKeysForEnv.implementedByAsync { case (environment, key) =>
+    apiKeysApplication.getApiKeysForEnv(key, environment).unsafeToFuture()
   }
 
   /** Routes implementation for validation of API Key */
@@ -38,13 +38,13 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
   }
 
   /** User keys refresh implementation */
-  def refreshKeysRoute(implicit session: Session): Route = refreshUserKeys.implementedByAsync { env =>
+  def refreshKeysRoute(implicit session: Session): Route = refreshKeys.implementedByAsync { env =>
     apiKeysApplication.refreshApiKey(env).unsafeToFuture()
   }
 
   /** ApiKey usage route implementation */
-  def getCurrentApiKeyUsageRoute(implicit session: Session): Route = getCurrentUserUsage.implementedByAsync { _ =>
-    apiKeysApplication.getCurrentUserApiKeysUsage.unsafeToFuture()
+  def getCurrentKeyUsageRoute(implicit session: Session): Route = getCurrentUserUsage.implementedByAsync { _ =>
+    apiKeysApplication.getCurrentApiKeysUsage.unsafeToFuture()
   }
 
   /** User keys route implementation */

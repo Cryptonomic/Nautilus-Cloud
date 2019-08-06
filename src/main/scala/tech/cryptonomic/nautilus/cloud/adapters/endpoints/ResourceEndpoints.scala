@@ -2,8 +2,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ResourceSchemas
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.{CreateResource, Resource}
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.Resource.ResourceId
+import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
+import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 
 /** Resource endpoints definition*/
 trait ResourceEndpoints

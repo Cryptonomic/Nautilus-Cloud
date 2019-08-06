@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 import endpoints.algebra
 import endpoints.algebra.Urls
 import endpoints.generic.JsonSchemas
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier, Usage}
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierConfiguration, TierName, UpdateTier, Usage}
 
 import scala.util.Try
 

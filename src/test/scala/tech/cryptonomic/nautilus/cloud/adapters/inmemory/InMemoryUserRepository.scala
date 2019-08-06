@@ -2,11 +2,11 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import cats.Applicative
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.application.domain.user.CreateUser
-import tech.cryptonomic.nautilus.cloud.application.domain.user.UpdateUser
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User
-import tech.cryptonomic.nautilus.cloud.application.domain.user.UserRepository
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
+import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
+import tech.cryptonomic.nautilus.cloud.domain.user.User
+import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
 
 import scala.language.higherKinds
 

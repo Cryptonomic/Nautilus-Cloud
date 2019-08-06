@@ -4,8 +4,8 @@ import java.time.Instant
 
 import cats.Monad
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Tier.TierId
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.{Tier, TierConfiguration, TierName, TierRepository, Usage}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, TierRepository, Usage}
 
 import scala.language.higherKinds
 

@@ -2,8 +2,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.TierSchemas
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.Permission
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.{CreateTier, Tier, TierName, UpdateTier}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.tier.{CreateTier, Tier, TierName, UpdateTier}
 
 /** Tier endpoints */
 trait TierEndpoints

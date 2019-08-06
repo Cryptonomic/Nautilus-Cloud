@@ -5,8 +5,8 @@ import java.time.Instant
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Tier.TierId
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.{Tier, TierConfiguration, TierName, Usage}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
+import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierConfiguration, TierName, Usage}
 
 /** Trait containing User related queries */
 trait TierQueries {

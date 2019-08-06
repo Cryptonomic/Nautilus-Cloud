@@ -7,7 +7,7 @@ import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, TierEndpoints}
 import tech.cryptonomic.nautilus.cloud.application.TierApplication
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** Tier routes implementation */
 class TierRoutes(tierService: TierApplication[IO])

@@ -4,7 +4,7 @@ import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
 
 import com.softwaremill.sttp._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.application.domain.user.{Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools._
 

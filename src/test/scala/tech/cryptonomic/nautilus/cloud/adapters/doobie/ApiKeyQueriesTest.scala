@@ -6,8 +6,8 @@ import cats.effect.IO
 import doobie.scalatest._
 import doobie.util.transactor.Transactor
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
 class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
@@ -49,7 +49,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
       check(sut.invalidateApiKeyQuery(InvalidateApiKey(Environment.Development, 1, Instant.now())))
     }
     "check getKeysForEnvQuery" in {
-      check(sut.getKeysForEnvQuery(""))
+      check(sut.getKeysForEnvQuery(Environment.Development))
     }
   }
 }

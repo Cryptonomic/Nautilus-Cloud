@@ -6,10 +6,10 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Usage
-import tech.cryptonomic.nautilus.cloud.application.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.application.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, JsonMatchers}
 

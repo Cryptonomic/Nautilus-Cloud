@@ -4,7 +4,7 @@ import cats.effect.IO
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, ResourceEndpoints}
 import tech.cryptonomic.nautilus.cloud.application.ResourceApplication
-import tech.cryptonomic.nautilus.cloud.application.domain.resources.CreateResource
+import tech.cryptonomic.nautilus.cloud.domain.resources.CreateResource
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 

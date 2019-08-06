@@ -3,8 +3,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, CreateApiKey, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** Trait containing api key related queries */
 trait ApiKeyQueries extends EnvironmentMappers {
@@ -56,7 +56,7 @@ trait ApiKeyQueries extends EnvironmentMappers {
     sql"INSERT INTO usage_left(key, daily, monthly) VALUES(${usage.key}, ${usage.daily}, ${usage.monthly})".update
 
   /** Query selecting API keys for given env */
-  def getKeysForEnvQuery(env: String): Query0[String] =
-    sql"SELECT key FROM api_keys WHERE environment = $env AND datesuspended IS NULL".query[String]
+  def getKeysForEnvQuery(environment: Environment): Query0[String] =
+    sql"SELECT key FROM api_keys WHERE environment = ${environment.name} AND datesuspended IS NULL".query[String]
 
 }

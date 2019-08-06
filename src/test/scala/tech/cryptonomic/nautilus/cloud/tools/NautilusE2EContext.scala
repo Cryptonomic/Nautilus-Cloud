@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.tools
 
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.ApiKeyGenerator
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyGenerator
 
 /** Custom context for E2E tests which needed to be in a trait to work properly */
 trait NautilusE2EContext {

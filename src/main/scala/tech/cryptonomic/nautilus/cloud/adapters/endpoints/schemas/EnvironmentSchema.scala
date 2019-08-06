@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import endpoints.generic
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.Environment
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment
 
 /* Schema for Environment  */
 trait EnvironmentSchema extends generic.JsonSchemas {

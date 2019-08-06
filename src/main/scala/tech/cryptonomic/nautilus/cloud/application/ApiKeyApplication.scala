@@ -3,12 +3,12 @@ package tech.cryptonomic.nautilus.cloud.application
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.AuthorizationService.{requiredRole, Permission}
-import tech.cryptonomic.nautilus.cloud.application.domain.authentication.{AccessDenied, Session}
-import tech.cryptonomic.nautilus.cloud.application.domain.user.Role
-import tech.cryptonomic.nautilus.cloud.application.domain.user.Role.Administrator
-import tech.cryptonomic.nautilus.cloud.application.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, Session}
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
+import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
 
@@ -33,7 +33,7 @@ class ApiKeyApplication[F[_]: Monad](conseilConfig: ConseilConfig, apiKeyService
     apiKeyService.getActiveApiKeys(session.userId)
 
   /** Returns API Keys usage for current user with given ID */
-  def getCurrentUserApiKeysUsage(implicit session: Session): F[List[UsageLeft]] =
+  def getCurrentApiKeysUsage(implicit session: Session): F[List[UsageLeft]] =
     apiKeyService.getApiKeysUsage(session.userId)
 
   /** Returns API Keys for user with given ID */
@@ -43,11 +43,11 @@ class ApiKeyApplication[F[_]: Monad](conseilConfig: ConseilConfig, apiKeyService
     }
 
   /** Returns all API keys from the DB */
-  def getApiKeysForEnv(apiKey: String, env: String): F[Permission[List[String]]] =
+  def getApiKeysForEnv(apiKey: String, environment: Environment): F[Permission[List[String]]] =
     Either
       .cond(
         conseilConfig.keys.contains(apiKey),
-        apiKeyService.getAllApiKeysForEnv(env),
+        apiKeyService.getAllApiKeysForEnv(environment),
         AccessDenied("Wrong API key").pure[F]
       )
       .bisequence

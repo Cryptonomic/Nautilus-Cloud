@@ -4,8 +4,8 @@ import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.stephenn.scalatest.jsonassert.JsonMatchers
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.application.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.application.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
@@ -31,7 +31,7 @@ class ApiKeyRoutesTest
         )
 
         // expect
-        Get("/apiKeys") ~> sut.getAllApiKeysRoute(adminSession) ~> check {
+        Get("/apiKeys") ~> sut.getApiKeysRoute(adminSession) ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""
@@ -125,7 +125,7 @@ class ApiKeyRoutesTest
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
+        Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""["someApiKey"]""")
@@ -137,7 +137,7 @@ class ApiKeyRoutesTest
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
+        Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.Forbidden
         }
       }
@@ -154,7 +154,7 @@ class ApiKeyRoutesTest
         )
 
         // when
-        val result = Get("/users/me/usage") ~> sut.getCurrentApiKeyUsageRoute(
+        val result = Get("/users/me/usage") ~> sut.getCurrentKeyUsageRoute(
                 userSession.copy(email = "email@example.com")
               )
 
