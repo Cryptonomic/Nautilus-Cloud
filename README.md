@@ -26,7 +26,7 @@ sbt run -Dconfig.resource=your-username-dev.conf
 
 #Docker
 It is possible to run a dockerized version of Nautilus Cloud. Assuming you have configured reference.conf correctly
-as described above (take note of the doobie.hostname config), follow these steps:
+as described above (take note of the doobie.host config), follow these steps:
 
 1. Run `sbt assembly`. This will produce an uber jar that can then be picked up by docker.
 2. Run `docker-compose up`. This will start Nautilus Cloud and its associated Postgres DB.
