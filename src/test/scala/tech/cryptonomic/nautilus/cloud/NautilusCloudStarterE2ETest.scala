@@ -22,7 +22,7 @@ class NautilusCloudStarterE2ETest
 
   implicit val sttpBackend = HttpURLConnectionBackend()
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
     super.beforeEach()
     nautilusContext.apiKeyGenerator.asInstanceOf[FixedApiKeyGenerator].reset
     applySchemaWithFixtures()
@@ -43,7 +43,7 @@ class NautilusCloudStarterE2ETest
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         // create user through first login
-        sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+        sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // update role for that user
         nautilusContext.userRepository
@@ -52,7 +52,7 @@ class NautilusCloudStarterE2ETest
 
         // log-in again with administrator role
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // when
         val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
@@ -66,7 +66,7 @@ class NautilusCloudStarterE2ETest
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // when
         val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
@@ -90,7 +90,7 @@ class NautilusCloudStarterE2ETest
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // when
         val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCodeResult.cookies).send()
@@ -106,7 +106,7 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
             .followRedirects(false)
             .send()
 
@@ -140,7 +140,7 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
             .followRedirects(false)
             .send()
 
@@ -192,7 +192,7 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/github-callback?code=auth-code")
+            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
             .followRedirects(false)
             .send()
 
@@ -223,7 +223,7 @@ class NautilusCloudStarterE2ETest
       }
     }
 
-  "github-callback endpoint" should {
+  "users/github-init endpoint" should {
 
       "set a cookie after successfull log-in" in {
         // given
@@ -231,7 +231,7 @@ class NautilusCloudStarterE2ETest
 
         // when
         val response =
-          sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // then
         response.isRedirect shouldBe true
@@ -245,7 +245,7 @@ class NautilusCloudStarterE2ETest
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/github-callback?code=auth-code").followRedirects(false).send()
+          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
 
         // when
         val response =

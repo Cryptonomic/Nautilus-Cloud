@@ -37,11 +37,8 @@ class Routes(
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
       // @TODO should be removed when a proper login page is created
-      pathPrefix("site") {
-        getFromResource("web/index.html")
-      },
       path("") {
-        redirect("/site", Found)
+        getFromResource("web/index.html")
       },
       sessionRoutes.routes,
       apiKeysRoutes.getAllApiKeysForEnvRoute,

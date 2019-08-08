@@ -26,6 +26,7 @@ class DoobieApiKeyRepositoryTest
 
     applySchemaWithFixtures()
     context.userRepository.createUser(exampleCreateUser).unsafeRunSync()
+    context.userRepository.createUser(exampleCreateUser.copy(userEmail = "another@domain.com")).unsafeRunSync()
   }
 
   "ApiKey repo" should {

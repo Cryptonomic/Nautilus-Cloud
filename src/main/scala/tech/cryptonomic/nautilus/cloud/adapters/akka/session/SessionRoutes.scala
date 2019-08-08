@@ -19,13 +19,13 @@ class SessionRoutes(
       path("github-login") {
         redirect(authenticationApplication.loginUrl, Found)
       },
-      path("github-callback") {
+      path("users" / "github-init") {
         parameters('code) {
           code =>
             onComplete(authenticationApplication.resolveAuthCode(code).unsafeToFuture()) {
-              case Success(Right(session)) =>
-                sessionOperations.setSession(session) { ctx =>
-                  ctx.redirect("/", SeeOther)
+              case Success(Right(user)) =>
+                sessionOperations.setSession(user.asSession) { ctx =>
+                  ctx.redirect("/users/me", SeeOther)
                 }
               case Failure(exception) =>
                 logger.error(exception.getMessage, exception)

@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.authentication
 
 import cats.Monad
-import cats.data.EitherT
+import cats.data.{EitherT, OptionT}
 import cats.effect.Clock
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
@@ -26,11 +26,10 @@ class AuthenticationService[F[_]: Monad](
   def loginUrl: String = config.loginUrl
 
   /* resolve auth code */
-  def resolveAuthCode(code: String): F[Result[Session]] =
+  def resolveAuthCode(code: String): F[Result[User]] =
     exchangeCodeForAccessToken(code)
       .flatMap(fetchEmail)
       .flatMap(getOrCreateUser)
-      .map(_.asSession)
       .value
 
   private def exchangeCodeForAccessToken(code: String) =

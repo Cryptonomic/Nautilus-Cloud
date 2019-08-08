@@ -3,9 +3,8 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
@@ -19,7 +18,7 @@ class AuthenticationApplicationTest
     with OneInstancePerTest {
 
   val context = new IdContext {
-    override lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
+    override lazy val now: Instant = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   }
   val authenticationApplication = context.authenticationApplication
   val authRepository = context.authRepository
@@ -33,28 +32,34 @@ class AuthenticationApplicationTest
       "resolve an auth code when user exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, 1, None))
+        userRepository.createUser(
+          CreateUser("name@domain.com", Role.User, context.now.minusSeconds(1), Github, 1, None)
+        )
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe Session(
+        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
           userId = 1,
-          email = "name@domain.com",
-          provider = Github,
-          role = Role.User
+          userEmail = "name@domain.com",
+          userRole = Role.User,
+          registrationDate = context.now.minusSeconds(1),
+          accountSource = Github,
+          accountDescription = None
         )
       }
 
       "resolve an auth code when user exists with administrator role" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, Instant.now(), Github, 1, None))
+        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, context.now.minusSeconds(1), Github, 1, None))
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe Session(
+        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
           userId = 1,
-          email = "name@domain.com",
-          provider = Github,
-          role = Role.Administrator
+          userEmail = "name@domain.com",
+          userRole = Role.Administrator,
+          registrationDate = context.now.minusSeconds(1),
+          accountSource = Github,
+          accountDescription = None
         )
       }
 
@@ -64,11 +69,13 @@ class AuthenticationApplicationTest
         userRepository.getUser(1) should be(None)
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe Session(
+        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
           userId = 1,
-          email = "name@domain.com",
-          provider = Github,
-          role = Role.User
+          userEmail = "name@domain.com",
+          userRole = Role.User,
+          registrationDate = context.now,
+          accountSource = Github,
+          accountDescription = None
         )
       }
 
