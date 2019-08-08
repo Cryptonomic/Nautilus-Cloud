@@ -43,7 +43,12 @@ class NautilusCloudStarterE2ETest
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         // create user through first login
-        sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+        sttp
+          .post(uri"http://localhost:1235/users/github-init")
+          .header("Content-Type", "application/json")
+          .body("""{"code": "auth-code"}""")
+          .followRedirects(false)
+          .send()
 
         // update role for that user
         nautilusContext.userRepository
@@ -52,7 +57,12 @@ class NautilusCloudStarterE2ETest
 
         // log-in again with administrator role
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+          sttp
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
+            .followRedirects(false)
+            .send()
 
         // when
         val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
@@ -90,7 +100,12 @@ class NautilusCloudStarterE2ETest
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+          sttp
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
+            .followRedirects(false)
+            .send()
 
         // when
         val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCodeResult.cookies).send()
@@ -106,7 +121,9 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
             .followRedirects(false)
             .send()
 
@@ -140,7 +157,9 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
             .followRedirects(false)
             .send()
 
@@ -192,7 +211,9 @@ class NautilusCloudStarterE2ETest
 
         val authCodeResult =
           sttp
-            .get(uri"http://localhost:1235/users/github-init?code=auth-code")
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
             .followRedirects(false)
             .send()
 
@@ -231,7 +252,12 @@ class NautilusCloudStarterE2ETest
 
         // when
         val response =
-          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+          sttp
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
+            .followRedirects(false)
+            .send()
 
         // then
         response.isRedirect shouldBe true
@@ -244,8 +270,14 @@ class NautilusCloudStarterE2ETest
       "invalidate session" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
+
         val authCodeResult =
-          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+          sttp
+            .post(uri"http://localhost:1235/users/github-init")
+            .header("Content-Type", "application/json")
+            .body("""{"code": "auth-code"}""")
+            .followRedirects(false)
+            .send()
 
         // when
         val response =

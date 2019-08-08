@@ -26,6 +26,7 @@ libraryDependencies ++= Seq(
   "com.typesafe"                       % "config"                          % "1.3.2",
   "com.typesafe.scala-logging"         %% "scala-logging"                  % "3.7.2",
   "com.typesafe.akka"                  %% "akka-http"                      % akkaHttpVersion exclude ("com.typesafe", "config"),
+  "com.typesafe.akka"                  %% "akka-http-spray-json"           % akkaHttpVersion exclude ("com.typesafe", "config"),
   "com.softwaremill.akka-http-session" %% "core"                           % "0.5.6",
   "org.scalaj"                         %% "scalaj-http"                    % "2.4.1",
   "com.softwaremill.sttp"              %% "core"                           % "1.5.16",
