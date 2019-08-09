@@ -60,6 +60,7 @@ class Routes(
 
           userRoutes.getUserRoute,
           userRoutes.updateUserRoute,
+          userRoutes.deleteUserRoute,
 
           tierRoutes.createTierRoute,
           tierRoutes.getTierRoute,

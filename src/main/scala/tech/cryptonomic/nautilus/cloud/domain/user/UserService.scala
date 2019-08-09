@@ -1,16 +1,26 @@
 package tech.cryptonomic.nautilus.cloud.domain.user
 
-import cats.Applicative
+import cats.Monad
+import cats.implicits._
+import cats.effect.Clock
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
 import scala.language.higherKinds
 
 /** User service implementation */
-class UserService[F[_]: Applicative](
+class UserService[F[_]: Monad](
     userRepo: UserRepository[F],
-    apiKeyRepo: ApiKeyRepository[F]
+    apiKeyRepo: ApiKeyRepository[F],
+    clock: Clock[F]
 ) {
+
+  def deleteUser(userId: UserId): F[Unit] = for {
+      now <- clock.currentInstant
+      _ <- apiKeyRepo.invalidateApiKeys(userId, now)
+      _ <- userRepo.deleteUser(userId, now)
+    } yield ()
 
   /** Get current user */
   def getUserByEmailAddress(email: String): F[Option[User]] = userRepo.getUserByEmailAddress(email)

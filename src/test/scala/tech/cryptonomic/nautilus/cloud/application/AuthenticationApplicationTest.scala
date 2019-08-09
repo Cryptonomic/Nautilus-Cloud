@@ -30,7 +30,7 @@ class AuthenticationApplicationTest
     super.afterEach()
 
   "AuthenticationService" should {
-      "resolve an auth code when user existdos" in {
+      "resolve an auth code when user exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.createUser(CreateUser("name@domain.com", Role.User, Instant.now(), Github, 1, None))

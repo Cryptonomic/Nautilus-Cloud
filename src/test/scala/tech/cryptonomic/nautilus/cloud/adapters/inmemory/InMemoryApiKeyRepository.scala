@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
+import java.time.Instant
+
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieApiKeyRepository._
@@ -83,5 +85,11 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   /** Gets keys for environment */
   override def getKeysForEnv(environment: Environment): F[List[String]] = {
     apiKeys.filter(_.environment == environment).map(_.key).pure[F]
+  }
+
+  /** Invalidate all API keys connected to user */
+  override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] = this.synchronized {
+    apiKeys = apiKeys.filterNot(_.userId == userId)
+    ().pure[F]
   }
 }

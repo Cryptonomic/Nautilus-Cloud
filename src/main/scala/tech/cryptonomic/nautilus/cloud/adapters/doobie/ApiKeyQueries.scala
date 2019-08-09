@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
@@ -36,6 +38,10 @@ trait ApiKeyQueries extends EnvironmentMappers {
   /** Inserts API key for user */
   def invalidateApiKeyQuery(invalidateApiKey: InvalidateApiKey): Update0 =
     sql"UPDATE api_keys SET datesuspended = ${invalidateApiKey.now} WHERE environment = ${invalidateApiKey.environment} AND userid = ${invalidateApiKey.userId}".update
+
+  /** Inserts API key for user */
+  def invalidateApiKeysQuery(userId: UserId, now: Instant): Update0 =
+    sql"UPDATE api_keys SET datesuspended = $now WHERE userid = $userId".update
 
   /** Query returning API keys usage for given user */
   def getUsageForUserQuery(userId: UserId): Query0[UsageLeft] =

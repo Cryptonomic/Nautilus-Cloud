@@ -128,6 +128,27 @@ class UserRoutesTest
         }
       }
 
+      "delete current user" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        // when
+        val putRequest = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
+
+        // then
+        putRequest ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.NotFound
+        }
+      }
+
       "get 403 when trying to update user without admin role" in {
         // when
         val request = HttpRequest(

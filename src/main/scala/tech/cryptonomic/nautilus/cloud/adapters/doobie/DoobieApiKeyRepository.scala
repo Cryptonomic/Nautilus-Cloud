@@ -3,18 +3,12 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import cats.effect.Bracket
+import cats.syntax.functor._
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{
-  ApiKey,
-  ApiKeyRepository,
-  CreateApiKey,
-  Environment,
-  RefreshApiKey,
-  UsageLeft
-}
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.DoobieApiKeyRepository.ExtendedRefreshApiKey
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import DoobieApiKeyRepository.ExtendedRefreshApiKey
 
 import scala.language.higherKinds
 
@@ -37,7 +31,7 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
 
   /** Query returning API keys usage for given user */
   override def updateKeyUsage(usage: UsageLeft): F[Unit] =
-    updateUsageQuery(usage).run.map(_ => ()).transact(transactor)
+    updateUsageQuery(usage).run.void.transact(transactor)
 
   /** Query updating API keys connected to user */
   override def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit] =
@@ -56,11 +50,11 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
 
   /** Inserts API key usage */
   override def putApiKeyUsage(usageLeft: UsageLeft): F[Unit] =
-    putUsageQuery(usageLeft).run.map(_ => ()).transact(transactor)
+    putUsageQuery(usageLeft).run.void.transact(transactor)
 
   /** Inserts API key */
   override def putApiKey(apiKey: CreateApiKey): F[Unit] =
-    putApiKeyQuery(apiKey).run.map(_ => ()).transact(transactor)
+    putApiKeyQuery(apiKey).run.void.transact(transactor)
 
   override def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]] =
     getActiveApiKeysQuery(id).to[List].transact(transactor)
@@ -68,7 +62,17 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   /** Gets keys for environment */
   override def getKeysForEnv(environment: Environment): F[List[String]] =
     getKeysForEnvQuery(environment).to[List].transact(transactor)
+
+  /** Invalidate all API keys connected to user */
+  override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] =
+    invalidateApiKeysQuery(userId, now).run.void.transact(transactor)
 }
+
+case class InvalidateApiKey(
+    environment: Environment,
+    userId: UserId,
+    now: Instant
+)
 
 object DoobieApiKeyRepository {
   implicit class ExtendedRefreshApiKey(val refreshApiKey: RefreshApiKey) extends AnyVal {
@@ -77,9 +81,3 @@ object DoobieApiKeyRepository {
     def toInvalidateApiKey = InvalidateApiKey(refreshApiKey.environment, refreshApiKey.userId, refreshApiKey.now)
   }
 }
-
-case class InvalidateApiKey(
-    environment: Environment,
-    userId: UserId,
-    now: Instant
-)

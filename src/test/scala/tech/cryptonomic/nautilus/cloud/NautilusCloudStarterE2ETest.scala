@@ -237,8 +237,11 @@ class NautilusCloudStarterE2ETest
         response.isRedirect shouldBe true
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
+    }
 
-      "logout endpoint should invalidate session" in {
+  "logout endpoint" should {
+
+      "invalidate session" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
         val authCodeResult =
