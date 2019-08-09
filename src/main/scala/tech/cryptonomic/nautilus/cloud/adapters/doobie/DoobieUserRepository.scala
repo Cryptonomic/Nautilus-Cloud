@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import cats.Monad
 import cats.effect.Bracket
 import doobie.enum.SqlState
@@ -7,6 +9,7 @@ import doobie.implicits._
 import doobie.util.transactor.Transactor
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
+import cats.syntax.functor._
 
 import scala.language.higherKinds
 
@@ -28,10 +31,10 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
 
   /** Updates user */
   override def updateUser(id: UserId, user: UpdateUser): F[Unit] =
-    updateUserQuery(id, user).run.map(_ => ()).transact(transactor)
+    updateUserQuery(id, user).run.void.transact(transactor)
 
   /** Delete user */
-  override def deleteUser(id: UserId): F[Unit] = deleteUserQuery(id).run.map(_ => ()).transact(transactor)
+  override def deleteUser(id: UserId): F[Unit] = deleteUserQuery(id).run.void.transact(transactor)
 
   /** Returns user */
   override def getUser(id: UserId): F[Option[User]] =
