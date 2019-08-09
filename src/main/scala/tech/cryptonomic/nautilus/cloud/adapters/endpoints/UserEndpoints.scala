@@ -30,10 +30,10 @@ trait UserEndpoints
     )
 
   /** Delete currently logged-in user endpoint definition */
-  def deleteCurrentUser: Endpoint[Unit, Unit] =
+  def deleteCurrentUser: Endpoint[Unit, Permission[Unit]] =
     endpoint(
       request = delete(url = path / "users" / "me"),
-      response = emptyResponse(),
+      response = emptyResponse().orForbidden(),
       tags = List("User")
     )
 
