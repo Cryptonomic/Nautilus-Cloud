@@ -15,12 +15,4 @@ trait UserSchemas extends algebra.JsonSchemas with ApiKeySchemas {
   /** User schema */
   implicit lazy val userSchema: JsonSchema[User] =
     genericJsonSchema[User]
-
-  /** Usage left schema */
-  implicit lazy val usageLeftSchema: JsonSchema[UsageLeft] =
-    genericJsonSchema[UsageLeft]
-
-  /** Usage schema */
-  implicit lazy val usageSchema: JsonSchema[Usage] =
-    genericJsonSchema[Usage]
 }

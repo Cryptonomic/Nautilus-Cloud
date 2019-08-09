@@ -13,7 +13,7 @@ object CustomSessionSerializer {
   private def serialize: Session => Map[String, String] =
     session =>
       Map(
-        "id" -> session.id.toString,
+        "id" -> session.userId.toString,
         "provider" -> session.provider.name,
         "role" -> session.role.name,
         "email" -> session.email

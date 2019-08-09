@@ -16,7 +16,6 @@ case class CreateResource(
   def toResource(resourceId: ResourceId): Resource =
     this
       .into[Resource]
-      .withFieldConst(_.resourceid, resourceId)
-      .withFieldRenamed(_.resourceName, _.resourcename)
+      .withFieldConst(_.resourceId, resourceId)
       .transform
 }

@@ -1,36 +1,39 @@
-package tech.cryptonomic.nautilus.cloud.domain
+package tech.cryptonomic.nautilus.cloud.application
 
-import cats.Id
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.{InMemoryApiKeyRepository, InMemoryUserRepository}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
+import tech.cryptonomic.nautilus.cloud.tools.IdContext
 
-class UserServiceTest
+class UserApplicationTest
     extends WordSpec
     with Matchers
     with Fixtures
     with EitherValues
     with OptionValues
     with BeforeAndAfterEach
-    with MockFactory {
+    with MockFactory
+    with OneInstancePerTest {
 
-  val apiKeyRepository = new InMemoryApiKeyRepository[Id]()
-  val userRepository = new InMemoryUserRepository[Id]()
+  val context = new IdContext()
 
-  val sut = new UserService[Id](userRepository, apiKeyRepository)
+  val apiKeyRepository = context.apiKeyRepository
+  val userRepository = context.userRepository
+  val authRepository = context.authRepository
 
-  override protected def afterEach(): Unit = {
-    super.afterEach()
-    userRepository.clear()
-  }
+  val apiKeyService = context.apiKeyService
+  val authService = context.authenticationService
+
+  val sut = context.userApplication
 
   "UserService" should {
       "get existing user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // expect
         sut
@@ -52,7 +55,9 @@ class UserServiceTest
 
       "get current user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // expect
         sut
@@ -67,7 +72,9 @@ class UserServiceTest
 
       "update user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // when
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
@@ -83,22 +90,33 @@ class UserServiceTest
         )
       }
 
+      "delete user" in {
+        // given
+        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
+        authService.resolveAuthCode("authCode")
+
+        sut.getCurrentUser(userSession.copy(email = "name@domain.com")) should not be empty
+        apiKeyService.getUserApiKeys(1) should not be empty
+
+        // when
+        sut.deleteCurrentUser(userSession.copy(email = "name@domain.com"))
+
+        // then
+        sut.getCurrentUser(userSession.copy(email = "name@domain.com")) shouldBe empty
+        apiKeyService.getUserApiKeys(1) shouldBe empty
+      }
+
+      "get PermissionDenied on deleting user when requesting user in admin" in {
+        // expect
+        sut.deleteCurrentUser(adminSession).left.value shouldBe a[AccessDenied]
+      }
+
       "get PermissionDenied on updating user when requesting user is not an admin" in {
         // when
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
 
         // then
         sut.getUser(1)(userSession).left.value shouldBe a[AccessDenied]
-      }
-
-      "getUserApiKeys" in {
-        // given
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 1, userId = 1))
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 2, userId = 1))
-        apiKeyRepository.add(exampleApiKey.copy(keyId = 3, userId = 2))
-
-        // expect
-        sut.getUserApiKeys(1)(adminSession).right.value.map(_.keyId) shouldBe List(1, 2)
       }
     }
 }

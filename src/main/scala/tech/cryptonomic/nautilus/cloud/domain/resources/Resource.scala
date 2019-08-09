@@ -5,8 +5,8 @@ import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
 
 /** Model for resource*/
 case class Resource(
-    resourceid: ResourceId,
-    resourcename: String,
+    resourceId: ResourceId,
+    resourceName: String,
     description: String,
     platform: String,
     network: String,

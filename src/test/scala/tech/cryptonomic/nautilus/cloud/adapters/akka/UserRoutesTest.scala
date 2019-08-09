@@ -128,6 +128,27 @@ class UserRoutesTest
         }
       }
 
+      "delete current user" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        // when
+        val putRequest = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
+
+        // then
+        putRequest ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.NotFound
+        }
+      }
+
       "get 403 when trying to update user without admin role" in {
         // when
         val request = HttpRequest(
@@ -142,99 +163,6 @@ class UserRoutesTest
         // then
         request ~> check {
           status shouldEqual StatusCodes.Forbidden
-        }
-      }
-
-      "get user API keys" in {
-        // given
-        apiKeyRepository.add(
-          ApiKey(
-            keyId = 1,
-            key = "apiKey",
-            environment = Environment.Development,
-            userId = 1,
-            dateIssued = None,
-            dateSuspended = None
-          )
-        )
-
-        // when
-        val result = Get("/users/1/apiKeys") ~> sut.getUserKeysRoute(adminSession)
-
-        // then
-        result ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson("""
-                                                    |  [{
-                                                    |    "environment": "dev",
-                                                    |    "keyId": 1,
-                                                    |    "key": "apiKey",
-                                                    |    "userId": 1
-                                                    |  }]
-                                                  """.stripMargin)
-        }
-      }
-
-      "get current user API keys" in {
-        // given
-        apiKeyRepository.add(
-          ApiKey(
-            keyId = 1,
-            key = "apiKey",
-            environment = Environment.Production,
-            userId = 1,
-            dateIssued = None,
-            dateSuspended = None
-          )
-        )
-        userRepository.createUser(exampleCreateUser)
-
-        // when
-        val result = Get("/users/me/apiKeys") ~> sut.getCurrentUserKeysRoute(userSession)
-
-        // then
-        result ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson("""
-                                              |  [{
-                                              |    "environment": "prod",
-                                              |    "keyId": 1,
-                                              |    "key": "apiKey",
-                                              |    "userId": 1
-                                              |  }]
-                                            """.stripMargin)
-        }
-      }
-
-      "get current user API key usage" in {
-        // given
-        apiKeyRepository.add(exampleApiKey.copy(key = "apiKey", userId = 1))
-        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
-        apiKeyRepository.putApiKeyUsage(
-          UsageLeft(
-            key = "apiKey",
-            Usage(daily = 10, monthly = 100)
-          )
-        )
-
-        // when
-        val result = Get("/users/me/usage") ~> sut.getCurrentApiKeyUsageRoute(userSession.copy(email = "email@example.com"))
-
-        // then
-        result ~> check {
-          status shouldEqual StatusCodes.OK
-          contentType shouldBe ContentTypes.`application/json`
-          responseAs[String] should matchJson("""
-                                              |  [{
-                                              |    "key": "apiKey",
-                                              |    "usage": {
-                                              |      "daily": 10,
-                                              |      "monthly": 100
-                                              |    }
-                                              |  }]
-                                            """.stripMargin)
         }
       }
     }

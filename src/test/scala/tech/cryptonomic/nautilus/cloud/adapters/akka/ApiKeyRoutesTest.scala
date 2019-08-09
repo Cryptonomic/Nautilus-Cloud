@@ -3,13 +3,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.stephenn.scalatest.jsonassert.JsonMatchers
-import org.scalatest.{Matchers, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
-import tech.cryptonomic.nautilus.cloud.adapters.inmemory.InMemoryApiKeyRepository
-import tech.cryptonomic.nautilus.cloud.domain.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKey
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
 
@@ -24,7 +20,8 @@ class ApiKeyRoutesTest
   "The API Keys route" should {
 
       val context = new DefaultNautilusContextWithInMemoryImplementations
-
+      val userRepository = context.userRepository
+      val apiKeyRepository = context.apiKeysRepository
       val sut = context.apiKeysRoutes
 
       "return list containing one api key" in {
@@ -34,7 +31,7 @@ class ApiKeyRoutesTest
         )
 
         // expect
-        Get("/apiKeys") ~> sut.getAllApiKeysRoute(adminSession) ~> check {
+        Get("/apiKeys") ~> sut.getApiKeysRoute(adminSession) ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""
@@ -60,12 +57,75 @@ class ApiKeyRoutesTest
         }
       }
 
+      "get user API keys" in {
+        // given
+        apiKeyRepository.add(
+          ApiKey(
+            keyId = 1,
+            key = "apiKey",
+            environment = Environment.Development,
+            userId = 1,
+            dateIssued = None,
+            dateSuspended = None
+          )
+        )
+
+        // when
+        val result = Get("/users/1/apiKeys") ~> sut.getUserKeysRoute(adminSession)
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""
+                                              |  [{
+                                              |    "environment": "dev",
+                                              |    "keyId": 1,
+                                              |    "key": "apiKey",
+                                              |    "userId": 1
+                                              |  }]
+                                                  """.stripMargin)
+        }
+      }
+
+      "get current user API keys" in {
+        // given
+        apiKeyRepository.add(
+          ApiKey(
+            keyId = 1,
+            key = "apiKey",
+            environment = Environment.Production,
+            userId = 1,
+            dateIssued = None,
+            dateSuspended = None
+          )
+        )
+        userRepository.createUser(exampleCreateUser)
+
+        // when
+        val result = Get("/users/me/apiKeys") ~> sut.getCurrentUserKeysRoute(userSession)
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""
+                                              |  [{
+                                              |    "environment": "prod",
+                                              |    "keyId": 1,
+                                              |    "key": "apiKey",
+                                              |    "userId": 1
+                                              |  }]
+                                            """.stripMargin)
+        }
+      }
+
       "return list of api keys with a single key from conseil route" in {
         // when
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
+        Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""["someApiKey"]""")
@@ -77,11 +137,41 @@ class ApiKeyRoutesTest
         context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
-        Get("/apiKeys/exampleEnv") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
+        Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {
           status shouldEqual StatusCodes.Forbidden
         }
       }
 
-    }
+      "get current user API key usage" in {
+        // given
+        apiKeyRepository.add(exampleApiKey.copy(key = "apiKey", userId = 1))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
+        apiKeyRepository.putApiKeyUsage(
+          UsageLeft(
+            key = "apiKey",
+            Usage(daily = 10, monthly = 100)
+          )
+        )
 
+        // when
+        val result = Get("/users/me/usage") ~> sut.getCurrentKeyUsageRoute(
+                userSession.copy(email = "email@example.com")
+              )
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""
+                                              |  [{
+                                              |    "key": "apiKey",
+                                              |    "usage": {
+                                              |      "daily": 10,
+                                              |      "monthly": 100
+                                              |    }
+                                              |  }]
+                                            """.stripMargin)
+        }
+      }
+    }
 }

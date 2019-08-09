@@ -6,11 +6,11 @@ import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, TierEndpoints}
-import tech.cryptonomic.nautilus.cloud.domain.TierService
+import tech.cryptonomic.nautilus.cloud.application.TierApplication
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
 /** Tier routes implementation */
-class TierRoutes(tierService: TierService[IO])
+class TierRoutes(tierService: TierApplication[IO])
     extends TierEndpoints
     with server.Endpoints
     with EndpointStatusSyntax
@@ -31,10 +31,4 @@ class TierRoutes(tierService: TierService[IO])
   /** Tier get route implementation */
   def getTierRoute(implicit session: Session): Route =
     getTier.implementedByAsync(tier => tierService.getTier(tier).unsafeToFuture())
-
-  /** Concatenated User routes */
-  def routes(implicit session: Session): Route = concat(
-    createTierRoute,
-    getTierRoute
-  )
 }

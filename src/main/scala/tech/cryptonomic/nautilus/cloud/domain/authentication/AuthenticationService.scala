@@ -1,25 +1,13 @@
-package tech.cryptonomic.nautilus.cloud.domain
-
-import java.time.Instant
+package tech.cryptonomic.nautilus.cloud.domain.authentication
 
 import cats.Monad
-import cats.data.{EitherT, OptionT}
+import cats.data.EitherT
 import cats.effect.Clock
-import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{
-  AuthenticationConfiguration,
-  AuthenticationProviderRepository,
-  Session
-}
-import tech.cryptonomic.nautilus.cloud.domain.resources.Resource.ResourceId
-import tech.cryptonomic.nautilus.cloud.domain.resources.{Resource, ResourceRepository}
-import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
 
-import scala.concurrent.duration.MILLISECONDS
 import scala.language.higherKinds
 
 /** Authentication service */
@@ -56,16 +44,15 @@ class AuthenticationService[F[_]: Monad](
   }
 
   private def getUserByEmailAddress(email: String): EitherT[F, Throwable, Option[User]] =
-    EitherT(userRepository.getUserByEmailAddress(email).map(Right(_)))
+    EitherT.right(userRepository.getUserByEmailAddress(email))
 
-  private def createUser(email: String): EitherT[F, Throwable, User] = {
+  private def createUser(email: String): EitherT[F, Throwable, User] =
     for {
       defaultTier <- EitherT.right(tiersRepository.getDefault)
-      now <- EitherT.right(clock.realTime(MILLISECONDS).map(Instant.ofEpochMilli))
+      now <- EitherT.right(clock.currentInstant)
       currentUsage = defaultTier.getCurrentUsage(now)
       createUser = CreateUser(email, Role.defaultRole, now, config.provider, defaultTier.tierId)
       userId <- EitherT(userRepository.createUser(createUser))
       _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
     } yield createUser.toUser(userId)
-  }
 }

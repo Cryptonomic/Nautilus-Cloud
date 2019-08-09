@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.apiKey
 
+import java.time.Instant
+
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -18,8 +20,11 @@ trait ApiKeyRepository[F[_]] {
   /** Query returning API keys connected to user */
   def getUserApiKeys(userId: Int): F[List[ApiKey]]
 
-  /** Query updating API keys connected to user */
+  /** Update API keys connected to user */
   def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit]
+
+  /** Invalidate all API keys connected to user */
+  def invalidateApiKeys(userId: UserId, now: Instant): F[Unit]
 
   /** Inserts API key */
   def putApiKey(apiKey: CreateApiKey): F[Unit]
@@ -37,6 +42,6 @@ trait ApiKeyRepository[F[_]] {
   def updateKeyUsage(usage: UsageLeft): F[Unit]
 
   /** Gets keys for environment */
-  def getKeysForEnv(env: String): F[List[String]]
+  def getKeysForEnv(environment: Environment): F[List[String]]
 
 }
