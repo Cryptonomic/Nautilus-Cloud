@@ -11,13 +11,14 @@ import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.generic.auto._
 import tech.cryptonomic.nautilus.cloud.domain.user.User
 import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.util.{Failure, Success}
 
 final case class InitRequest(code: String)
 
 final case class UserResponse(
-    userId: Int,
+    userId: UserId,
     userEmail: String,
     userRole: String,
     registrationDate: Instant,
