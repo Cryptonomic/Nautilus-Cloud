@@ -35,7 +35,7 @@ create TABLE users(
     registrationdate timestamp NOT NULL,
     accountsource text NOT NULL,
     accountdescription text,
-    active boolean NOT NULL DEFAULT true
+    deleteddate timestamp with time zone
 );
 create TABLE api_keys(
     keyid serial PRIMARY KEY,

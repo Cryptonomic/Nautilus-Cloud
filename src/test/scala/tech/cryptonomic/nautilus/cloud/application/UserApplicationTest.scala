@@ -1,11 +1,8 @@
 package tech.cryptonomic.nautilus.cloud.application
 
-import java.time.Instant
-
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, Session}
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
 import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
@@ -34,7 +31,9 @@ class UserApplicationTest
   "UserService" should {
       "get existing user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // expect
         sut
@@ -56,7 +55,9 @@ class UserApplicationTest
 
       "get current user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // expect
         sut
@@ -71,7 +72,9 @@ class UserApplicationTest
 
       "update user" in {
         // given
-        userRepository.createUser(CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1))
+        userRepository.createUser(
+          CreateUser("user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, 1)
+        )
 
         // when
         sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
@@ -101,6 +104,11 @@ class UserApplicationTest
         // then
         sut.getCurrentUser(userSession.copy(email = "name@domain.com")) shouldBe empty
         apiKeyService.getUserApiKeys(1) shouldBe empty
+      }
+
+      "get PermissionDenied on deleting user when requesting user in admin" in {
+        // expect
+        sut.deleteCurrentUser(adminSession).left.value shouldBe a[AccessDenied]
       }
 
       "get PermissionDenied on updating user when requesting user is not an admin" in {

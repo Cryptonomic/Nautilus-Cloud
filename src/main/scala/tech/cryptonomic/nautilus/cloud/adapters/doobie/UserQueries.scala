@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import doobie._
 import doobie.implicits._
 import doobie.util.query.Query0
@@ -26,20 +28,20 @@ trait UserQueries {
 
   /** Updates user */
   def updateUserQuery(id: UserId, user: UpdateUser): Update0 =
-    sql"UPDATE users SET userrole = ${user.userRole}, accountdescription = ${user.accountDescription} WHERE userid = $id and active".update
+    sql"UPDATE users SET userrole = ${user.userRole}, accountdescription = ${user.accountDescription} WHERE userid = $id and deleteddate is null".update
 
   /** Deletes user */
-  def deleteUserQuery(id: UserId): Update0 =
-    sql"""UPDATE users SET useremail = $deletedEmailHash, active = false WHERE userid = $id""".stripMargin.update
+  def deleteUserQuery(id: UserId, now: Instant): Update0 =
+    sql"""UPDATE users SET useremail = $deletedEmailHash, deleteddate = $now WHERE userid = $id""".stripMargin.update
 
   /** Returns user */
   def getUserQuery(userId: UserId): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE userid = $userId and active"
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE userid = $userId and deleteddate is null"
       .query[User]
 
   /** Returns user by email address */
   def getUserByEmailQuery(email: String): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE useremail = $email and active"
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE useremail = $email and deleteddate is null"
       .query[User]
 
   private def deletedEmailHash: String = "deleted-mail-" + Random.alphanumeric.take(6).mkString

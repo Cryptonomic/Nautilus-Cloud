@@ -25,7 +25,7 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
       check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))
     }
     "check deleting of user " in {
-      check(sut.deleteUserQuery(1))
+      check(sut.deleteUserQuery(1, Instant.now()))
     }
     "check getUser" in {
       check(sut.getUserQuery(0))
