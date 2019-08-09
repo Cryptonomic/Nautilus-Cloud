@@ -1,26 +1,39 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka.session
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.StatusCodes.{Found, NoContent, SeeOther}
+import java.time.Instant
+
+import akka.http.scaladsl.model.StatusCodes.{Found, NoContent}
 import akka.http.scaladsl.server.Directives.{complete, onComplete, path, post, redirect, reject, _}
 import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route}
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
-import spray.json.DefaultJsonProtocol
+import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
+import io.circe.generic.auto._
 import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
+import tech.cryptonomic.nautilus.cloud.domain.user.User
 
 import scala.util.{Failure, Success}
 
 final case class InitRequest(code: String)
 
-trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
-  implicit val itemFormat = jsonFormat1(InitRequest)
+final case class UserResponse(
+    userId: Int,
+    userEmail: String,
+    userRole: String,
+    registrationDate: Instant,
+    accountSource: String
+)
+
+object UserResponse {
+  def apply(user: User): UserResponse =
+    new UserResponse(user.userId, user.userEmail, user.userRole.name, user.registrationDate, user.accountSource.name)
 }
 
 class SessionRoutes(
     private val authenticationApplication: AuthenticationApplication[IO],
     private val sessionOperations: SessionOperations
-) extends JsonSupport with StrictLogging {
+) extends ErrorAccumulatingCirceSupport
+    with StrictLogging {
 
   lazy val routes: Route =
     concat(
@@ -34,7 +47,7 @@ class SessionRoutes(
               onComplete(authenticationApplication.resolveAuthCode(code.code).unsafeToFuture()) {
                 case Success(Right(user)) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
-                    ctx.redirect("/users/me", SeeOther)
+                    ctx.complete(UserResponse(user))
                   }
                 case Failure(exception) =>
                   logger.error(exception.getMessage, exception)

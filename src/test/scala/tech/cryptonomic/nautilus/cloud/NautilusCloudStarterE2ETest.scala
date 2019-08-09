@@ -260,7 +260,7 @@ class NautilusCloudStarterE2ETest
             .send()
 
         // then
-        response.isRedirect shouldBe true
+        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
     }
