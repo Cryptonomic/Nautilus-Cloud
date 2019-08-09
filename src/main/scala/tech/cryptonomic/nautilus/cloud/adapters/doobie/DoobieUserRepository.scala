@@ -34,7 +34,7 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     updateUserQuery(id, user).run.void.transact(transactor)
 
   /** Delete user */
-  override def deleteUser(id: UserId): F[Unit] = deleteUserQuery(id).run.void.transact(transactor)
+  override def deleteUser(id: UserId, now: Instant): F[Unit] = deleteUserQuery(id, now).run.void.transact(transactor)
 
   /** Returns user */
   override def getUser(id: UserId): F[Option[User]] =

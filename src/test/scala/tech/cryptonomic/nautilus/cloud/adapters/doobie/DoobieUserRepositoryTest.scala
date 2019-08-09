@@ -86,7 +86,7 @@ class DoobieUserRepositoryTest
         sut.getUser(1).unsafeRunSync() should not be empty
 
         // when
-        sut.deleteUser(1).unsafeRunSync()
+        sut.deleteUser(1, now).unsafeRunSync()
 
         // then
         sut.getUser(1).unsafeRunSync() shouldBe empty

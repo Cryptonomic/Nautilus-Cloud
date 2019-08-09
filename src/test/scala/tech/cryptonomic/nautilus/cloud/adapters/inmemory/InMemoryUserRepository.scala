@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
+import java.time.Instant
+
 import cats.Applicative
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -40,7 +42,7 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
   }
 
   /** Delete user */
-  override def deleteUser(id: UserId): F[Unit] = this.synchronized {
+  override def deleteUser(id: UserId, now: Instant): F[Unit] = this.synchronized {
     users = users.filterNot(_.userId == id)
     ().pure[F]
   }

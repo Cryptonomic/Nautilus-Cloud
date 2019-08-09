@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.user
 
+import java.time.Instant
+
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -14,7 +16,7 @@ trait UserRepository[F[_]] {
   def updateUser(id: UserId, user: UpdateUser): F[Unit]
 
   /** Delete user */
-  def deleteUser(id: UserId): F[Unit]
+  def deleteUser(id: UserId, now: Instant): F[Unit]
 
   /** Returns user */
   def getUser(id: UserId): F[Option[User]]

@@ -18,7 +18,7 @@ class UserService[F[_]: Monad](
 
   def deleteUser(userId: UserId): F[Unit] = for {
       now <- clock.currentInstant
-      _ <- userRepo.deleteUser(userId)
+      _ <- userRepo.deleteUser(userId, now)
       _ <- apiKeyRepo.invalidateApiKeys(userId, now)
     } yield ()
 
