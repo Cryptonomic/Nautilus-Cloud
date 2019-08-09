@@ -5,10 +5,7 @@ import java.time.Instant
 import cats.Applicative
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.domain.user.CreateUser
-import tech.cryptonomic.nautilus.cloud.domain.user.UpdateUser
-import tech.cryptonomic.nautilus.cloud.domain.user.User
-import tech.cryptonomic.nautilus.cloud.domain.user.UserRepository
+import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.language.higherKinds
 

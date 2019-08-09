@@ -26,11 +26,10 @@ class AuthenticationService[F[_]: Monad](
   def loginUrl: String = config.loginUrl
 
   /* resolve auth code */
-  def resolveAuthCode(code: String): F[Result[Session]] =
+  def resolveAuthCode(code: String): F[Result[User]] =
     exchangeCodeForAccessToken(code)
       .flatMap(fetchEmail)
       .flatMap(getOrCreateUser)
-      .map(_.asSession)
       .value
 
   private def exchangeCodeForAccessToken(code: String) =

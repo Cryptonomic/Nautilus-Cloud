@@ -40,7 +40,7 @@ libraryDependencies ++= Seq(
   "com.softwaremill.macwire"           %% "proxy"                          % macwireVersion,
   "com.softwaremill.sttp"              % "core_2.12"                       % "1.5.16",
   "com.softwaremill.sttp"              %% "async-http-client-backend-cats" % "1.5.16",
-  "de.heikoseeberger"                  %% "akka-http-circe"                % "1.23.0" exclude ("com.typesafe.akka", "akka-http"),
+  "de.heikoseeberger"                  %% "akka-http-circe"                % "1.27.0" exclude ("com.typesafe.akka", "akka-http"),
   "org.julienrf"                       %% "endpoints-algebra"              % endpointsVersion,
   "org.julienrf"                       %% "endpoints-openapi"              % endpointsVersion,
   "org.julienrf"                       %% "endpoints-json-schema-generic"  % endpointsVersion,
