@@ -9,8 +9,8 @@ import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.generic.auto._
-import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
 import tech.cryptonomic.nautilus.cloud.domain.user.User
+import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
 
 import scala.util.{Failure, Success}
 

@@ -1,7 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.authentication
 
 import cats.Monad
-import cats.data.{EitherT, OptionT}
+import cats.data.EitherT
 import cats.effect.Clock
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
