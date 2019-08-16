@@ -52,6 +52,7 @@ libraryDependencies ++= Seq(
   "org.scalamock"                      %% "scalamock"                      % "4.1.0" % Test,
   "ru.yandex.qatools.embed"            % "postgresql-embedded"             % "2.10" % Test,
   "com.typesafe.akka"                  %% "akka-http-testkit"              % akkaHttpVersion % Test exclude ("com.typesafe", "config"),
+  "com.typesafe.akka"                  %% "akka-testkit"                   % "2.5.21" % Test exclude ("com.typesafe", "config"),
   "com.github.tomakehurst"             % "wiremock-jre8"                   % "2.23.2" % Test
 )
 
