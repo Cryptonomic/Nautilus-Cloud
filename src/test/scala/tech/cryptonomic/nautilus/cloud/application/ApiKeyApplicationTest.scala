@@ -5,6 +5,7 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment}
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
+import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
 class ApiKeyApplicationTest extends WordSpec with Matchers with Fixtures with EitherValues with OneInstancePerTest {
 
@@ -12,9 +13,9 @@ class ApiKeyApplicationTest extends WordSpec with Matchers with Fixtures with Ei
   val sut = context.apiKeyApplication
   val apiKeyService = context.apiKeyService
   val apiKeyRepository = context.apiKeyRepository
-  val now = context.now
+  val now = context.clock.currentInstant
 
-  "ApiKeyService" should {
+  "ApiKeyApplication" should {
       "initialize ApiKeys" in {
         // given
         apiKeyService.initializeApiKeys(userId = 1, Usage(1, 2))
