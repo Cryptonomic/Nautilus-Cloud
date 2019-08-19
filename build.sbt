@@ -4,7 +4,7 @@ version := "0.1"
 
 scalaVersion := "2.12.8"
 
-val akkaHttpVersion = "10.1.0"
+val akkaHttpVersion = "10.1.8"
 val circeVersion = "0.11.0"
 val endpointsVersion = "0.9.0"
 val catsVersion = "1.6.0"
@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging"         %% "scala-logging"                  % "3.7.2",
   "com.typesafe.akka"                  %% "akka-http"                      % akkaHttpVersion exclude ("com.typesafe", "config"),
   "com.softwaremill.akka-http-session" %% "core"                           % "0.5.6",
+  "ch.megard"                          %% "akka-http-cors"                 % "0.4.1",
   "org.scalaj"                         %% "scalaj-http"                    % "2.4.1",
   "com.softwaremill.sttp"              %% "core"                           % "1.5.16",
   "com.github.pureconfig"              %% "pureconfig"                     % "0.10.2",
@@ -51,6 +52,7 @@ libraryDependencies ++= Seq(
   "org.scalamock"                      %% "scalamock"                      % "4.1.0" % Test,
   "ru.yandex.qatools.embed"            % "postgresql-embedded"             % "2.10" % Test,
   "com.typesafe.akka"                  %% "akka-http-testkit"              % akkaHttpVersion % Test exclude ("com.typesafe", "config"),
+  "com.typesafe.akka"                  %% "akka-testkit"                   % "2.5.21" % Test exclude ("com.typesafe", "config"),
   "com.github.tomakehurst"             % "wiremock-jre8"                   % "2.23.2" % Test
 )
 

@@ -25,7 +25,7 @@ class TierApplicationTest
 
   val sut = context.tierApplication
 
-  "TierService" should {
+  "TierApplication" should {
       "save tier" in {
         // given
         tierRepository.clear()

@@ -10,6 +10,7 @@ import com.typesafe.scalalogging.StrictLogging
 import doobie.util.transactor.Transactor
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
+import tech.cryptonomic.nautilus.cloud.adapters.akka.cors.CorsConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.akka.{ApiKeyRoutes, HttpConfig, ResourceRoutes, Routes, TierRoutes, UserRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
@@ -31,6 +32,7 @@ trait NautilusContext extends StrictLogging {
 
   implicit val clock = Clock.create[IO]
 
+  lazy val corsConfig = loadConfig[CorsConfig](namespace = "akka.http.cors").toOption.get
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val doobieConfig = loadConfig[DoobieConfig](namespace = "doobie").toOption.get
   lazy val httpConfig = loadConfig[HttpConfig](namespace = "http").toOption.get
