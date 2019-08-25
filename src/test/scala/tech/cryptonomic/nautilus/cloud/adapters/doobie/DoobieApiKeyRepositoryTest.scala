@@ -19,7 +19,7 @@ class DoobieApiKeyRepositoryTest
 
   val context = DefaultNautilusContext
   val now = Instant.now()
-  val sut = context.apiKeysRepository
+  val sut = context.apiKeyRepository
 
   override def beforeEach(): Unit = {
     super.beforeEach()

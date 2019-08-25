@@ -6,8 +6,6 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -24,7 +22,7 @@ class UserRoutesTest
 
   val context = new DefaultNautilusContextWithInMemoryImplementations
   val userRepository = context.userRepository
-  val apiKeyRepository = context.apiKeysRepository
+  val apiKeyRepository = context.apiKeyRepository
   val sut = context.userRoutes
 
   "The User route" should {

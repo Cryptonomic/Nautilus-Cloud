@@ -7,6 +7,7 @@ import com.softwaremill.macwire._
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.NautilusContext
+import tech.cryptonomic.nautilus.cloud.adapters.akka.ApiKeyRoutes
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
@@ -15,18 +16,12 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationServi
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
 import tech.cryptonomic.nautilus.cloud.domain.user.UserService
-import tech.cryptonomic.nautilus.cloud.application.{
-  ApiKeyApplication,
-  AuthenticationApplication,
-  ResourceApplication,
-  TierApplication,
-  UserApplication
-}
+import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
 
 object DefaultNautilusContext extends NautilusContext
 
 class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext {
-  override lazy val apiKeysRepository = new InMemoryApiKeyRepository()
+  override lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   override lazy val userRepository = new InMemoryUserRepository()
   override lazy val tierRepository = new InMemoryTierRepository()
   override lazy val authRepository = new InMemoryAuthenticationProviderRepository()

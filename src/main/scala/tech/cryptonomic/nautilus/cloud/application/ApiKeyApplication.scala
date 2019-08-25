@@ -25,7 +25,7 @@ class ApiKeyApplication[F[_]: Monad](conseilConfig: ConseilConfig, apiKeyService
     apiKeyService.validateApiKey(key)
 
   /** Refreshes api key */
-  def refreshApiKey(environment: Environment)(implicit session: Session): F[Unit] =
+  def refreshApiKey(environment: Environment)(implicit session: Session): F[ApiKey] =
     apiKeyService.refreshApiKey(session.userId, environment)
 
   /** Returns API Keys for current user with given ID */

@@ -73,10 +73,10 @@ trait ApiKeyEndpoints
     )
 
   /** Refresh api keys endpoint definition */
-  def refreshKeys: Endpoint[Environment, Unit] =
+  def refreshKeys: Endpoint[Environment, ApiKey] =
     endpoint(
       request = post(url = path / "users" / "me" / "apiKeys" / segment[Environment]("env") / "refresh", emptyRequest),
-      response = emptyResponse(),
+      response = jsonResponse[ApiKey](),
       tags = List("User")
     )
 }

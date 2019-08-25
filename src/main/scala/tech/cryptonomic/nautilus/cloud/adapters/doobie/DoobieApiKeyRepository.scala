@@ -34,11 +34,12 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
     updateUsageQuery(usage).run.void.transact(transactor)
 
   /** Query updating API keys connected to user */
-  override def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit] =
+  override def updateApiKey(refreshApiKey: RefreshApiKey): F[ApiKey] =
     (for {
       _ <- invalidateApiKeyQuery(refreshApiKey.toInvalidateApiKey).run
-      _ <- putApiKeyQuery(refreshApiKey.toCreateApiKey).run
-    } yield ()).transact(transactor)
+      createApiKey = refreshApiKey.toCreateApiKey
+      id <- putApiKeyQuery(createApiKey).run
+    } yield createApiKey.toApiKey(id)).transact(transactor)
 
   /** Query returning API keys usage for given user */
   override def getKeysUsageForUser(userId: Int): F[List[UsageLeft]] =
