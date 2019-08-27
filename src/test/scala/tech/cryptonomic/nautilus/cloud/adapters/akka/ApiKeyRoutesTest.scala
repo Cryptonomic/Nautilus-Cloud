@@ -23,7 +23,6 @@ class ApiKeyRoutesTest
   "The API Keys route" should {
 
       val context = new DefaultNautilusContextWithInMemoryImplementations {
-        val now = Instant.now()
         override implicit val clock: FixedClock[IO] = new FixedClock(now)
         override lazy val apiKeyGenerator = new FixedApiKeyGenerator()
       }
