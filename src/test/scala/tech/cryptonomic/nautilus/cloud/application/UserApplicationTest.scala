@@ -28,7 +28,7 @@ class UserApplicationTest
 
   val sut = context.userApplication
 
-  "UserService" should {
+  "UserApplication" should {
       "get existing user" in {
         // given
         userRepository.createUser(

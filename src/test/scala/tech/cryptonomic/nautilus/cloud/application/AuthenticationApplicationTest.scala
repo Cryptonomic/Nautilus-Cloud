@@ -28,7 +28,7 @@ class AuthenticationApplicationTest
   override protected def afterEach(): Unit =
     super.afterEach()
 
-  "AuthenticationService" should {
+  "AuthenticationApplication" should {
       "resolve an auth code when user exist" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")

@@ -1,13 +1,12 @@
 package tech.cryptonomic.nautilus.cloud.tools
 
-import java.time.Instant
+import java.time.ZonedDateTime
 
 import cats.Id
 import com.softwaremill.macwire._
 import pureconfig.generic.auto.exportReader
 import pureconfig.loadConfig
 import tech.cryptonomic.nautilus.cloud.NautilusContext
-import tech.cryptonomic.nautilus.cloud.adapters.akka.ApiKeyRoutes
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
@@ -33,7 +32,7 @@ class IdContext {
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val conseilConfig = loadConfig[ConseilConfig](namespace = "conseil").toOption.get
 
-  lazy val now = Instant.now()
+  lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   lazy val clock = new FixedClock[Id](now)
 
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()

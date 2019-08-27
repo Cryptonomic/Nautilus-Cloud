@@ -14,7 +14,7 @@ class ApiKeyApplicationTest extends WordSpec with Matchers with Fixtures with Ei
   val apiKeyRepository = context.apiKeyRepository
   val now = context.now
 
-  "ApiKeyService" should {
+  "ApiKeyApplication" should {
       "initialize ApiKeys" in {
         // given
         apiKeyService.initializeApiKeys(userId = 1, Usage(1, 2))
