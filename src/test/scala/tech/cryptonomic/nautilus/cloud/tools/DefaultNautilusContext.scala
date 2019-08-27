@@ -20,6 +20,8 @@ import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, Authentic
 object DefaultNautilusContext extends NautilusContext
 
 class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext {
+  lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
+
   override lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   override lazy val userRepository = new InMemoryUserRepository()
   override lazy val tierRepository = new InMemoryTierRepository()

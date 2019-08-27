@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
