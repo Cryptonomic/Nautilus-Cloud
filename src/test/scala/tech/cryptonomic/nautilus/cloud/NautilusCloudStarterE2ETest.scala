@@ -187,6 +187,10 @@ class NautilusCloudStarterE2ETest
           .send()
 
         // then
+        apiKeys.body.right.value should matchJson("""{
+                                              |  "key": "exampleApiKey2",
+                                              |  "environment": "prod"
+                                              |}""".stripMargin)
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
           .cookies(authCodeResult.cookies)

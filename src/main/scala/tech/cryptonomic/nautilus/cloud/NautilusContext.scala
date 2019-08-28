@@ -50,7 +50,7 @@ trait NautilusContext extends StrictLogging {
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val apiKeyGenerator = wire[ApiKeyGenerator]
 
-  lazy val apiKeysRepository: ApiKeyRepository[IO] = wire[DoobieApiKeyRepository[IO]]
+  lazy val apiKeyRepository: ApiKeyRepository[IO] = wire[DoobieApiKeyRepository[IO]]
   lazy val userRepository: UserRepository[IO] = wire[DoobieUserRepository[IO]]
   lazy val tierRepository: TierRepository[IO] = wire[DoobieTierRepository[IO]]
   lazy val authRepository: AuthenticationProviderRepository[IO] = wire[SttpGithubAuthenticationProviderRepository[IO]]

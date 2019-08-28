@@ -21,7 +21,7 @@ trait ApiKeyRepository[F[_]] {
   def getUserApiKeys(userId: Int): F[List[ApiKey]]
 
   /** Update API keys connected to user */
-  def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit]
+  def updateApiKey(refreshApiKey: RefreshApiKey): F[ApiKey]
 
   /** Invalidate all API keys connected to user */
   def invalidateApiKeys(userId: UserId, now: Instant): F[Unit]

@@ -1,13 +1,16 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
+import java.time.{Instant, ZonedDateTime}
+
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.stephenn.scalatest.jsonassert.JsonMatchers
+import cats.effect.IO
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment.Production
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.DefaultNautilusContextWithInMemoryImplementations
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedApiKeyGenerator, FixedClock, JsonMatchers}
 
 class ApiKeyRoutesTest
     extends WordSpec
@@ -19,14 +22,17 @@ class ApiKeyRoutesTest
 
   "The API Keys route" should {
 
-      val context = new DefaultNautilusContextWithInMemoryImplementations
+      val context = new DefaultNautilusContextWithInMemoryImplementations {
+        override implicit val clock: FixedClock[IO] = new FixedClock(now)
+        override lazy val apiKeyGenerator = new FixedApiKeyGenerator()
+      }
       val userRepository = context.userRepository
-      val apiKeyRepository = context.apiKeysRepository
+      val apiKeyRepository = context.apiKeyRepository
       val sut = context.apiKeysRoutes
 
       "return list containing one api key" in {
         // when
-        context.apiKeysRepository.add(
+        context.apiKeyRepository.add(
           ApiKey(keyId = 0, key = "", Environment.Development, userId = 2, dateIssued = None, dateSuspended = None)
         )
 
@@ -47,13 +53,46 @@ class ApiKeyRoutesTest
 
       "return correctly validated api key" in {
         // when
-        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
         Get("/apiKeys/someApiKey/valid") ~> sut.validateApiKeyRoute ~> check {
           status shouldEqual StatusCodes.OK
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] shouldBe "true"
+        }
+      }
+
+      "refresh api key" in {
+        // given
+        context.apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey", environment = Production))
+
+        // when
+        val result = Post("/users/me/apiKeys/prod/refresh") ~> sut.refreshKeysRoute(userSession)
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson(s"""{
+                                                |  "key": "exampleApiKey0",
+                                                |  "environment": "prod",
+                                                |  "userId": 1,
+                                                |  "dateIssued": "${context.now}"
+                                                |}""".stripMargin)
+        }
+
+        Get("/users/me/apiKeys") ~> sut.getCurrentUserKeysRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson(s"""[
+                                                |  {
+                                                |    "key": "exampleApiKey0",
+                                                |    "environment": "prod",
+                                                |    "userId": 1,
+                                                |    "dateIssued": "${context.now}"
+                                                |  }
+                                                |]""".stripMargin)
         }
       }
 
@@ -122,7 +161,7 @@ class ApiKeyRoutesTest
 
       "return list of api keys with a single key from conseil route" in {
         // when
-        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
         Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "exampleApiKey") ~> sut.getAllApiKeysForEnvRoute ~> check {
@@ -134,7 +173,7 @@ class ApiKeyRoutesTest
 
       "return 403 when uses wrong conseil key" in {
         // when
-        context.apiKeysRepository.add(exampleApiKey.copy(key = "someApiKey"))
+        context.apiKeyRepository.add(exampleApiKey.copy(key = "someApiKey"))
 
         // expect
         Get("/apiKeys/dev") ~> addHeader("X-Api-Key", "wrong_key") ~> sut.getAllApiKeysForEnvRoute ~> check {

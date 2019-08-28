@@ -49,15 +49,17 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
   }
 
   /** Query updating API keys connected to user */
-  override def updateApiKey(refreshApiKey: RefreshApiKey): F[Unit] = this.synchronized {
+  override def updateApiKey(refreshApiKey: RefreshApiKey): F[ApiKey] = this.synchronized {
+    val apiKey = refreshApiKey.toCreateApiKey.toApiKey(apiKeys.map(_.keyId).maximumOption.getOrElse(0) + 1)
+
     apiKeys = apiKeys.collect {
         case apiKey: ApiKey
             if (apiKey.environment == refreshApiKey.environment && apiKey.userId == refreshApiKey.userId) =>
           apiKey.copy(dateSuspended = Some(refreshApiKey.now))
         case it => it
-      } :+ refreshApiKey.toCreateApiKey.toApiKey(apiKeys.map(_.keyId).maximumOption.getOrElse(0) + 1)
+      } :+ apiKey
 
-    ().pure[F]
+    apiKey.pure[F]
   }
 
   private var apiKeyUsage: List[UsageLeft] = List.empty

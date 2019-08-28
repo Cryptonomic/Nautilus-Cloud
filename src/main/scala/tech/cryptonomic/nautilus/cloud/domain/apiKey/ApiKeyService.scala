@@ -47,11 +47,11 @@ class ApiKeyService[F[_]: Monad](
     apiKeyRepository.validateApiKey(apiKey)
 
   /** Refreshes api key */
-  def refreshApiKey(userId: UserId, environment: Environment): F[Unit] =
+  def refreshApiKey(userId: UserId, environment: Environment): F[ApiKey] =
     for {
       now <- clock.currentInstant
-      _ <- apiKeyRepository.updateApiKey(RefreshApiKey(userId, environment, apiKeyGenerator.generateKey, now))
-    } yield ()
+      apiKey <- apiKeyRepository.updateApiKey(RefreshApiKey(userId, environment, apiKeyGenerator.generateKey, now))
+    } yield apiKey
 
   /** Initialize api keys for the newly created user */
   def initializeApiKeys(userId: UserId, usage: Usage): F[Unit] =

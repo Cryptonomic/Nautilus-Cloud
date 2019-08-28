@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.tools
 
-import java.time.Instant
+import java.time.ZonedDateTime
 
 import cats.Id
 import com.softwaremill.macwire._
@@ -15,18 +15,14 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationServi
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
 import tech.cryptonomic.nautilus.cloud.domain.user.UserService
-import tech.cryptonomic.nautilus.cloud.application.{
-  ApiKeyApplication,
-  AuthenticationApplication,
-  ResourceApplication,
-  TierApplication,
-  UserApplication
-}
+import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
 
 object DefaultNautilusContext extends NautilusContext
 
 class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext {
-  override lazy val apiKeysRepository = new InMemoryApiKeyRepository()
+  lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
+
+  override lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   override lazy val userRepository = new InMemoryUserRepository()
   override lazy val tierRepository = new InMemoryTierRepository()
   override lazy val authRepository = new InMemoryAuthenticationProviderRepository()
@@ -38,7 +34,7 @@ class IdContext {
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val conseilConfig = loadConfig[ConseilConfig](namespace = "conseil").toOption.get
 
-  lazy val now = Instant.now()
+  lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   lazy val clock = new FixedClock[Id](now)
 
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()
