@@ -1,9 +1,9 @@
 package tech.cryptonomic.nautilus.cloud.domain.apiKey
-import scala.util.Random
+import java.util.UUID.randomUUID
 
 /** Class for generating API keys */
 class ApiKeyGenerator {
 
-  /** returns alphanumeric API key with length 32 */
-  def generateKey: String = Random.alphanumeric.take(32).mkString
+  /** returns random UUID */
+  def generateKey: String = randomUUID().toString
 }
