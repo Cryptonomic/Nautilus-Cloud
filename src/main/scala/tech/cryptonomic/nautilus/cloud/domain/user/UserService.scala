@@ -4,6 +4,7 @@ import cats.Monad
 import cats.implicits._
 import cats.effect.Clock
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
@@ -26,7 +27,7 @@ class UserService[F[_]: Monad](
   def getUserByEmailAddress(email: String): F[Option[User]] = userRepo.getUserByEmailAddress(email)
 
   /** Get current user */
-  def getAllUsers: F[List[User]] = userRepo.getAllUsers
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None): F[List[User]] = userRepo.getUsers(userId, email)
 
   /** Updated user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)

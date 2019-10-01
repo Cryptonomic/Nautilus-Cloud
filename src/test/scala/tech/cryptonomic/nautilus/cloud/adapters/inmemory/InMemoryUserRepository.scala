@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.Applicative
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
@@ -55,7 +56,11 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
   }
 
   /** Returns all users */
-  override def getAllUsers: F[List[User]] = users.pure[F]
+  override def getUsers(userId: Option[UserId], email: Option[Email]): F[List[User]] =
+    users
+      .filter(user => userId.isEmpty || userId.contains(user.userId))
+      .filter(user => email.isEmpty || email.exists(user.userEmail.contains))
+      .pure[F]
 
   /** Clears repository */
   def clear(): Unit = this.synchronized {

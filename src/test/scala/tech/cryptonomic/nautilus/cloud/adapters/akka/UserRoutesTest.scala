@@ -173,7 +173,7 @@ class UserRoutesTest
         userRepository.createUser(exampleCreateUser)
 
         // when
-        val usersResponse = Get("/users") ~> sut.getAllUsersRoute(adminSession)
+        val usersResponse = Get("/users") ~> sut.getUsersRoute(adminSession)
 
         // then
         usersResponse ~> check {
@@ -186,6 +186,48 @@ class UserRoutesTest
               |    "userEmail": "email@example.com",
               |    "registrationDate": "2019-05-27T17:03:48.081Z",
               |    "accountSource": "github"
+              |  }
+              |]""".stripMargin
+          )
+        }
+      }
+
+      "get filter users by email address" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?email=test1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """[
+              |  {
+              |    "userEmail": "test1@domain.com"
+              |  }
+              |]""".stripMargin
+          )
+        }
+      }
+
+      "get filter users by id" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?userId=2") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """[
+              |  {
+              |    "userEmail": "test2@domain.com"
               |  }
               |]""".stripMargin
           )

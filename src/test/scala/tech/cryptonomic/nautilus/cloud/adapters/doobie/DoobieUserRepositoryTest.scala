@@ -99,7 +99,7 @@ class DoobieUserRepositoryTest
         sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
 
         // when
-        val users = sut.getAllUsers.unsafeRunSync()
+        val users = sut.getUsers().unsafeRunSync()
 
         // then
         users should equal(
@@ -107,6 +107,41 @@ class DoobieUserRepositoryTest
             User(1, "login@domain.com", Role.Administrator, now, Github),
             User(2, "some-other-login@domain.com", Role.User, now, Github)
           )
+        )
+      }
+
+      "filter users by id" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+
+        // when
+        val users = sut.getUsers(Some(1)).unsafeRunSync()
+
+        // then
+        users should equal(
+          List(
+            User(1, "login@domain.com", Role.Administrator, now, Github)
+          )
+        )
+      }
+
+      "filter users by email" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+
+        // expect
+        sut.getUsers(email = Some("some-other-login@domain.com")).unsafeRunSync().map(_.userEmail) should equal(
+          List("some-other-login@domain.com")
+        )
+
+        sut.getUsers(email = Some("some-other")).unsafeRunSync().map(_.userEmail) should equal(
+          List("some-other-login@domain.com")
+        )
+
+        sut.getUsers(email = Some("domain")).unsafeRunSync().map(_.userEmail) should equal(
+          List("login@domain.com", "some-other-login@domain.com")
         )
       }
     }

@@ -10,6 +10,7 @@ import doobie.util.transactor.Transactor
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 import cats.syntax.functor._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 
 import scala.language.higherKinds
 
@@ -45,7 +46,9 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     getUserByEmailQuery(email).option.transact(transactor)
 
   /** Returns all users */
-  override def getAllUsers: F[List[User]] = getUsersQuery.to[List].transact(transactor)
+  override def getUsers(userId: Option[UserId], email: Option[Email]): F[List[User]] =
+    getUsersQuery(userId, email).to[List].transact(transactor)
+
 }
 
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

@@ -2,6 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 
 import java.time.Instant
 
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -25,5 +26,5 @@ trait UserRepository[F[_]] {
   def getUserByEmailAddress(email: String): F[Option[User]]
 
   /** Returns all users */
-  def getAllUsers: F[List[User]]
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None): F[List[User]]
 }

@@ -75,7 +75,7 @@ class Routes(
                   userRoutes.updateUserRoute,
                   userRoutes.deleteCurrentUserRoute,
                   userRoutes.deleteUserRoute,
-                  userRoutes.getAllUsersRoute
+                  userRoutes.getUsersRoute
                 ),
                 concat(tierRoutes.createTierRoute, tierRoutes.getTierRoute),
                 concat(resourceRoutes.getResource, resourceRoutes.createResource, resourceRoutes.listResources)

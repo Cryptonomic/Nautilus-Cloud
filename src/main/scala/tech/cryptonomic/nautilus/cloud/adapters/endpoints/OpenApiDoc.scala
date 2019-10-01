@@ -27,7 +27,7 @@ object OpenApiDoc
     getCurrentUser,
     deleteCurrentUser,
     deleteUser,
-    getAllUsers,
+    getUsers,
     getCurrentUserKeys,
     getCurrentUserUsage,
     refreshKeys,

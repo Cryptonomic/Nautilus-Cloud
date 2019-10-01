@@ -4,8 +4,10 @@ import java.time.Instant
 
 import doobie._
 import doobie.implicits._
+import doobie.util.fragments.whereAndOpt
 import doobie.util.query.Query0
 import doobie.util.update.Update0
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
 
@@ -45,9 +47,15 @@ trait UserQueries {
       .query[User]
 
   /** Returns all users */
-  def getUsersQuery: Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users"
+  def getUsersQuery(userId: Option[UserId], email: Option[Email]): Query0[User] = {
+
+    val userIdPart = userId.map(userId => fr"userid = $userId")
+    val emailPart = email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
+
+    (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users" ++
+        whereAndOpt(userIdPart, emailPart))
       .query[User]
+  }
 
   private def deletedEmailHash: String = "deleted-mail-" + Random.alphanumeric.take(6).mkString
 }

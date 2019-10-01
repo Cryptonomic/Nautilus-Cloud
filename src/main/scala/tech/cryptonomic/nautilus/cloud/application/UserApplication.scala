@@ -1,6 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.application
 
 import cats.Applicative
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, _}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
@@ -17,9 +18,11 @@ class UserApplication[F[_]: Applicative](
   /** Get current user */
   def getCurrentUser(implicit session: Session): F[Option[User]] = userService.getUserByEmailAddress(session.email)
 
-  /** Get all users */
-  def getAllUsers(implicit session: Session): F[Permission[List[User]]] = requiredRole(Administrator) {
-    userService.getAllUsers
+  /** Get users */
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(
+      implicit session: Session
+  ): F[Permission[List[User]]] = requiredRole(Administrator) {
+    userService.getUsers(userId, email)
   }
 
   /** Update user */
