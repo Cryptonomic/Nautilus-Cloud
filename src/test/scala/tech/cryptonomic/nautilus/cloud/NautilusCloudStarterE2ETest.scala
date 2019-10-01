@@ -188,9 +188,10 @@ class NautilusCloudStarterE2ETest
 
         // then
         apiKeys.body.right.value should matchJson("""{
-                                              |  "key": "exampleApiKey2",
-                                              |  "environment": "prod"
-                                              |}""".stripMargin)
+            |  "key": "exampleApiKey2",
+            |  "environment": "prod"
+            |}""".stripMargin)
+
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
           .cookies(authCodeResult.cookies)
@@ -250,7 +251,7 @@ class NautilusCloudStarterE2ETest
 
   "users/github-init endpoint" should {
 
-      "set a cookie after successfull log-in" in {
+      "set a cookie after successful log-in" in {
         // given
         stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 

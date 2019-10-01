@@ -135,15 +135,39 @@ class UserRoutesTest
         }
 
         // when
-        val putRequest = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
+        val putResponse = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
 
         // then
-        putRequest ~> check {
+        putResponse ~> check {
           status shouldEqual StatusCodes.OK
         }
 
         Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
           status shouldEqual StatusCodes.NotFound
+        }
+      }
+
+      "get all users" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        // when
+        val usersResponse = Get("/users") ~> sut.getAllUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """[
+              |  {
+              |    "userId": 1,
+              |    "userRole": "user",
+              |    "userEmail": "email@example.com",
+              |    "registrationDate": "2019-05-27T17:03:48.081Z",
+              |    "accountSource": "github"
+              |  }
+              |]""".stripMargin
+          )
         }
       }
 

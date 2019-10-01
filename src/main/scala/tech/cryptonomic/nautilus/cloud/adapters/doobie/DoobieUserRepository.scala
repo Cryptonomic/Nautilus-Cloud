@@ -43,6 +43,9 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
   /** Returns user by email address */
   override def getUserByEmailAddress(email: String): F[Option[User]] =
     getUserByEmailQuery(email).option.transact(transactor)
+
+  /** Returns all users */
+  override def getAllUsers: F[List[User]] = getUsersQuery.to[List].transact(transactor)
 }
 
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

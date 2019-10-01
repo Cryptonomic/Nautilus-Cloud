@@ -23,4 +23,7 @@ trait UserRepository[F[_]] {
 
   /** Returns user by email address */
   def getUserByEmailAddress(email: String): F[Option[User]]
+
+  /** Returns all users */
+  def getAllUsers: F[List[User]]
 }

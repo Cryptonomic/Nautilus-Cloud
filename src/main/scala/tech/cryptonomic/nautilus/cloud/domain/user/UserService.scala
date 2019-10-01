@@ -22,8 +22,11 @@ class UserService[F[_]: Monad](
       _ <- userRepo.deleteUser(userId, now)
     } yield ()
 
-  /** Get current user */
+  /** Get user by email address */
   def getUserByEmailAddress(email: String): F[Option[User]] = userRepo.getUserByEmailAddress(email)
+
+  /** Get current user */
+  def getAllUsers: F[List[User]] = userRepo.getAllUsers
 
   /** Updated user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)

@@ -17,6 +17,11 @@ class UserApplication[F[_]: Applicative](
   /** Get current user */
   def getCurrentUser(implicit session: Session): F[Option[User]] = userService.getUserByEmailAddress(session.email)
 
+  /** Get all users */
+  def getAllUsers(implicit session: Session): F[Permission[List[User]]] = requiredRole(Administrator) {
+    userService.getAllUsers
+  }
+
   /** Update user */
   def updateUser(id: UserId, user: UpdateUser)(implicit session: Session): F[Permission[Unit]] =
     requiredRole(Administrator) {

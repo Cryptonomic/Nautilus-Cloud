@@ -29,6 +29,14 @@ trait UserEndpoints
       tags = List("User")
     )
 
+  /** All users endpoint definition */
+  def getAllUsers: Endpoint[Unit, Permission[List[User]]] =
+    endpoint(
+      request = get(url = path / "users"),
+      response = jsonResponse[List[User]]().orForbidden(),
+      tags = List("User")
+    )
+
   /** Delete currently logged-in user endpoint definition */
   def deleteCurrentUser: Endpoint[Unit, Permission[Unit]] =
     endpoint(

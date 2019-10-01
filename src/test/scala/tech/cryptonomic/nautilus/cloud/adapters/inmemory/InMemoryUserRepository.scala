@@ -54,6 +54,9 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
     users.find(_.userEmail == email).pure[F]
   }
 
+  /** Returns all users */
+  override def getAllUsers: F[List[User]] = users.pure[F]
+
   /** Clears repository */
   def clear(): Unit = this.synchronized {
     users = List.empty

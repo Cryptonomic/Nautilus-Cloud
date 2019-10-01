@@ -44,5 +44,10 @@ trait UserQueries {
     sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE useremail = $email and deleteddate is null"
       .query[User]
 
+  /** Returns all users */
+  def getUsersQuery: Query0[User] =
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users"
+      .query[User]
+
   private def deletedEmailHash: String = "deleted-mail-" + Random.alphanumeric.take(6).mkString
 }

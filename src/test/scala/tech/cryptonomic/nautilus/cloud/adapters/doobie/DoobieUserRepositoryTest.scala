@@ -92,5 +92,22 @@ class DoobieUserRepositoryTest
         sut.getUser(1).unsafeRunSync() shouldBe empty
         sut.getUserByEmailAddress("login@domain.com").unsafeRunSync() shouldBe empty
       }
+
+      "get all users" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+
+        // when
+        val users = sut.getAllUsers.unsafeRunSync()
+
+        // then
+        users should equal(
+          List(
+            User(1, "login@domain.com", Role.Administrator, now, Github),
+            User(2, "some-other-login@domain.com", Role.User, now, Github)
+          )
+        )
+      }
     }
 }
