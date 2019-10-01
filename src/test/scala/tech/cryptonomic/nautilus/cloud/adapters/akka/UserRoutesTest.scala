@@ -135,7 +135,7 @@ class UserRoutesTest
         }
 
         // when
-        val putResponse = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
+        val putResponse = Delete("/users/me") ~> sut.deleteCurrentUserRoute(userSession)
 
         // then
         putResponse ~> check {
@@ -143,6 +143,27 @@ class UserRoutesTest
         }
 
         Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
+          status shouldEqual StatusCodes.NotFound
+        }
+      }
+
+      "delete a user" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        // when
+        val deleteResponse = Delete("/users/1") ~> sut.deleteUserRoute(adminSession)
+
+        // then
+        deleteResponse ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
           status shouldEqual StatusCodes.NotFound
         }
       }

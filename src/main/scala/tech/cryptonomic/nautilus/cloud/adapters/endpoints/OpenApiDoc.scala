@@ -26,6 +26,8 @@ object OpenApiDoc
     createResourceEndpoint,
     getCurrentUser,
     deleteCurrentUser,
+    deleteUser,
+    getAllUsers,
     getCurrentUserKeys,
     getCurrentUserUsage,
     refreshKeys,

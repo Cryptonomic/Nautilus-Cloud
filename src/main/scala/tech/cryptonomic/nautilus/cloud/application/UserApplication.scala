@@ -33,6 +33,11 @@ class UserApplication[F[_]: Applicative](
     userService.deleteUser(session.userId)
   }
 
+  /** Delete user */
+  def deleteUser(id: UserId)(implicit session: Session): F[Permission[Unit]] = requiredRole(Administrator) {
+    userService.deleteUser(id)
+  }
+
   /** Return user with a given ID */
   def getUser(userId: UserId)(implicit session: Session): F[Permission[Option[User]]] = requiredRole(Administrator) {
     userService.getUser(userId)

@@ -45,6 +45,14 @@ trait UserEndpoints
       tags = List("User")
     )
 
+  /** Delete user endpoint definition */
+  def deleteUser: Endpoint[UserId, Permission[Unit]] =
+    endpoint(
+      request = delete(url = path / "users" / segment[UserId]("userId")),
+      response = emptyResponse().orForbidden(),
+      tags = List("User")
+    )
+
   /** User endpoint definition */
   def getUser: Endpoint[UserId, Permission[Option[User]]] =
     endpoint(
