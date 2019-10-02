@@ -4,6 +4,7 @@ import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.UserSchemas
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.pagination.PaginatedResult
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
 
@@ -31,10 +32,10 @@ trait UserEndpoints
     )
 
   /** Users endpoint definition */
-  def getUsers: Endpoint[(Option[UserId], Option[Email]), Permission[List[User]]] =
+  def getUsers: Endpoint[(Option[UserId], Option[Email]), Permission[PaginatedResult[User]]] =
     endpoint(
       request = get(url = path / "users" /? (qs[Option[UserId]]("userId") & qs[Option[Email]]("email"))),
-      response = jsonResponse[List[User]]().orForbidden(),
+      response = jsonResponse[PaginatedResult[User]]().orForbidden(),
       tags = List("User")
     )
 

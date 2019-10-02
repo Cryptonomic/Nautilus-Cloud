@@ -4,6 +4,7 @@ import cats.Applicative
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{Permission, _}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser, User, UserService}
@@ -19,10 +20,10 @@ class UserApplication[F[_]: Applicative](
   def getCurrentUser(implicit session: Session): F[Option[User]] = userService.getUserByEmailAddress(session.email)
 
   /** Get users */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(pagination: Pagination)(
       implicit session: Session
-  ): F[Permission[List[User]]] = requiredRole(Administrator) {
-    userService.getUsers(userId, email)
+  ): F[Permission[PaginatedResult[User]]] = requiredRole(Administrator) {
+    userService.getUsers(userId, email)(pagination)
   }
 
   /** Update user */

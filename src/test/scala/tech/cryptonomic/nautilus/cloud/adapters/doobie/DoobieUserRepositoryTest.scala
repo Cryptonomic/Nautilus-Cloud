@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
+import tech.cryptonomic.nautilus.cloud.domain.pagination.PaginatedResult
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
@@ -99,13 +100,17 @@ class DoobieUserRepositoryTest
         sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
 
         // when
-        val users = sut.getUsers().unsafeRunSync()
+        val users = sut.getUsers()().unsafeRunSync()
 
         // then
         users should equal(
-          List(
-            User(1, "login@domain.com", Role.Administrator, now, Github),
-            User(2, "some-other-login@domain.com", Role.User, now, Github)
+          PaginatedResult(
+            pagesTotal = 1,
+            resultCount = 2,
+            result = List(
+              User(1, "login@domain.com", Role.Administrator, now, Github),
+              User(2, "some-other-login@domain.com", Role.User, now, Github)
+            )
           )
         )
       }
@@ -116,10 +121,10 @@ class DoobieUserRepositoryTest
         sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
 
         // when
-        val users = sut.getUsers(Some(1)).unsafeRunSync()
+        val users = sut.getUsers(Some(1))().unsafeRunSync()
 
         // then
-        users should equal(
+        users.result should equal(
           List(
             User(1, "login@domain.com", Role.Administrator, now, Github)
           )
@@ -132,15 +137,19 @@ class DoobieUserRepositoryTest
         sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
 
         // expect
-        sut.getUsers(email = Some("some-other-login@domain.com")).unsafeRunSync().map(_.userEmail) should equal(
+        sut
+          .getUsers(email = Some("some-other-login@domain.com"))()
+          .unsafeRunSync()
+          .result
+          .map(_.userEmail) should equal(
           List("some-other-login@domain.com")
         )
 
-        sut.getUsers(email = Some("some-other")).unsafeRunSync().map(_.userEmail) should equal(
+        sut.getUsers(email = Some("some-other"))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("some-other-login@domain.com")
         )
 
-        sut.getUsers(email = Some("domain")).unsafeRunSync().map(_.userEmail) should equal(
+        sut.getUsers(email = Some("domain"))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("login@domain.com", "some-other-login@domain.com")
         )
       }

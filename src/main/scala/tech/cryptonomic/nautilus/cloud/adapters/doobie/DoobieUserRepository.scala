@@ -11,6 +11,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 import cats.syntax.functor._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 
 import scala.language.higherKinds
 
@@ -46,9 +47,10 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     getUserByEmailQuery(email).option.transact(transactor)
 
   /** Returns all users */
-  override def getUsers(userId: Option[UserId], email: Option[Email]): F[List[User]] =
-    getUsersQuery(userId, email).to[List].transact(transactor)
-
+  override def getUsers(userId: Option[UserId], email: Option[Email])(
+      pagination: Pagination
+  ): F[PaginatedResult[User]] =
+    getUsersQuery(userId, email).to[List].transact(transactor).map(result => PaginatedResult(1, result.size, result))
 }
 
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

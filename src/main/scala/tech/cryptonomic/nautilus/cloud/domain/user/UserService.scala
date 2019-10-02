@@ -5,6 +5,7 @@ import cats.implicits._
 import cats.effect.Clock
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 
@@ -17,7 +18,8 @@ class UserService[F[_]: Monad](
     clock: Clock[F]
 ) {
 
-  def deleteUser(userId: UserId): F[Unit] = for {
+  def deleteUser(userId: UserId): F[Unit] =
+    for {
       now <- clock.currentInstant
       _ <- apiKeyRepo.invalidateApiKeys(userId, now)
       _ <- userRepo.deleteUser(userId, now)
@@ -27,7 +29,10 @@ class UserService[F[_]: Monad](
   def getUserByEmailAddress(email: String): F[Option[User]] = userRepo.getUserByEmailAddress(email)
 
   /** Get current user */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None): F[List[User]] = userRepo.getUsers(userId, email)
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(
+      pagination: Pagination
+  ): F[PaginatedResult[User]] =
+    userRepo.getUsers(userId, email)(pagination)
 
   /** Updated user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)

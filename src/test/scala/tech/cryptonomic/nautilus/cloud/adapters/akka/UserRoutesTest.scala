@@ -179,15 +179,19 @@ class UserRoutesTest
         usersResponse ~> check {
           status shouldEqual StatusCodes.OK
           responseAs[String] should matchJson(
-            """[
-              |  {
-              |    "userId": 1,
-              |    "userRole": "user",
-              |    "userEmail": "email@example.com",
-              |    "registrationDate": "2019-05-27T17:03:48.081Z",
-              |    "accountSource": "github"
-              |  }
-              |]""".stripMargin
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userId": 1,
+              |      "userRole": "user",
+              |      "userEmail": "email@example.com",
+              |      "registrationDate": "2019-05-27T17:03:48.081Z",
+              |      "accountSource": "github"
+              |    }
+              |  ]
+              |}""".stripMargin
           )
         }
       }
@@ -204,11 +208,15 @@ class UserRoutesTest
         usersResponse ~> check {
           status shouldEqual StatusCodes.OK
           responseAs[String] should matchJson(
-            """[
-              |  {
-              |    "userEmail": "test1@domain.com"
-              |  }
-              |]""".stripMargin
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
           )
         }
       }
@@ -225,11 +233,15 @@ class UserRoutesTest
         usersResponse ~> check {
           status shouldEqual StatusCodes.OK
           responseAs[String] should matchJson(
-            """[
-              |  {
-              |    "userEmail": "test2@domain.com"
-              |  }
-              |]""".stripMargin
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test2@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
           )
         }
       }
