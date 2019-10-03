@@ -3,6 +3,8 @@ package tech.cryptonomic.nautilus.cloud.application
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AccessDenied
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
+import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.IdContext
@@ -65,6 +67,24 @@ class UserApplicationTest
           .value shouldBe User(1, "user@domain.com", Role.Administrator, time, AuthenticationProvider.Github, None)
       }
 
+      "get users" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "user1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "user2@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "user3@domain.com"))
+
+        // expect
+        sut
+          .getUsers()(Pagination(2, 2))(adminSession)
+          .right
+          .value shouldBe
+          PaginatedResult(
+            pagesTotal = 2,
+            resultCount = 3,
+            result = List(User(3, "user3@domain.com", Role.User, time, Github))
+          )
+      }
+
       "get None when there is no current user" in {
         // expect
         sut.getCurrentUser(adminSession.copy(email = "non-existing-user@domain.com")) shouldBe None
@@ -106,7 +126,7 @@ class UserApplicationTest
         apiKeyService.getUserApiKeys(1) shouldBe empty
       }
 
-      "get PermissionDenied on deleting user when requesting user in admin" in {
+      "get PermissionDenied on deleting user when requesting user is an admin" in {
         // expect
         sut.deleteCurrentUser(adminSession).left.value shouldBe a[AccessDenied]
       }

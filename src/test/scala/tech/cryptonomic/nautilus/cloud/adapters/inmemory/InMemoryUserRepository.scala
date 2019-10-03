@@ -67,7 +67,7 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
     PaginatedResult(
       pagination.pagesTotal(result.size),
       result.size,
-      result.toStream.slice(pagination.offset.toInt, pagination.limit).toList
+      result.slice(pagination.offset, pagination.offset + pagination.limit)
     ).pure[F]
   }
 
