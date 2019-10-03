@@ -49,8 +49,15 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
   /** Returns all users */
   override def getUsers(userId: Option[UserId], email: Option[Email])(
       pagination: Pagination
-  ): F[PaginatedResult[User]] =
-    getUsersQuery(userId, email).to[List].transact(transactor).map(result => PaginatedResult(1, result.size, result))
+  ): F[PaginatedResult[User]] = {
+
+    import cats.implicits._
+
+    for {
+      resultCount <- getUsersCountQuery(userId, email).unique.transact(transactor)
+      users <- getUsersQuery(userId, email)(pagination).to[List].transact(transactor)
+    } yield PaginatedResult(pagination.pagesTotal(resultCount.toInt), resultCount, users)
+  }
 }
 
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

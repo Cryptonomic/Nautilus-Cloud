@@ -64,7 +64,11 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
       .filter(user => userId.isEmpty || userId.contains(user.userId))
       .filter(user => email.isEmpty || email.exists(user.userEmail.contains))
 
-    PaginatedResult(1, result.size, result).pure[F]
+    PaginatedResult(
+      pagination.pagesTotal(result.size),
+      result.size,
+      result.toStream.slice(pagination.offset.toInt, pagination.limit).toList
+    ).pure[F]
   }
 
   /** Clears repository */

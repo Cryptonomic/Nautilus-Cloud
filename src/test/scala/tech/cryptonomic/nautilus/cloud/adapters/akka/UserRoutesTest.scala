@@ -246,6 +246,32 @@ class UserRoutesTest
         }
       }
 
+      "paginate users" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "different-login@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?email=test&page=1&limit=1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 2,
+              |  "resultCount": 2,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
       "get 403 when trying to update user without admin role" in {
         // when
         val request = HttpRequest(

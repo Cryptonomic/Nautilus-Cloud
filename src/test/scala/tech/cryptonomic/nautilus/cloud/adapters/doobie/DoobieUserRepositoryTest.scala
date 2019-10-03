@@ -3,9 +3,10 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.pagination.PaginatedResult
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDatabase}
 
 class DoobieUserRepositoryTest
@@ -13,6 +14,7 @@ class DoobieUserRepositoryTest
     with Matchers
     with EitherValues
     with OptionValues
+    with Fixtures
     with InMemoryDatabase {
 
   val now: Instant = Instant.now()
@@ -152,6 +154,36 @@ class DoobieUserRepositoryTest
         sut.getUsers(email = Some("domain"))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("login@domain.com", "some-other-login@domain.com")
         )
+      }
+
+      "paginate users" in {
+        // given
+        sut.createUser(exampleCreateUser.copy(userEmail = "login1@domain.com")).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login2@domain.com")).unsafeRunSync()
+
+        // when
+        val resultPage1 = sut.getUsers()(Pagination(1, 1)).unsafeRunSync()
+
+        // then
+        resultPage1.pagesTotal shouldEqual 2
+        resultPage1.resultCount shouldEqual 2
+        resultPage1.result.map(_.userEmail) should equal(List("login1@domain.com"))
+
+        // when
+        val resultPage2 = sut.getUsers()(Pagination(1, 2)).unsafeRunSync()
+
+        // then
+        resultPage2.pagesTotal shouldEqual 2
+        resultPage2.resultCount shouldEqual 2
+        resultPage2.result.map(_.userEmail) should equal(List("login2@domain.com"))
+
+        // when
+        val resultPage3 = sut.getUsers()(Pagination(1, 3)).unsafeRunSync()
+
+        // then
+        resultPage3.pagesTotal shouldEqual 2
+        resultPage3.resultCount shouldEqual 2
+        resultPage3.result shouldBe empty
       }
     }
 }

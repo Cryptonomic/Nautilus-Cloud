@@ -35,8 +35,8 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
   }
 
   /** Users route implementation */
-  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync { case (userId, email) =>
-    userApplication.getUsers(userId, email)(Pagination(1, 1)).unsafeToFuture()
+  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync { case ((userId, email, limit), page) =>
+    userApplication.getUsers(userId, email)(Pagination(limit, page)).unsafeToFuture()
   }
 
   /** Delete current user route implementation */

@@ -8,7 +8,7 @@ val akkaHttpVersion = "10.1.8"
 val circeVersion = "0.11.0"
 val endpointsVersion = "0.9.0"
 val catsVersion = "1.6.0"
-val doobieVersion = "0.7.0-M4"
+val doobieVersion = "0.8.4"
 val macwireVersion = "2.3.2"
 
 parallelExecution in Test := false

@@ -8,6 +8,7 @@ import doobie.util.fragments.whereAndOpt
 import doobie.util.query.Query0
 import doobie.util.update.Update0
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
 
@@ -46,16 +47,24 @@ trait UserQueries {
     sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE useremail = $email and deleteddate is null"
       .query[User]
 
-  /** Returns all users */
-  def getUsersQuery(userId: Option[UserId], email: Option[Email]): Query0[User] = {
-
-    val userIdPart = userId.map(userId => fr"userid = $userId")
-    val emailPart = email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
-
+  /** Returns filtered users */
+  def getUsersQuery(userId: Option[UserId], email: Option[Email])(pagination: Pagination): Query0[User] =
     (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users" ++
-        whereAndOpt(userIdPart, emailPart))
+        whereAndOpt(
+          userId.map(userId => fr"userid = $userId"),
+          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
+        ) ++
+        fr"LIMIT ${pagination.limit.toLong} OFFSET ${pagination.offset.toLong}")
       .query[User]
-  }
+
+  /** Returns count for users */
+  def getUsersCountQuery(userId: Option[UserId], email: Option[Email]): Query0[Long] =
+    (fr"SELECT count(*) FROM users" ++
+        whereAndOpt(
+          userId.map(userId => fr"userid = $userId"),
+          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
+        ))
+      .query[Long]
 
   private def deletedEmailHash: String = "deleted-mail-" + Random.alphanumeric.take(6).mkString
 }
