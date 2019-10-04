@@ -32,9 +32,14 @@ trait UserEndpoints
     )
 
   /** Users endpoint definition */
-  def getUsers: Endpoint[((Option[UserId], Option[Email], Option[Int]), Option[Int]), Permission[PaginatedResult[User]]] =
+  def getUsers: Endpoint[((Option[UserId], Option[Email], Option[String]), Option[Int], Option[Int]), Permission[PaginatedResult[User]]] =
     endpoint(
-      request = get(url = path / "users" /? (qs[Option[UserId]]("userId") & qs[Option[Email]]("email") & qs[Option[Int]]("limit") & qs[Option[Int]]("page"))),
+      request = get(url = path / "users" /? (
+        qs[Option[UserId]]("userId") &
+        qs[Option[Email]]("email") &
+        qs[Option[String]]("apiKey") &
+        qs[Option[Int]]("limit") &
+        qs[Option[Int]]("page"))),
       response = jsonResponse[PaginatedResult[User]]().orForbidden(),
       tags = List("User")
     )

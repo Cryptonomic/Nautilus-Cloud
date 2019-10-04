@@ -20,10 +20,10 @@ class UserApplication[F[_]: Applicative](
   def getCurrentUser(implicit session: Session): F[Option[User]] = userService.getUserByEmailAddress(session.email)
 
   /** Get users */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(pagination: Pagination)(
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None, apiKey: Option[String] = None)(pagination: Pagination)(
       implicit session: Session
   ): F[Permission[PaginatedResult[User]]] = requiredRole(Administrator) {
-    userService.getUsers(userId, email)(pagination)
+    userService.getUsers(userId, email, apiKey)(pagination)
   }
 
   /** Update user */

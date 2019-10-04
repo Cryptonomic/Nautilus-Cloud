@@ -47,7 +47,7 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
     getUserByEmailQuery(email).option.transact(transactor)
 
   /** Returns all users */
-  override def getUsers(userId: Option[UserId], email: Option[Email])(
+  override def getUsers(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(
       pagination: Pagination
   ): F[PaginatedResult[User]] = {
 
@@ -55,7 +55,7 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
 
     for {
       resultCount <- getUsersCountQuery(userId, email).unique.transact(transactor)
-      users <- getUsersQuery(userId, email)(pagination).to[List].transact(transactor)
+      users <- getUsersQuery(userId, email, apiKey)(pagination).to[List].transact(transactor)
     } yield PaginatedResult(pagination.pagesTotal(resultCount.toInt), resultCount, users)
   }
 }

@@ -27,7 +27,7 @@ trait UserRepository[F[_]] {
   def getUserByEmailAddress(email: String): F[Option[User]]
 
   /** Returns all users */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(
+  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None, apiKey: Option[String] = None)(
       pagination: Pagination = Pagination.allResults
   ): F[PaginatedResult[User]]
 }

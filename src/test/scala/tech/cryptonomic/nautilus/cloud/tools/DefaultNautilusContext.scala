@@ -23,7 +23,7 @@ class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext 
   lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
 
   override lazy val apiKeyRepository = new InMemoryApiKeyRepository()
-  override lazy val userRepository = new InMemoryUserRepository()
+  override lazy val userRepository = new InMemoryUserRepository(apiKeyRepository)
   override lazy val tierRepository = new InMemoryTierRepository()
   override lazy val authRepository = new InMemoryAuthenticationProviderRepository()
   override lazy val resourcesRepository = new InMemoryResourceRepository()
@@ -40,8 +40,8 @@ class IdContext {
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()
 
   lazy val authRepository = new InMemoryAuthenticationProviderRepository()
-  lazy val userRepository = new InMemoryUserRepository()
   lazy val apiKeyRepository = new InMemoryApiKeyRepository()
+  lazy val userRepository = new InMemoryUserRepository(apiKeyRepository)
   lazy val tiersRepository = new InMemoryTierRepository()
   lazy val resourceRepository = new InMemoryResourceRepository()
 

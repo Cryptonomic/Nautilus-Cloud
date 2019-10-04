@@ -196,7 +196,7 @@ class UserRoutesTest
         }
       }
 
-      "get filter users by email address" in {
+      "get users filtered by email address" in {
         // given
         userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
         userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
@@ -221,7 +221,7 @@ class UserRoutesTest
         }
       }
 
-      "get filter users by id" in {
+      "get users filtered by id" in {
         // given
         userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
         userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
@@ -239,6 +239,34 @@ class UserRoutesTest
               |  "result": [
               |    {
               |      "userEmail": "test2@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
+      "get users filtered by api key" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(key = "some-api-key-1", userId = 1))
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(key = "some-api-key-2", userId = 2))
+
+        // when
+        val usersResponse = Get("/users?apiKey=key-1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
               |    }
               |  ]
               |}""".stripMargin

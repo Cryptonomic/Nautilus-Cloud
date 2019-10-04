@@ -29,10 +29,10 @@ class UserService[F[_]: Monad](
   def getUserByEmailAddress(email: String): F[Option[User]] = userRepo.getUserByEmailAddress(email)
 
   /** Get current user */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None)(
+  def getUsers(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(
       pagination: Pagination
   ): F[PaginatedResult[User]] =
-    userRepo.getUsers(userId, email)(pagination)
+    userRepo.getUsers(userId, email, apiKey)(pagination)
 
   /** Updated user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)

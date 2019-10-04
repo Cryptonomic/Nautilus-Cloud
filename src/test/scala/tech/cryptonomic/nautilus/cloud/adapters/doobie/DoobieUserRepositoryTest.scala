@@ -19,7 +19,10 @@ class DoobieUserRepositoryTest
 
   val now: Instant = Instant.now()
 
-  val sut = DefaultNautilusContext.userRepository
+  private val context: DefaultNautilusContext.type = DefaultNautilusContext
+
+  val sut = context.userRepository
+  val apiKeyRepository = context.apiKeyRepository
 
   "UserRepo" should {
       "save and receive user" in {
@@ -154,6 +157,22 @@ class DoobieUserRepositoryTest
         sut.getUsers(email = Some("domain"))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("login@domain.com", "some-other-login@domain.com")
         )
+      }
+
+      "filter users by api keys" in {
+        // given
+        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(userId = 1, key = "some-api-key-1")).unsafeRunSync()
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(userId = 2, key = "some-api-key-2")).unsafeRunSync()
+
+        // expect
+        sut
+          .getUsers(apiKey = Some("key-1"))()
+          .unsafeRunSync()
+          .result
+          .map(_.userEmail) should equal(List("login@domain.com"))
       }
 
       "paginate users" in {

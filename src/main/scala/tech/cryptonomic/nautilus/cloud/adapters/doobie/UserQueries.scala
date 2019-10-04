@@ -48,11 +48,12 @@ trait UserQueries {
       .query[User]
 
   /** Returns filtered users */
-  def getUsersQuery(userId: Option[UserId], email: Option[Email])(pagination: Pagination): Query0[User] =
+  def getUsersQuery(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(pagination: Pagination): Query0[User] =
     (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users" ++
         whereAndOpt(
           userId.map(userId => fr"userid = $userId"),
-          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
+          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email"),
+          apiKey.map("%" + _ + "%").map(apiKey => fr"exists (select 1 from api_keys where api_keys.userid = users.userid and key LIKE $apiKey)"),
         ) ++
         fr"LIMIT ${pagination.limit.toLong} OFFSET ${pagination.offset.toLong}")
       .query[User]

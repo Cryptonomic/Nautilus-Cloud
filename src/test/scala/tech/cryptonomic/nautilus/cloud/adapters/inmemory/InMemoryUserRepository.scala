@@ -2,8 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
 import java.time.Instant
 
-import cats.Applicative
+import cats.{Applicative, Monad}
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -11,7 +12,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User
 
 import scala.language.higherKinds
 
-class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
+class InMemoryUserRepository[F[_]: Monad](private val apiKeyRepository: ApiKeyRepository[F]) extends UserRepository[F] {
 
   /** list of all users
     *
@@ -57,19 +58,30 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
   }
 
   /** Returns all users */
-  override def getUsers(userId: Option[UserId], email: Option[Email])(
+  override def getUsers(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(
       pagination: Pagination
-  ): F[PaginatedResult[User]] = {
-    val result = users
+  ): F[PaginatedResult[User]] =
+    users
       .filter(user => userId.isEmpty || userId.contains(user.userId))
       .filter(user => email.isEmpty || email.exists(user.userEmail.contains))
-
-    PaginatedResult(
-      pagination.pagesTotal(result.size),
-      result.size,
-      result.slice(pagination.offset, pagination.offset + pagination.limit)
-    ).pure[F]
-  }
+      .filterA(
+        user =>
+          apiKey.fold(true.pure[F])(
+            apiKey =>
+              apiKeyRepository
+                .getCurrentActiveApiKeys(user.userId)
+                .map(_.exists(a =>
+                  a.key.contains(apiKey)))
+          )
+      )
+      .map(
+        result =>
+          PaginatedResult(
+            pagination.pagesTotal(result.size),
+            result.size,
+            result.slice(pagination.offset, pagination.offset + pagination.limit)
+          )
+      )
 
   /** Clears repository */
   def clear(): Unit = this.synchronized {

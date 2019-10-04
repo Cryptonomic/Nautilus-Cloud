@@ -35,8 +35,8 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
       check(sut.getUserByEmailQuery("name@domain.com"))
     }
     "check getUsers" in {
-      check(sut.getUsersQuery(Some(1), Some("name@domain.com"))(Pagination.allResults))
-      check(sut.getUsersQuery(None, None)(Pagination.allResults))
+      check(sut.getUsersQuery(Some(1), Some("name@domain.com"), Some("api-key"))(Pagination.allResults))
+      check(sut.getUsersQuery(None, None, None)(Pagination.allResults))
     }
     "check getUsersCount" in {
       check(sut.getUsersCountQuery(Some(1), Some("name@domain.com")))
