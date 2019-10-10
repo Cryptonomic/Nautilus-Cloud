@@ -46,10 +46,6 @@ class Routes(
       pathPrefix("swagger-ui") {
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
-      // @TODO should be removed when a proper login page is created
-      path("") {
-        getFromResource("web/index.html")
-      },
       cors(settings) {
         concat(
           sessionRoutes.routes,
