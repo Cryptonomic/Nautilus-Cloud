@@ -13,6 +13,6 @@ final case class Pagination(page: Int, pageSize: Int) {
 object Pagination {
   val allResults = Pagination(page = 1, pageSize = Int.MaxValue)
 
-  def apply(limit: Option[Int], page: Option[Int]): Pagination =
-    Pagination(page.getOrElse(allResults.page), limit.getOrElse(allResults.pageSize))
+  def apply(pageSize: Option[Int], page: Option[Int]): Pagination =
+    Pagination(page.getOrElse(allResults.page), pageSize.getOrElse(allResults.pageSize))
 }
