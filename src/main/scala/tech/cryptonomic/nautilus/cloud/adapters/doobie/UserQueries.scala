@@ -7,7 +7,6 @@ import doobie.implicits._
 import doobie.util.fragments.whereAndOpt
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, CreateUser, Role, UpdateUser, User}
@@ -48,31 +47,26 @@ trait UserQueries {
       .query[User]
 
   /** Returns filtered users */
-  def getUsersQuery(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(
-      pagination: Pagination
-  ): Query0[User] =
+  def getUsersQuery(searchCriteria: SearchCriteria)(pagination: Pagination): Query0[User] =
     (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users" ++
-        whereAndOpt(
-          userId.map(userId => fr"userid = $userId"),
-          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email"),
-          apiKey
-            .map("%" + _ + "%")
-            .map(
-              apiKey =>
-                fr"EXISTS (SELECT 1 FROM api_keys WHERE api_keys.userid = users.userid AND key LIKE $apiKey AND datesuspended IS NULL)"
-            )
-        ) ++
-        fr"LIMIT ${pagination.limit.toLong} OFFSET ${pagination.offset.toLong}")
+        toWhereSection(searchCriteria) ++
+        fr"LIMIT ${pagination.pageSize.toLong} OFFSET ${pagination.offset.toLong}")
       .query[User]
 
   /** Returns count for users */
-  def getUsersCountQuery(userId: Option[UserId], email: Option[Email]): Query0[Long] =
-    (fr"SELECT count(*) FROM users" ++
-        whereAndOpt(
-          userId.map(userId => fr"userid = $userId"),
-          email.map("%" + _ + "%").map(email => fr"useremail LIKE $email")
-        ))
-      .query[Long]
+  def getUsersCountQuery(searchCriteria: SearchCriteria): Query0[Long] =
+    (fr"SELECT count(*) FROM users" ++ toWhereSection(searchCriteria)).query[Long]
+
+  private def toWhereSection(searchCriteria: SearchCriteria) = whereAndOpt(
+    searchCriteria.userId.map(userId => fr"userid = $userId"),
+    searchCriteria.email.map("%" + _ + "%").map(email => fr"useremail LIKE $email"),
+    searchCriteria.apiKey
+      .map("%" + _ + "%")
+      .map(
+        apiKey =>
+          fr"EXISTS (SELECT 1 FROM api_keys WHERE api_keys.userid = users.userid AND key LIKE $apiKey AND datesuspended IS NULL)"
+      )
+  )
 
   private def deletedEmailHash: String = "deleted-mail-" + Random.alphanumeric.take(6).mkString
 }

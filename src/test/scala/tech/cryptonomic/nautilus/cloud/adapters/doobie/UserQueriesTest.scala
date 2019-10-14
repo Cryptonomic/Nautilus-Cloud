@@ -19,28 +19,36 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
 
   // check if all queries are valid
   "UserRepo" should {
-    "check creation of user" in {
-      check(sut.createUserQuery(CreateUser("name@domain.com", Role.User, Instant.now(), AuthenticationProvider.Github, 1, None)))
+      "check creation of user" in {
+        check(
+          sut.createUserQuery(
+            CreateUser("name@domain.com", Role.User, Instant.now(), AuthenticationProvider.Github, 1, None)
+          )
+        )
+      }
+      "check updating of user " in {
+        check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))
+      }
+      "check deleting of user " in {
+        check(sut.deleteUserQuery(1, Instant.now()))
+      }
+      "check getUser" in {
+        check(sut.getUserQuery(0))
+      }
+      "check getUserByEmail" in {
+        check(sut.getUserByEmailQuery("name@domain.com"))
+      }
+      "check getUsers" in {
+        check(
+          sut.getUsersQuery(searchCriteria = SearchCriteria(Some(1), Some("name@domain.com"), Some("api-key")))(
+            Pagination.allResults
+          )
+        )
+        check(sut.getUsersQuery(SearchCriteria.empty)(Pagination.allResults))
+      }
+      "check getUsersCount" in {
+        check(sut.getUsersCountQuery(SearchCriteria(Some(1), Some("name@domain.com"), apiKey = Some("api-key"))))
+        check(sut.getUsersCountQuery(SearchCriteria.empty))
+      }
     }
-    "check updating of user " in {
-      check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))
-    }
-    "check deleting of user " in {
-      check(sut.deleteUserQuery(1, Instant.now()))
-    }
-    "check getUser" in {
-      check(sut.getUserQuery(0))
-    }
-    "check getUserByEmail" in {
-      check(sut.getUserByEmailQuery("name@domain.com"))
-    }
-    "check getUsers" in {
-      check(sut.getUsersQuery(Some(1), Some("name@domain.com"), Some("api-key"))(Pagination.allResults))
-      check(sut.getUsersQuery(None, None, None)(Pagination.allResults))
-    }
-    "check getUsersCount" in {
-      check(sut.getUsersCountQuery(Some(1), Some("name@domain.com")))
-      check(sut.getUsersCountQuery(None, None))
-    }
-  }
 }

@@ -126,7 +126,7 @@ class DoobieUserRepositoryTest
         sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
 
         // when
-        val users = sut.getUsers(Some(1))().unsafeRunSync()
+        val users = sut.getUsers(SearchCriteria(userId = Some(1)))().unsafeRunSync()
 
         // then
         users.result should equal(
@@ -143,18 +143,18 @@ class DoobieUserRepositoryTest
 
         // expect
         sut
-          .getUsers(email = Some("some-other-login@domain.com"))()
+          .getUsers(SearchCriteria(email = Some("some-other-login@domain.com")))()
           .unsafeRunSync()
           .result
           .map(_.userEmail) should equal(
           List("some-other-login@domain.com")
         )
 
-        sut.getUsers(email = Some("some-other"))().unsafeRunSync().result.map(_.userEmail) should equal(
+        sut.getUsers(SearchCriteria(email = Some("some-other")))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("some-other-login@domain.com")
         )
 
-        sut.getUsers(email = Some("domain"))().unsafeRunSync().result.map(_.userEmail) should equal(
+        sut.getUsers(SearchCriteria(email = Some("domain")))().unsafeRunSync().result.map(_.userEmail) should equal(
           List("login@domain.com", "some-other-login@domain.com")
         )
       }
@@ -169,7 +169,7 @@ class DoobieUserRepositoryTest
 
         // expect
         sut
-          .getUsers(apiKey = Some("key-1"))()
+          .getUsers(SearchCriteria(apiKey = Some("key-1")))()
           .unsafeRunSync()
           .result
           .map(_.userEmail) should equal(List("login@domain.com"))
@@ -189,7 +189,7 @@ class DoobieUserRepositoryTest
         resultPage1.result.map(_.userEmail) should equal(List("login1@domain.com"))
 
         // when
-        val resultPage2 = sut.getUsers()(Pagination(1, 2)).unsafeRunSync()
+        val resultPage2 = sut.getUsers()(Pagination(2, 1)).unsafeRunSync()
 
         // then
         resultPage2.pagesTotal shouldEqual 2
@@ -197,7 +197,7 @@ class DoobieUserRepositoryTest
         resultPage2.result.map(_.userEmail) should equal(List("login2@domain.com"))
 
         // when
-        val resultPage3 = sut.getUsers()(Pagination(1, 3)).unsafeRunSync()
+        val resultPage3 = sut.getUsers()(Pagination(3, 1)).unsafeRunSync()
 
         // then
         resultPage3.pagesTotal shouldEqual 2

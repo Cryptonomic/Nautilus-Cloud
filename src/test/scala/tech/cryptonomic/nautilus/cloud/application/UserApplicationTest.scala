@@ -126,9 +126,14 @@ class UserApplicationTest
         apiKeyService.getUserApiKeys(1) shouldBe empty
       }
 
-      "get PermissionDenied on deleting user when requesting user is an admin" in {
+      "get PermissionDenied on deleting current user when requesting user is an admin" in {
         // expect
         sut.deleteCurrentUser(adminSession).left.value shouldBe a[AccessDenied]
+      }
+
+      "get PermissionDenied on deleting user when requesting user is not an admin" in {
+        // expect
+        sut.deleteUser(1)(userSession).left.value shouldBe a[AccessDenied]
       }
 
       "get PermissionDenied on updating user when requesting user is not an admin" in {

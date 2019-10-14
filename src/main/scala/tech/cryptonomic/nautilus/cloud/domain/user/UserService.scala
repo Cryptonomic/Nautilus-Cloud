@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 import cats.Monad
 import cats.implicits._
 import cats.effect.Clock
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.SearchCriteria
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyRepository, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
@@ -32,7 +33,7 @@ class UserService[F[_]: Monad](
   def getUsers(userId: Option[UserId], email: Option[Email], apiKey: Option[String])(
       pagination: Pagination
   ): F[PaginatedResult[User]] =
-    userRepo.getUsers(userId, email, apiKey)(pagination)
+    userRepo.getUsers(SearchCriteria(userId, email, apiKey))(pagination)
 
   /** Updated user */
   def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)

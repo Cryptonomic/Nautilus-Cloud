@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 
 import java.time.Instant
 
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.SearchCriteria
 import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
@@ -27,7 +27,7 @@ trait UserRepository[F[_]] {
   def getUserByEmailAddress(email: String): F[Option[User]]
 
   /** Returns all users */
-  def getUsers(userId: Option[UserId] = None, email: Option[Email] = None, apiKey: Option[String] = None)(
+  def getUsers(searchCriteria: SearchCriteria = SearchCriteria.empty)(
       pagination: Pagination = Pagination.allResults
   ): F[PaginatedResult[User]]
 }

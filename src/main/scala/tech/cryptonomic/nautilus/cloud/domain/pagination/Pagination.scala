@@ -1,13 +1,18 @@
 package tech.cryptonomic.nautilus.cloud.domain.pagination
 
-final case class Pagination(limit: Int, page: Int) {
-  lazy val offset: Int = (page - 1) * limit
-  def pagesTotal(resultCount: Int): Int = (resultCount.toFloat / limit).ceil.toInt
+/**
+  *
+  * @param page     page number (starting from 1)
+  * @param pageSize items per page
+  */
+final case class Pagination(page: Int, pageSize: Int) {
+  lazy val offset: Int = (page - 1) * pageSize
+  def pagesTotal(resultCount: Int): Int = (resultCount.toFloat / pageSize).ceil.toInt
 }
 
 object Pagination {
-  val allResults = Pagination(limit = Int.MaxValue, page = 1)
+  val allResults = Pagination(page = 1, pageSize = Int.MaxValue)
 
   def apply(limit: Option[Int], page: Option[Int]): Pagination =
-    Pagination(limit.getOrElse(allResults.limit), page.getOrElse(allResults.page))
+    Pagination(page.getOrElse(allResults.page), limit.getOrElse(allResults.pageSize))
 }
