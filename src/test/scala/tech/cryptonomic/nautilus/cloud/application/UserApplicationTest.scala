@@ -113,7 +113,8 @@ class UserApplicationTest
       "delete user" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        authService.resolveAuthCode("authCode")
+        val registrationAttemptId = authService.resolveAuthCode("authCode").right.value.left.value
+        authService.acceptRegistration(registrationAttemptId)
 
         sut.getCurrentUser(userSession.copy(email = "name@domain.com")) should not be empty
         apiKeyService.getUserApiKeys(1) should not be empty

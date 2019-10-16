@@ -11,6 +11,7 @@ import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.generic.auto._
 import tech.cryptonomic.nautilus.cloud.domain.user.User
 import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
+import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.util.{Failure, Success}
@@ -23,6 +24,14 @@ final case class UserResponse(
     userRole: String,
     registrationDate: Instant,
     accountSource: String
+)
+
+final case class RegistrationAttemptRequest(
+    registrationAttemptId: RegistrationAttemptId
+)
+
+final case class RegistrationAttemptResponse(
+    registrationAttemptId: RegistrationAttemptId
 )
 
 object UserResponse {
@@ -46,6 +55,31 @@ class SessionRoutes(
           entity(as[InitRequest]) {
             code =>
               onComplete(authenticationApplication.resolveAuthCode(code.code).unsafeToFuture()) {
+                case Success(Right(Right(user))) =>
+                  sessionOperations.setSession(user.asSession) { ctx =>
+                    ctx.complete(UserResponse(user))
+                  }
+                case Success(Right(Left(registrationAttemptId))) =>
+                  complete(RegistrationAttemptResponse(registrationAttemptId))
+                case Failure(exception) =>
+                  logger.error(exception.getMessage, exception)
+                  reject(AuthorizationFailedRejection)
+                case Success(Left(exception)) =>
+                  logger.error(exception.getMessage, exception)
+                  reject(AuthorizationFailedRejection)
+              }
+          }
+        }
+      },
+      path("users" / "accept-registration") {
+        post {
+          entity(as[RegistrationAttemptRequest]) {
+            registrationAttemptRequest =>
+              onComplete(
+                authenticationApplication
+                  .acceptRegistration(registrationAttemptRequest.registrationAttemptId)
+                  .unsafeToFuture()
+              ) {
                 case Success(Right(user)) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
                     ctx.complete(UserResponse(user))

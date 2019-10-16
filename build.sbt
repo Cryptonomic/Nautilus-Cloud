@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
   "com.softwaremill.akka-http-session" %% "core"                           % "0.5.6",
   "ch.megard"                          %% "akka-http-cors"                 % "0.4.1",
   "org.scalaj"                         %% "scalaj-http"                    % "2.4.1",
+  "com.github.cb372"                   %% "scalacache-guava"               % "0.28.0",
   "com.softwaremill.sttp"              %% "core"                           % "1.5.16",
   "com.github.pureconfig"              %% "pureconfig"                     % "0.10.2",
   "org.typelevel"                      %% "cats-core"                      % catsVersion,

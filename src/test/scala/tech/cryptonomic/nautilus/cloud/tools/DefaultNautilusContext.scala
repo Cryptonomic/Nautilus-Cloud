@@ -10,8 +10,9 @@ import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
+import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, RegistrationAttemptIdGenerator}
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
 import tech.cryptonomic.nautilus.cloud.domain.user.UserService
@@ -38,12 +39,14 @@ class IdContext {
   lazy val clock = new FixedClock[Id](now)
 
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()
+  lazy val registrationAttemptIdGenerator = new RegistrationAttemptIdGenerator()
 
   lazy val authRepository = new InMemoryAuthenticationProviderRepository()
   lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   lazy val userRepository = new InMemoryUserRepository(apiKeyRepository)
   lazy val tiersRepository = new InMemoryTierRepository()
   lazy val resourceRepository = new InMemoryResourceRepository()
+  lazy val registrationAttemptRepository = new InMemoryRegistrationAttemptRepository()
 
   lazy val apiKeyService = wire[ApiKeyService[Id]]
   lazy val authenticationService = wire[AuthenticationService[Id]]

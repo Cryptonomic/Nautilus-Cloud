@@ -17,8 +17,9 @@ import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpG
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.doobie.{DoobieApiKeyRepository, DoobieConfig, DoobieResourceRepository, DoobieTierRepository, DoobieUserRepository}
+import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository, ApiKeyService}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, AuthenticationService}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationProviderRepository, AuthenticationService, RegistrationAttemptIdGenerator, RegistrationAttemptRepository}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{ResourceRepository, ResourceService}
 import tech.cryptonomic.nautilus.cloud.domain.tier.{TierRepository, TierService}
 import tech.cryptonomic.nautilus.cloud.domain.user.{UserRepository, UserService}
@@ -49,12 +50,15 @@ trait NautilusContext extends StrictLogging {
 
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val apiKeyGenerator = wire[ApiKeyGenerator]
+  lazy val registrationAttemptIdGenerator = wire[RegistrationAttemptIdGenerator]
 
   lazy val apiKeyRepository: ApiKeyRepository[IO] = wire[DoobieApiKeyRepository[IO]]
   lazy val userRepository: UserRepository[IO] = wire[DoobieUserRepository[IO]]
   lazy val tierRepository: TierRepository[IO] = wire[DoobieTierRepository[IO]]
   lazy val authRepository: AuthenticationProviderRepository[IO] = wire[SttpGithubAuthenticationProviderRepository[IO]]
   lazy val resourcesRepository: ResourceRepository[IO] = wire[DoobieResourceRepository[IO]]
+  lazy val registrationAttemptRepository: RegistrationAttemptRepository[IO] =
+    new InMemoryRegistrationAttemptRepository[IO]()
 
   lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]

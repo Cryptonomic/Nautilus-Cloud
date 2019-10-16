@@ -9,7 +9,6 @@ import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserApplication}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** User routes implementation */
 class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKeyApplication[IO])

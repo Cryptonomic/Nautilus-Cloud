@@ -37,7 +37,7 @@ class AuthenticationApplicationTest
         )
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
+        authenticationApplication.resolveAuthCode("authCode").right.value.right.value shouldBe User(
           userId = 1,
           userEmail = "name@domain.com",
           userRole = Role.User,
@@ -53,27 +53,11 @@ class AuthenticationApplicationTest
         userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, context.now.minusSeconds(1), Github, 1, None))
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
+        authenticationApplication.resolveAuthCode("authCode").right.value.right.value shouldBe User(
           userId = 1,
           userEmail = "name@domain.com",
           userRole = Role.Administrator,
           registrationDate = context.now.minusSeconds(1),
-          accountSource = Github,
-          accountDescription = None
-        )
-      }
-
-      "resolve an auth code when user doesn't exist" in {
-        // given
-        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.getUser(1) should be(None)
-
-        // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
-          userId = 1,
-          userEmail = "name@domain.com",
-          userRole = Role.User,
-          registrationDate = context.now,
           accountSource = Github,
           accountDescription = None
         )
@@ -85,10 +69,12 @@ class AuthenticationApplicationTest
         userRepository.getUser(1) should be(None)
 
         // when
-        authenticationApplication.resolveAuthCode("authCode")
+        val registrationAttemptId = authenticationApplication.resolveAuthCode("authCode").right.value.left.value
+        val user = authenticationApplication.acceptRegistration(registrationAttemptId).right.value
 
         // then
-        userRepository.getUser(1).value should have(
+        user shouldEqual userRepository.getUser(1).value
+        user should have(
           'userId (1),
           'userEmail ("name@domain.com"),
           'userRole (Role.User),
