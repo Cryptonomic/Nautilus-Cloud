@@ -41,7 +41,7 @@ class InMemoryRegistrationAttemptRepositoryTest
         sut.save(authentication.RegistrationAttempt("1", "login@domain.com", Instant.now, AuthenticationProvider.Github))
 
         // when
-        Thread.sleep(50) // TTL for cache is set to 50 milliseconds
+        Thread.sleep(70) // TTL for cache is set to 50 milliseconds
 
         // then
         sut.pop("1").left.value shouldEqual RegistrationAttemptNotFoundException("1")

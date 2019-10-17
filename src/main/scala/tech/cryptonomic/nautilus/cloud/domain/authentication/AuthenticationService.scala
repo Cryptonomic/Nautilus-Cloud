@@ -37,13 +37,13 @@ class AuthenticationService[F[_]: Monad](
       .value
 
   /* confirms started registration */
-  def acceptRegistration(registrationAttemptId: RegistrationAttemptId): F[Result[User]] =
+  def acceptRegistration(confirmRegistration: ConfirmRegistration, ip: Option[String] = None): F[Result[User]] =
     (for {
-      registrationAttempt <- EitherT(registrationAttemptRepository.pop(registrationAttemptId))
+      registrationAttempt <- EitherT(registrationAttemptRepository.pop(confirmRegistration.registrationAttemptId))
       defaultTier <- EitherT.right(tiersRepository.getDefault)
       now <- EitherT.right(clock.currentInstant)
       currentUsage = defaultTier.getCurrentUsage(now)
-      createUser = registrationAttempt.toCreateUser(config.provider, defaultTier.tierId)
+      createUser = registrationAttempt.toCreateUser(confirmRegistration, config.provider, defaultTier.tierId, ip)
       userId <- EitherT(userRepository.createUser(createUser))
       _ <- EitherT.right[Throwable](apiKeyService.initializeApiKeys(userId, currentUsage))
     } yield createUser.toUser(userId)).value

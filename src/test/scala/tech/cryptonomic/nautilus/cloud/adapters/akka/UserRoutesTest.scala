@@ -30,13 +30,11 @@ class UserRoutesTest
       "get user" in {
         // given
         userRepository.createUser(
-          CreateUser(
-            "email@example.com",
-            Role.User,
-            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            Github,
-            1,
-            None
+          exampleCreateUser.copy(
+            userEmail = "email@example.com",
+            userRole = Role.User,
+            registrationDate = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            accountSource = Github
           )
         )
 
@@ -55,7 +53,7 @@ class UserRoutesTest
                                                     |  "registrationDate": "2019-05-27T17:03:48.081Z",
                                                     |  "accountSource": "github"
                                                     |}
-                                                  """.stripMargin
+                                                  """.stripMargin // @todo additional fields
           )
         }
       }
@@ -69,13 +67,11 @@ class UserRoutesTest
       "get current user" in {
         // given
         userRepository.createUser(
-          CreateUser(
-            "email@example.com",
-            Role.User,
-            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            Github,
-            1,
-            None
+          exampleCreateUser.copy(
+            userEmail = "email@example.com",
+            userRole = Role.User,
+            registrationDate = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            accountSource = Github
           )
         )
 

@@ -7,11 +7,11 @@ import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
-import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.InMemoryDatabase
 
-class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemoryDatabase {
+class UserQueriesTest extends WordSpec with Matchers with Fixtures with IOChecker with InMemoryDatabase {
 
   override def transactor: Transactor[IO] = testTransactor
 
@@ -20,11 +20,7 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
   // check if all queries are valid
   "UserRepo" should {
       "check creation of user" in {
-        check(
-          sut.createUserQuery(
-            CreateUser("name@domain.com", Role.User, Instant.now(), AuthenticationProvider.Github, 1, None)
-          )
-        )
+        check(sut.createUserQuery(exampleCreateUser))
       }
       "check updating of user " in {
         check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))

@@ -14,6 +14,9 @@ case class User(
     userRole: Role,
     registrationDate: Instant,
     accountSource: AuthenticationProvider,
+    tosAccepted: Boolean,
+    newsletterAccepted: Boolean,
+    newsletterAcceptedDate: Option[Instant],
     accountDescription: Option[String] = None
 ) {
   lazy val asSession = Session(userId, userEmail, accountSource, userRole)
@@ -23,21 +26,32 @@ object User {
   type UserId = Int
 }
 
-/** Class used in user registration and update */
+/** Class used in user registration */
 case class CreateUser(
     userEmail: String,
     userRole: Role,
     registrationDate: Instant,
     accountSource: AuthenticationProvider,
     tierId: TierId,
+    tosAccepted: Boolean,
+    newsletterAccepted: Boolean,
+    registrationIp: Option[String] = None,
     accountDescription: Option[String] = None
 ) extends Product
     with Serializable {
-  def toUser(id: UserId): User = this.into[User].withFieldConst(_.userId, id).transform
+
+  lazy val newsletterAcceptedDate: Option[Instant] = Some(registrationDate).filter(_ => newsletterAccepted)
+
+  def toUser(id: UserId): User =
+    this
+      .into[User]
+      .withFieldConst(_.userId, id)
+      .withFieldConst(_.newsletterAcceptedDate, newsletterAcceptedDate)
+      .transform
 }
 
 /** Class used in user update */
 case class UpdateUser(
     userRole: Role,
-    accountDescription: Option[String]
+    accountDescription: Option[String] = None
 )

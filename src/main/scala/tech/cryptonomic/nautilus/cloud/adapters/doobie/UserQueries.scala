@@ -24,9 +24,11 @@ trait UserQueries {
 
   /** Creates user */
   def createUserQuery(userReg: CreateUser): Update0 =
-    sql"""INSERT INTO users (useremail, userrole, registrationdate, accountsource, accountdescription)
+    sql"""INSERT INTO users (useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted,
+         |newsletterAcceptedDate, registrationip, accountdescription)
          |VALUES (${userReg.userEmail}, ${userReg.userRole},${userReg.registrationDate}, ${userReg.accountSource},
-         |${userReg.accountDescription})""".stripMargin.update
+         |${userReg.tosAccepted}, ${userReg.newsletterAccepted}, ${userReg.newsletterAcceptedDate},
+         |${userReg.registrationIp}, ${userReg.accountDescription})""".stripMargin.update
 
   /** Updates user */
   def updateUserQuery(id: UserId, user: UpdateUser): Update0 =
@@ -38,17 +40,17 @@ trait UserQueries {
 
   /** Returns user */
   def getUserQuery(userId: UserId): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE userid = $userId and deleteddate is null"
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE userid = $userId and deleteddate is null"
       .query[User]
 
   /** Returns user by email address */
   def getUserByEmailQuery(email: String): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users WHERE useremail = $email and deleteddate is null"
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE useremail = $email and deleteddate is null"
       .query[User]
 
   /** Returns filtered users */
   def getUsersQuery(searchCriteria: SearchCriteria)(pagination: Pagination): Query0[User] =
-    (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, accountdescription FROM users" ++
+    (fr"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users" ++
         toWhereSection(searchCriteria) ++
         fr"LIMIT ${pagination.pageSize.toLong} OFFSET ${pagination.offset.toLong}")
       .query[User]

@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.ConfirmRegistration
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -33,7 +34,16 @@ class AuthenticationApplicationTest
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.createUser(
-          CreateUser("name@domain.com", Role.User, context.now.minusSeconds(1), Github, 1, None)
+          exampleCreateUser.copy(
+            userEmail = "name@domain.com",
+            userRole = Role.User,
+            registrationDate = context.now.minusSeconds(1),
+            accountSource = Github,
+            tierId = 1,
+            tosAccepted = true,
+            newsletterAccepted = false,
+            registrationIp = None
+          )
         )
 
         // expect
@@ -43,6 +53,9 @@ class AuthenticationApplicationTest
           userRole = Role.User,
           registrationDate = context.now.minusSeconds(1),
           accountSource = Github,
+          tosAccepted = true,
+          newsletterAccepted = false,
+          newsletterAcceptedDate = None,
           accountDescription = None
         )
       }
@@ -50,16 +63,13 @@ class AuthenticationApplicationTest
       "resolve an auth code when user exists with administrator role" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, context.now.minusSeconds(1), Github, 1, None))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "name@domain.com", userRole = Role.Administrator))
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value.right.value shouldBe User(
-          userId = 1,
-          userEmail = "name@domain.com",
-          userRole = Role.Administrator,
-          registrationDate = context.now.minusSeconds(1),
-          accountSource = Github,
-          accountDescription = None
+        authenticationApplication.resolveAuthCode("authCode").right.value.right.value should have(
+          'userId (1),
+          'userEmail ("name@domain.com"),
+          'userRole (Role.Administrator)
         )
       }
 
@@ -70,7 +80,7 @@ class AuthenticationApplicationTest
 
         // when
         val registrationAttemptId = authenticationApplication.resolveAuthCode("authCode").right.value.left.value
-        val user = authenticationApplication.acceptRegistration(registrationAttemptId).right.value
+        val user = authenticationApplication.acceptRegistration(ConfirmRegistration(registrationAttemptId)).right.value
 
         // then
         user shouldEqual userRepository.getUser(1).value

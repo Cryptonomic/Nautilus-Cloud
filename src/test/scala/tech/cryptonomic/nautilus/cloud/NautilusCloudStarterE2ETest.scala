@@ -277,7 +277,11 @@ class NautilusCloudStarterE2ETest
     val result: Id[Response[String]] = sttp
       .post(uri"http://localhost:1235/users/accept-registration")
       .header("Content-Type", "application/json")
-      .body(s"""{"registrationAttemptId": "$registrationAttemptId"}""")
+      .body(s"""{
+              |  "registrationAttemptId": "$registrationAttemptId",
+              |  "tosAccepted": true,
+              |  "newsletterAccepted": true
+              |}""".stripMargin)
       .followRedirects(false)
       .send()
 

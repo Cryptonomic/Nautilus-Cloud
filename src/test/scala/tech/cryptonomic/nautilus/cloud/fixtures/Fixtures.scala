@@ -19,9 +19,9 @@ trait Fixtures {
     CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, time, None)
   val exampleApiKey = ApiKey(1, "cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 1, Some(time), None)
 
-  val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
+  val exampleUser = User(1, "email@example.com", Role.User, time, Github, true, false, None, None)
 
-  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, None)
+  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, true, true)
 
   val exampleUpdateUser = UpdateUser(Role.User, None)
 
