@@ -1,11 +1,14 @@
 package tech.cryptonomic.nautilus.cloud
 
 import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
+import java.time.Instant
 
 import com.softwaremill.sttp._
 import io.circe.parser._
+import cats.implicits._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
+import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role, UpdateUser}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools._
 
@@ -46,8 +49,8 @@ class NautilusCloudStarterE2ETest
         login(email = "name@domain.com")
 
         // update role for that user
-        nautilusContext.userRepository
-          .updateUser(1, UpdateUser(Role.Administrator, None))
+        nautilusContext.userApplication
+          .updateUser(1, AdminUpdateUser(Role.Administrator.some))(adminSession)
           .unsafeRunSync()
 
         // log-in again with administrator role
@@ -274,7 +277,7 @@ class NautilusCloudStarterE2ETest
 
     val registrationAttemptId = extractRegistrationAttemptId(githubInit)
 
-    val result: Id[Response[String]] = sttp
+    val result = sttp
       .post(uri"http://localhost:1235/users/accept-registration")
       .header("Content-Type", "application/json")
       .body(s"""{

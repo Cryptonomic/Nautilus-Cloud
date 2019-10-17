@@ -29,11 +29,13 @@ class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: Ap
   }
 
   /** Updates user */
-  override def updateUser(id: UserId, user: UpdateUser): F[Unit] = this.synchronized {
+  override def updateUser(id: UserId, user: UpdateUser, now: Instant): F[Unit] = this.synchronized {
     users = users.collect {
       case it if it.userId == id =>
         it.copy(
-          userRole = user.userRole,
+          userRole = user.userRole.getOrElse(it.userRole),
+          newsletterAccepted = user.newsletterAccepted.getOrElse(it.newsletterAccepted),
+          newsletterAcceptedDate = user.newsletterAcceptedDate(now).getOrElse(it.newsletterAcceptedDate),
           accountDescription = user.accountDescription
         )
       case it => it

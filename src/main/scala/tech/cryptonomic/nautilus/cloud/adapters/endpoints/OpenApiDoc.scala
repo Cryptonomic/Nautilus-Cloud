@@ -18,6 +18,7 @@ object OpenApiDoc
     getAllKeys,
     validateApiKey,
     updateUser,
+    updateCurrentUser,
     getUser,
     getUserKeys,
     getApiKeyUsage,

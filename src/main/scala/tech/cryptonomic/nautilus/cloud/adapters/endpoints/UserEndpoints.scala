@@ -6,7 +6,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProvi
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 import tech.cryptonomic.nautilus.cloud.domain.pagination.PaginatedResult
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
+import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, UpdateCurrentUser, UpdateUser, User}
 
 /** User relevant endpoints */
 trait UserEndpoints
@@ -16,10 +16,18 @@ trait UserEndpoints
     with EndpointsStatusDefinitions {
 
   /** User update endpoint definition */
-  def updateUser: Endpoint[(UserId, UpdateUser), Permission[Unit]] =
+  def updateUser: Endpoint[(UserId, AdminUpdateUser), Permission[Unit]] =
     endpoint(
-      request = put(url = path / "users" / segment[UserId]("userId"), jsonRequest[UpdateUser]()),
+      request = put(url = path / "users" / segment[UserId]("userId"), jsonRequest[AdminUpdateUser]()),
       response = emptyResponse().withCreatedStatus().orForbidden(),
+      tags = List("User")
+    )
+
+  /** Current user update endpoint definition */
+  def updateCurrentUser: Endpoint[(UpdateCurrentUser), Unit] =
+    endpoint(
+      request = put(url = path / "users" / "me", jsonRequest[UpdateCurrentUser]()),
+      response = emptyResponse().withCreatedStatus(),
       tags = List("User")
     )
 

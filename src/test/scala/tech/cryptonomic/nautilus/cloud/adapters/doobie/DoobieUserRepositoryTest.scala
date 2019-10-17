@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import org.scalatest._
+import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
@@ -121,12 +122,22 @@ class DoobieUserRepositoryTest
       "update user" in {
         // given
         sut
-          .createUser(exampleCreateUser.copy(userRole = Role.Administrator, accountDescription = None))
+          .createUser(
+            exampleCreateUser.copy(userRole = Role.Administrator, newsletterAccepted = false, accountDescription = None)
+          )
           .unsafeRunSync()
 
         // when
         sut
-          .updateUser(1, UpdateUser(userRole = Role.User, accountDescription = Some("brand new description")))
+          .updateUser(
+            1,
+            UpdateUser(
+              userRole = Role.User.some,
+              newsletterAccepted = true.some,
+              accountDescription = "brand new description".some
+            ),
+            now
+          )
           .unsafeRunSync()
 
         // and
@@ -135,6 +146,8 @@ class DoobieUserRepositoryTest
         // then
         fetchedUser.value should have(
           'userRole (Role.User),
+          'newsletterAccepted (true),
+          'newsletterAcceptedDate (now.some),
           'accountDescription (Some("brand new description"))
         )
       }

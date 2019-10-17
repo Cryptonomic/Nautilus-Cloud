@@ -1,5 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.application
 
+import cats.implicits._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, ConfirmRegistration}
@@ -126,11 +127,31 @@ class UserApplicationTest
         )
 
         // when
-        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
+        sut.updateUser(1, AdminUpdateUser(Role.User.some, "some description".some))(adminSession)
 
         // then
         sut.getUser(1)(adminSession).right.value.value should have(
           'userRole (Role.User),
+          'accountDescription (Some("some description"))
+        )
+      }
+
+      "update current user" in {
+        // given
+        userRepository.createUser(
+          exampleCreateUser.copy(
+            newsletterAccepted = false,
+            accountDescription = None
+          )
+        )
+
+        // when
+        sut.updateCurrentUser(UpdateCurrentUser(newsletterAccepted = Some(true), Some("some description")))(userSession)
+
+        // then
+        sut.getUser(1)(adminSession).right.value.value should have(
+          'newsletterAccepted (true),
+          'newsletterAcceptedDate (context.now.some),
           'accountDescription (Some("some description"))
         )
       }
@@ -165,11 +186,11 @@ class UserApplicationTest
       }
 
       "get PermissionDenied on updating user when requesting user is not an admin" in {
-        // when
-        sut.updateUser(1, UpdateUser(Role.User, Some("some description")))(adminSession)
-
-        // then
-        sut.getUser(1)(userSession).left.value shouldBe a[AccessDenied]
+        // expect
+        sut
+          .updateUser(1, AdminUpdateUser(Role.User.some, "some description".some))(userSession)
+          .left
+          .value shouldBe a[AccessDenied]
       }
     }
 }

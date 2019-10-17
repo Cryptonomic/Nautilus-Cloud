@@ -53,12 +53,28 @@ case class CreateUser(
 
 /** Class used in user update */
 case class UpdateUser(
-    userRole: Role,
+    userRole: Option[Role] = None,
+    newsletterAccepted: Option[Boolean] = None,
     accountDescription: Option[String] = None
-)
+) {
+  def isEmpty: Boolean = userRole.isEmpty && newsletterAccepted.isEmpty && accountDescription.isEmpty
+
+  def newsletterAcceptedDate(now: => Instant): Option[Option[Instant]] =
+    newsletterAccepted.map(it => now.some.filter(_ => it))
+}
 
 /** Class used in current user update */
 case class UpdateCurrentUser(
     newsletterAccepted: Option[Boolean],
     accountDescription: Option[String] = None
-)
+) {
+  lazy val updateUser: UpdateUser = this.transformInto[UpdateUser]
+}
+
+/** Class used in admin user update */
+case class AdminUpdateUser(
+    userRole: Option[Role],
+    accountDescription: Option[String] = None
+) {
+  lazy val updateUser: UpdateUser = this.transformInto[UpdateUser]
+}

@@ -60,6 +60,7 @@ class Routes(
                 // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
                 concat(
                   userRoutes.getCurrentUserRoute,
+                  userRoutes.updateCurrentUserRoute,
                   apiKeysRoutes.getCurrentUserKeysRoute,
                   apiKeysRoutes.getCurrentKeyUsageRoute
                 ),

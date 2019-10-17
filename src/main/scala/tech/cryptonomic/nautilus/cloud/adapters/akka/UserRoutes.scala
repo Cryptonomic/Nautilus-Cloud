@@ -23,6 +23,10 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
       userApplication.updateUser(userId, user).unsafeToFuture()
   }
 
+  /** Current user update route implementation */
+  def updateCurrentUserRoute(implicit session: Session): Route = updateCurrentUser.implementedByAsync(user =>
+    userApplication.updateCurrentUser(user).unsafeToFuture())
+
   /** User route implementation */
   def getUserRoute(implicit session: Session): Route = getUser.implementedByAsync { userId =>
     userApplication.getUser(userId).unsafeToFuture()
@@ -34,8 +38,9 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
   }
 
   /** Users route implementation */
-  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync { case ((userId, email, apiKey), limit, page) =>
-    userApplication.getUsers(userId, email, apiKey)(Pagination(limit, page)).unsafeToFuture()
+  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync {
+    case ((userId, email, apiKey), limit, page) =>
+      userApplication.getUsers(userId, email, apiKey)(Pagination(limit, page)).unsafeToFuture()
   }
 
   /** Delete current user route implementation */

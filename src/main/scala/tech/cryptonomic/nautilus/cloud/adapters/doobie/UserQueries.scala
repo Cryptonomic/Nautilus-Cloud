@@ -4,7 +4,7 @@ import java.time.Instant
 
 import doobie._
 import doobie.implicits._
-import doobie.util.fragments.whereAndOpt
+import doobie.util.fragments.{setOpt, whereAndOpt}
 import doobie.util.query.Query0
 import doobie.util.update.Update0
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
@@ -31,17 +31,24 @@ trait UserQueries {
          |${userReg.registrationIp}, ${userReg.accountDescription})""".stripMargin.update
 
   /** Updates user */
-  def updateUserQuery(id: UserId, user: UpdateUser): Update0 =
-    sql"UPDATE users SET userrole = ${user.userRole}, accountdescription = ${user.accountDescription} WHERE userid = $id and deleteddate is null".update
+  def updateUserQuery(id: UserId, user: UpdateUser, now: => Instant): Update0 = {
+
+    val setFragment = setOpt(
+      user.userRole.map(role => fr"userrole = $role"),
+      user.newsletterAccepted.map(newsletterAccepted => fr"newsletterAccepted = $newsletterAccepted"),
+      user.newsletterAcceptedDate(now).map(newsletterAcceptedDate => fr"newsletterAcceptedDate = $newsletterAcceptedDate"),
+      user.accountDescription.map(accountDescription => fr"accountdescription = $accountDescription")
+    )
+    (fr"UPDATE users" ++ setFragment ++ fr"WHERE userid = $id and deleteddate is null").update
+  }
 
   /** Deletes user */
   def deleteUserQuery(id: UserId, now: Instant): Update0 =
-    sql"""UPDATE users SET useremail = $deletedEmailHash, deleteddate = $now WHERE userid = $id""".stripMargin.update
+    sql"UPDATE users SET useremail = $deletedEmailHash, deleteddate = $now WHERE userid = $id".update
 
   /** Returns user */
   def getUserQuery(userId: UserId): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE userid = $userId and deleteddate is null"
-      .query[User]
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE userid = $userId and deleteddate is null".query[User]
 
   /** Returns user by email address */
   def getUserByEmailQuery(email: String): Query0[User] =

@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 import java.time.Instant
 
 import cats.effect.IO
+import cats.implicits._
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 import org.scalatest.{Matchers, WordSpec}
@@ -22,8 +23,8 @@ class UserQueriesTest extends WordSpec with Matchers with Fixtures with IOChecke
       "check creation of user" in {
         check(sut.createUserQuery(exampleCreateUser))
       }
-      "check updating of user " in {
-        check(sut.updateUserQuery(1, UpdateUser(Role.User, None)))
+      "check updating of user" in {
+        check(sut.updateUserQuery(1, UpdateUser(Role.User.some, true.some, "description".some), Instant.now))
       }
       "check deleting of user " in {
         check(sut.deleteUserQuery(1, Instant.now()))
@@ -36,14 +37,14 @@ class UserQueriesTest extends WordSpec with Matchers with Fixtures with IOChecke
       }
       "check getUsers" in {
         check(
-          sut.getUsersQuery(searchCriteria = SearchCriteria(Some(1), Some("name@domain.com"), Some("api-key")))(
+          sut.getUsersQuery(searchCriteria = SearchCriteria(1.some, "name@domain.com".some, "api-key".some))(
             Pagination.allResults
           )
         )
         check(sut.getUsersQuery(SearchCriteria.empty)(Pagination.allResults))
       }
       "check getUsersCount" in {
-        check(sut.getUsersCountQuery(SearchCriteria(Some(1), Some("name@domain.com"), apiKey = Some("api-key"))))
+        check(sut.getUsersCountQuery(SearchCriteria(1.some, "name@domain.com".some, apiKey = "api-key".some)))
         check(sut.getUsersCountQuery(SearchCriteria.empty))
       }
     }
