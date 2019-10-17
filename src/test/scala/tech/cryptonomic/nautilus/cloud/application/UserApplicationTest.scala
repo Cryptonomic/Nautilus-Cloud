@@ -83,8 +83,7 @@ class UserApplicationTest
         )
 
         // expect
-        sut.getCurrentUser(adminSession.copy(email = "user@domain.com"))
-          .value shouldBe User(
+        sut.getCurrentUser(adminSession.copy(email = "user@domain.com")).value shouldBe User(
           userId = 1,
           userEmail = "user@domain.com",
           userRole = Role.Administrator,
@@ -140,7 +139,9 @@ class UserApplicationTest
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         val registrationAttemptId = authService.resolveAuthCode("authCode").right.value.left.value
-        authService.acceptRegistration(ConfirmRegistration(registrationAttemptId))
+        authService.acceptRegistration(
+          ConfirmRegistration(registrationAttemptId = registrationAttemptId, tosAccepted = true)
+        )
 
         sut.getCurrentUser(userSession.copy(email = "name@domain.com")) should not be empty
         apiKeyService.getUserApiKeys(1) should not be empty

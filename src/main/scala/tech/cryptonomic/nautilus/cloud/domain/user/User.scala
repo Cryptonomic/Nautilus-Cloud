@@ -5,6 +5,7 @@ import java.time.Instant
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import cats.implicits._
 import io.scalaland.chimney.dsl._
 
 /** Class representing User */
@@ -40,7 +41,7 @@ case class CreateUser(
 ) extends Product
     with Serializable {
 
-  lazy val newsletterAcceptedDate: Option[Instant] = Some(registrationDate).filter(_ => newsletterAccepted)
+  lazy val newsletterAcceptedDate: Option[Instant] = registrationDate.some.filter(_ => newsletterAccepted)
 
   def toUser(id: UserId): User =
     this
@@ -53,5 +54,11 @@ case class CreateUser(
 /** Class used in user update */
 case class UpdateUser(
     userRole: Role,
+    accountDescription: Option[String] = None
+)
+
+/** Class used in current user update */
+case class UpdateCurrentUser(
+    newsletterAccepted: Option[Boolean],
     accountDescription: Option[String] = None
 )

@@ -17,7 +17,6 @@ case class RegistrationAttempt(
       confirmRegistration: ConfirmRegistration,
       authenticationProvider: AuthenticationProvider,
       tierId: TierId,
-      ip: Option[String]
   ) =
     CreateUser(
       userEmail,
@@ -27,7 +26,7 @@ case class RegistrationAttempt(
       tierId,
       confirmRegistration.tosAccepted,
       confirmRegistration.newsletterAccepted,
-      ip
+      confirmRegistration.ipAddress
     )
 }
 
@@ -37,6 +36,7 @@ object RegistrationAttempt {
 
 final case class ConfirmRegistration(
     registrationAttemptId: RegistrationAttemptId,
+    ipAddress: Option[String] = None,
     tosAccepted: Boolean = false,
     newsletterAccepted: Boolean = false
 )

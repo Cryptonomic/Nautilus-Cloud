@@ -4,7 +4,7 @@ import java.time.{Instant, ZonedDateTime}
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{ConfirmRegistration, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
@@ -24,6 +24,8 @@ trait Fixtures {
   val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, true, true)
 
   val exampleUpdateUser = UpdateUser(Role.User, None)
+
+  val exampleConfirmRegistration = ConfirmRegistration("some-id")
 
   val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User)
   val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator)

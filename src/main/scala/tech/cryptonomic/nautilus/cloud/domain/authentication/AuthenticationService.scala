@@ -37,23 +37,33 @@ class AuthenticationService[F[_]: Monad](
       .value
 
   /* confirms started registration */
-  def acceptRegistration(confirmRegistration: ConfirmRegistration, ip: Option[String] = None): F[Result[User]] =
-    (for {
-      registrationAttempt <- EitherT(registrationAttemptRepository.pop(confirmRegistration.registrationAttemptId))
-      defaultTier <- EitherT.right(tiersRepository.getDefault)
-      now <- EitherT.right(clock.currentInstant)
-      currentUsage = defaultTier.getCurrentUsage(now)
-      createUser = registrationAttempt.toCreateUser(confirmRegistration, config.provider, defaultTier.tierId, ip)
-      userId <- EitherT(userRepository.createUser(createUser))
-      _ <- EitherT.right[Throwable](apiKeyService.initializeApiKeys(userId, currentUsage))
-    } yield createUser.toUser(userId)).value
+  def acceptRegistration(confirmRegistration: ConfirmRegistration): F[Result[User]] =
+    validate(confirmRegistration) {
+      for {
+        registrationAttempt <- EitherT(registrationAttemptRepository.pop(confirmRegistration.registrationAttemptId))
+        defaultTier <- EitherT.right(tiersRepository.getDefault)
+        now <- EitherT.right(clock.currentInstant)
+        currentUsage = defaultTier.getCurrentUsage(now)
+        createUser = registrationAttempt.toCreateUser(confirmRegistration, config.provider, defaultTier.tierId)
+        userId <- EitherT(userRepository.createUser(createUser))
+        _ <- EitherT.right[Throwable](apiKeyService.initializeApiKeys(userId, currentUsage))
+      } yield createUser.toUser(userId)
+    }
+
+  private def validate(
+      confirmRegistration: ConfirmRegistration
+  )(ifValid: => EitherT[F, Throwable, User]): F[Result[User]] =
+    if (confirmRegistration.tosAccepted)
+      ifValid.value
+    else
+      (TosNotAcceptedException().asLeft[User]: Result[User]).pure[F]
 
   private def exchangeCodeForAccessToken(code: String) =
     EitherT(authenticationRepository.exchangeCodeForAccessToken(code))
 
   private def fetchEmail(accessToken: String) = EitherT(authenticationRepository.fetchEmail(accessToken))
 
-  private def getUserOrStartRegistration(email: String) = {
+  private def getUserOrStartRegistration(email: String): EitherT[F, Throwable, Either[String, User]] = {
     val result = EitherT.right(for {
       now <- clock.currentInstant
       user <- userRepository.getUserByEmailAddress(email)
@@ -68,3 +78,5 @@ class AuthenticationService[F[_]: Monad](
     }
   }
 }
+
+final case class TosNotAcceptedException() extends Throwable

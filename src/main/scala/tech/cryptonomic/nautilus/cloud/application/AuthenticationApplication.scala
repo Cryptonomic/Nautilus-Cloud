@@ -20,6 +20,6 @@ class AuthenticationApplication[F[_]](
     authenticationService.resolveAuthCode(code)
 
   /* accept registration */
-  def acceptRegistration(acceptRegistration: ConfirmRegistration, ip: Option[String] = None): F[Result[User]] =
-    authenticationService.acceptRegistration(acceptRegistration, ip)
+  def acceptRegistration(acceptRegistration: ConfirmRegistration): F[Result[User]] =
+    authenticationService.acceptRegistration(acceptRegistration)
 }

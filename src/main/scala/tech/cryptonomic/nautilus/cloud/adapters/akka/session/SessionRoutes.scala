@@ -76,7 +76,11 @@ class SessionRoutes(
                 registrationAttemptRequest =>
                   onComplete(
                     authenticationApplication
-                      .acceptRegistration(registrationAttemptRequest, ip.toIP.map(_.ip.getHostAddress))
+                      .acceptRegistration(
+                        registrationAttemptRequest.copy(
+                          ipAddress = ip.toIP.map(_.ip.getHostAddress).orElse(registrationAttemptRequest.ipAddress)
+                        )
+                      )
                       .unsafeToFuture()
                   ) {
                     case Success(Right(user)) =>

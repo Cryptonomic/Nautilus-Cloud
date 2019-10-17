@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.ConfirmRegistration
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{ConfirmRegistration, TosNotAcceptedException}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -80,7 +80,10 @@ class AuthenticationApplicationTest
 
         // when
         val registrationAttemptId = authenticationApplication.resolveAuthCode("authCode").right.value.left.value
-        val user = authenticationApplication.acceptRegistration(ConfirmRegistration(registrationAttemptId)).right.value
+        val user = authenticationApplication
+          .acceptRegistration(ConfirmRegistration(registrationAttemptId = registrationAttemptId, tosAccepted = true))
+          .right
+          .value
 
         // then
         user shouldEqual userRepository.getUser(1).value
@@ -97,6 +100,14 @@ class AuthenticationApplicationTest
       "return Left when a given auth code shouldn't be resolved" in {
         // expect
         authenticationApplication.resolveAuthCode("authCode").left.value
+      }
+
+      "not process when terms of conditions weren't accepted" in {
+        // expect
+        authenticationApplication
+          .acceptRegistration(exampleConfirmRegistration.copy(tosAccepted = false))
+          .left
+          .value shouldBe TosNotAcceptedException()
       }
     }
 }

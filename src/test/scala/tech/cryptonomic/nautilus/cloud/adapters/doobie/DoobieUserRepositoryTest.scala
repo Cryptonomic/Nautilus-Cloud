@@ -37,7 +37,7 @@ class DoobieUserRepositoryTest
                 accountSource = Github,
                 tierId = 1,
                 tosAccepted = true,
-                newsletterAccepted = false,
+                newsletterAccepted = true,
                 registrationIp = None
               )
             )
@@ -58,8 +58,8 @@ class DoobieUserRepositoryTest
             registrationDate = now,
             accountSource = Github,
             tosAccepted = true,
-            newsletterAccepted = false,
-            newsletterAcceptedDate = None, //@todo
+            newsletterAccepted = true,
+            newsletterAcceptedDate = Some(now),
             accountDescription = None
           )
         )
