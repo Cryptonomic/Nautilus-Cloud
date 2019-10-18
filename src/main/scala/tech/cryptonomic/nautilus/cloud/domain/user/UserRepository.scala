@@ -2,6 +2,8 @@ package tech.cryptonomic.nautilus.cloud.domain.user
 
 import java.time.Instant
 
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.SearchCriteria
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -23,4 +25,9 @@ trait UserRepository[F[_]] {
 
   /** Returns user by email address */
   def getUserByEmailAddress(email: String): F[Option[User]]
+
+  /** Returns all users */
+  def getUsers(searchCriteria: SearchCriteria = SearchCriteria())(
+      pagination: Pagination = Pagination.allResults
+  ): F[PaginatedResult[User]]
 }

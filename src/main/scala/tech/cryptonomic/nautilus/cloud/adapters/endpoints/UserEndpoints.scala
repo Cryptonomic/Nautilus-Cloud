@@ -2,7 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.UserSchemas
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.pagination.PaginatedResult
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{UpdateUser, User}
 
@@ -29,10 +31,31 @@ trait UserEndpoints
       tags = List("User")
     )
 
+  /** Users endpoint definition */
+  def getUsers: Endpoint[((Option[UserId], Option[Email], Option[String]), Option[Int], Option[Int]), Permission[PaginatedResult[User]]] =
+    endpoint(
+      request = get(url = path / "users" /? (
+        qs[Option[UserId]]("userId") &
+        qs[Option[Email]]("email") &
+        qs[Option[String]]("apiKey") &
+        qs[Option[Int]]("limit") &
+        qs[Option[Int]]("page"))),
+      response = jsonResponse[PaginatedResult[User]]().orForbidden(),
+      tags = List("User")
+    )
+
   /** Delete currently logged-in user endpoint definition */
   def deleteCurrentUser: Endpoint[Unit, Permission[Unit]] =
     endpoint(
       request = delete(url = path / "users" / "me"),
+      response = emptyResponse().orForbidden(),
+      tags = List("User")
+    )
+
+  /** Delete user endpoint definition */
+  def deleteUser: Endpoint[UserId, Permission[Unit]] =
+    endpoint(
+      request = delete(url = path / "users" / segment[UserId]("userId")),
       response = emptyResponse().orForbidden(),
       tags = List("User")
     )

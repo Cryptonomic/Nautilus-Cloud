@@ -135,15 +135,168 @@ class UserRoutesTest
         }
 
         // when
-        val putRequest = Delete("/users/me") ~> sut.deleteUserRoute(userSession)
+        val putResponse = Delete("/users/me") ~> sut.deleteCurrentUserRoute(userSession)
 
         // then
-        putRequest ~> check {
+        putResponse ~> check {
           status shouldEqual StatusCodes.OK
         }
 
         Get("/users/me") ~> sut.getCurrentUserRoute(userSession) ~> check {
           status shouldEqual StatusCodes.NotFound
+        }
+      }
+
+      "delete a user" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        // when
+        val deleteResponse = Delete("/users/1") ~> sut.deleteUserRoute(adminSession)
+
+        // then
+        deleteResponse ~> check {
+          status shouldEqual StatusCodes.OK
+        }
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
+          status shouldEqual StatusCodes.NotFound
+        }
+      }
+
+      "get all users" in {
+        // given
+        userRepository.createUser(exampleCreateUser)
+
+        // when
+        val usersResponse = Get("/users") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userId": 1,
+              |      "userRole": "user",
+              |      "userEmail": "email@example.com",
+              |      "registrationDate": "2019-05-27T17:03:48.081Z",
+              |      "accountSource": "github"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
+      "get users filtered by email address" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?email=test1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
+      "get users filtered by id" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?userId=2") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test2@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
+      "get users filtered by api key" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(key = "some-api-key-1", userId = 1))
+        apiKeyRepository.putApiKey(exampleCreateApiKey.copy(key = "some-api-key-2", userId = 2))
+
+        // when
+        val usersResponse = Get("/users?apiKey=key-1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 1,
+              |  "resultCount": 1,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
+        }
+      }
+
+      "paginate users" in {
+        // given
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test1@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "test2@domain.com"))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "different-login@domain.com"))
+
+        // when
+        val usersResponse = Get("/users?email=test&page=1&limit=1") ~> sut.getUsersRoute(adminSession)
+
+        // then
+        usersResponse ~> check {
+          status shouldEqual StatusCodes.OK
+          responseAs[String] should matchJson(
+            """{
+              |  "pagesTotal": 2,
+              |  "resultCount": 2,
+              |  "result": [
+              |    {
+              |      "userEmail": "test1@domain.com"
+              |    }
+              |  ]
+              |}""".stripMargin
+          )
         }
       }
 

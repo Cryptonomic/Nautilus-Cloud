@@ -4,12 +4,14 @@ import java.time.Instant
 
 import cats.Monad
 import cats.effect.Bracket
+import cats.syntax.functor._
 import doobie.enum.SqlState
 import doobie.implicits._
 import doobie.util.transactor.Transactor
+import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Email
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
-import cats.syntax.functor._
 
 import scala.language.higherKinds
 
@@ -43,6 +45,26 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
   /** Returns user by email address */
   override def getUserByEmailAddress(email: String): F[Option[User]] =
     getUserByEmailQuery(email).option.transact(transactor)
+
+  /** Returns all users */
+  override def getUsers(searchCriteria: SearchCriteria)(
+      pagination: Pagination
+  ): F[PaginatedResult[User]] = {
+
+    val paginatedResult = for {
+      resultCount <- getUsersCountQuery(searchCriteria).unique
+      users <- getUsersQuery(searchCriteria)(pagination).to[List]
+    } yield PaginatedResult(pagination.pagesTotal(resultCount.toInt), resultCount, users)
+
+    paginatedResult.transact(transactor)
+  }
 }
+
+final case class SearchCriteria(
+    userId: Option[UserId] = None,
+    email: Option[Email] = None,
+    apiKey: Option[String] = None
+) extends Product
+    with Serializable
 
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)

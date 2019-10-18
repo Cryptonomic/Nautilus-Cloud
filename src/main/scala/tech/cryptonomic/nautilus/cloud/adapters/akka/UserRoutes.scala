@@ -8,6 +8,8 @@ import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserApplication}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
+import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** User routes implementation */
 class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKeyApplication[IO])
@@ -32,8 +34,17 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
     userApplication.getCurrentUser.unsafeToFuture()
   }
 
+  /** Users route implementation */
+  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync { case ((userId, email, apiKey), limit, page) =>
+    userApplication.getUsers(userId, email, apiKey)(Pagination(limit, page)).unsafeToFuture()
+  }
+
   /** Delete current user route implementation */
-  def deleteUserRoute(implicit userSession: Session): Route = deleteCurrentUser.implementedByAsync { _ =>
+  def deleteCurrentUserRoute(implicit userSession: Session): Route = deleteCurrentUser.implementedByAsync { _ =>
     userApplication.deleteCurrentUser.unsafeToFuture()
+  }
+
+  def deleteUserRoute(implicit userSession: Session): Route = deleteUser.implementedByAsync { userId =>
+    userApplication.deleteUser(userId).unsafeToFuture()
   }
 }

@@ -66,7 +66,13 @@ class Routes(
                   apiKeysRoutes.getUserKeysRoute,
                   apiKeysRoutes.getApiKeyUsageRoute
                 ),
-                concat(userRoutes.getUserRoute, userRoutes.updateUserRoute, userRoutes.deleteUserRoute),
+                concat(
+                  userRoutes.getUserRoute,
+                  userRoutes.updateUserRoute,
+                  userRoutes.deleteCurrentUserRoute,
+                  userRoutes.deleteUserRoute,
+                  userRoutes.getUsersRoute
+                ),
                 concat(tierRoutes.createTierRoute, tierRoutes.getTierRoute),
                 concat(resourceRoutes.getResource, resourceRoutes.createResource, resourceRoutes.listResources)
               )

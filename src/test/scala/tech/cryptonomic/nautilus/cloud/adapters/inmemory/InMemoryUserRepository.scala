@@ -4,12 +4,15 @@ import java.time.Instant
 
 import cats.Applicative
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.adapters.doobie.SearchCriteria
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyRepository
+import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User, UserRepository}
 
 import scala.language.higherKinds
 
-class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
+class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: ApiKeyRepository[F]) extends UserRepository[F] {
 
   /** list of all users
     *
@@ -53,6 +56,32 @@ class InMemoryUserRepository[F[_]: Applicative] extends UserRepository[F] {
   override def getUserByEmailAddress(email: String): F[Option[User]] = this.synchronized {
     users.find(_.userEmail == email).pure[F]
   }
+
+  /** Returns all users */
+  override def getUsers(searchCriteria: SearchCriteria)(
+      pagination: Pagination
+  ): F[PaginatedResult[User]] =
+    users
+      .filter(user => searchCriteria.userId.forall(user.userId.equals))
+      .filter(user => searchCriteria.email.forall(user.userEmail.contains))
+      .filterA(
+        user =>
+          searchCriteria.apiKey.fold(true.pure[F])(
+            apiKey =>
+              apiKeyRepository
+                .getCurrentActiveApiKeys(user.userId)
+                .map(_.exists(a =>
+                  a.key.contains(apiKey)))
+          )
+      )
+      .map(
+        result =>
+          PaginatedResult(
+            pagination.pagesTotal(result.size),
+            result.size,
+            result.slice(pagination.offset, pagination.offset + pagination.pageSize)
+          )
+      )
 
   /** Clears repository */
   def clear(): Unit = this.synchronized {
