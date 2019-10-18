@@ -5,7 +5,7 @@ import java.time.Instant
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.authentication
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationAttempt, RegistrationAttemptNotFoundException}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationAttempt, RegistrationAttemptConfiguration, RegistrationAttemptNotFoundException}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider
 
 import scala.concurrent.duration._
@@ -16,7 +16,7 @@ class InMemoryRegistrationAttemptRepositoryTest
     with Matchers
     with EitherValues {
 
-  val sut = new InMemoryRegistrationAttemptRepository(50 milliseconds)
+  val sut = new InMemoryRegistrationAttemptRepository(RegistrationAttemptConfiguration(50 milliseconds))
 
   "InMemoryRegistrationAttemptRepository" should {
       "save registration attempt" in {

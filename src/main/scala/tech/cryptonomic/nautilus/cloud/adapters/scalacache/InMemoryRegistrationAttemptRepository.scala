@@ -9,14 +9,14 @@ import scalacache.{Cache, Entry}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
   RegistrationAttempt,
+  RegistrationAttemptConfiguration,
   RegistrationAttemptNotFoundException,
   RegistrationAttemptRepository
 }
 
-import scala.concurrent.duration.{Duration, _}
 import scala.language.{higherKinds, postfixOps}
 
-class InMemoryRegistrationAttemptRepository[F[_]: Applicative](duration: Duration = 10 minutes)
+class InMemoryRegistrationAttemptRepository[F[_]: Applicative](configuration: RegistrationAttemptConfiguration)
     extends RegistrationAttemptRepository[F] {
 
   private val underlyingGuavaCache =
@@ -25,7 +25,7 @@ class InMemoryRegistrationAttemptRepository[F[_]: Applicative](duration: Duratio
 
   override def save(registrationAttempt: RegistrationAttempt): F[Either[Throwable, Unit]] =
     cache
-      .cachingForMemoize(registrationAttempt.id)(Some(duration))(registrationAttempt)
+      .cachingForMemoize(registrationAttempt.id)(Some(configuration.ttlDuration))(registrationAttempt)
       .pure[F]
       .map(_.toEither.map(_ => ()))
 

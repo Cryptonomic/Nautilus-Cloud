@@ -32,14 +32,14 @@ class DoobieUserRepository[F[_]: Applicative](transactor: Transactor[F])(implici
       .transact(transactor)
 
   /** Updates user */
-  override def updateUser(id: UserId, user: UpdateUser, now: Instant): F[Unit] =
+  override def updateUser(id: UserId, user: UpdateUser, now: => Instant): F[Unit] =
     if (user.isEmpty)
       ().pure[F]
     else
-      updateUserQuery(id, user, now).run.map(_ => ()).transact(transactor)
+      updateUserQuery(id, user, now).run.void.transact(transactor)
 
   /** Delete user */
-  override def deleteUser(id: UserId, now: Instant): F[Unit] = deleteUserQuery(id, now).run.map(_ => ()).transact(transactor)
+  override def deleteUser(id: UserId, now: Instant): F[Unit] = deleteUserQuery(id, now).run.void.transact(transactor)
 
   /** Returns user */
   override def getUser(id: UserId): F[Option[User]] =
