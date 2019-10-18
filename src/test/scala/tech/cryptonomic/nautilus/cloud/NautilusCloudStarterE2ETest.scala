@@ -1,14 +1,12 @@
 package tech.cryptonomic.nautilus.cloud
 
 import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
-import java.time.Instant
 
+import cats.implicits._
 import com.softwaremill.sttp._
 import io.circe.parser._
-import cats.implicits._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
-import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools._
 
@@ -262,9 +260,6 @@ class NautilusCloudStarterE2ETest
       }
     }
 
-  private def extractRegistrationAttemptId(githubInit: Response[String]): String =
-    parse(githubInit.body.right.value).right.value.hcursor.get[String]("registrationAttemptId").right.value
-
   private def login(email: String = "some@domain.com"): Response[String] = {
     stubAuthServiceFor(authCode = "auth-code", email = email)
 
@@ -290,4 +285,7 @@ class NautilusCloudStarterE2ETest
 
     result
   }
+
+  private def extractRegistrationAttemptId(githubInit: Response[String]): String =
+    parse(githubInit.body.right.value).right.value.hcursor.get[String]("registrationAttemptId").right.value
 }

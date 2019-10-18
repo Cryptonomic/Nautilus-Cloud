@@ -2,13 +2,14 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import java.time.ZonedDateTime
 
+import cats.implicits._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import cats.effect.{Clock, IO}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedClock, JsonMatchers}
 
@@ -37,7 +38,10 @@ class UserRoutesTest
             userEmail = "email@example.com",
             userRole = Role.User,
             registrationDate = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            accountSource = Github
+            accountSource = Github,
+            tosAccepted = true,
+            newsletterAccepted = true,
+            accountDescription = "some description".some
           )
         )
 
@@ -51,12 +55,16 @@ class UserRoutesTest
           responseAs[String] should matchJson(
             """{
                                                     |  "userId": 1,
-                                                    |  "userRole": "user",
                                                     |  "userEmail": "email@example.com",
+                                                    |  "userRole": "user",
                                                     |  "registrationDate": "2019-05-27T17:03:48.081Z",
-                                                    |  "accountSource": "github"
+                                                    |  "accountSource": "github",
+                                                    |  "tosAccepted": true,
+                                                    |  "newsletterAccepted": true,
+                                                    |  "newsletterAcceptedDate": "2019-05-27T17:03:48.081Z",
+                                                    |  "accountDescription": "some description"
                                                     |}
-                                                  """.stripMargin // @todo additional fields
+                                                  """.stripMargin
           )
         }
       }

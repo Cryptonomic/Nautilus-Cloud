@@ -46,7 +46,7 @@ class AuthenticationService[F[_]: Monad](
         currentUsage = defaultTier.getCurrentUsage(now)
         createUser = registrationAttempt.toCreateUser(confirmRegistration, config.provider, defaultTier.tierId)
         userId <- EitherT(userRepository.createUser(createUser))
-        _ <- EitherT.right[Throwable](apiKeyService.initializeApiKeys(userId, currentUsage))
+        _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
       } yield createUser.toUser(userId)
     }
 
@@ -63,7 +63,7 @@ class AuthenticationService[F[_]: Monad](
 
   private def fetchEmail(accessToken: String) = EitherT(authenticationRepository.fetchEmail(accessToken))
 
-  private def getUserOrStartRegistration(email: String): EitherT[F, Throwable, Either[String, User]] = {
+  private def getUserOrStartRegistration(email: String): EitherT[F, Throwable, Either[RegistrationAttemptId, User]] = {
     val result = EitherT.right(for {
       now <- clock.currentInstant
       user <- userRepository.getUserByEmailAddress(email)
@@ -71,7 +71,7 @@ class AuthenticationService[F[_]: Monad](
 
     result.flatMap {
       case Right(user) =>
-        EitherT.rightT[F, Throwable](user.asRight[String])
+        EitherT.rightT(user.asRight[RegistrationAttemptId])
       case Left(registrationAttempt) =>
         EitherT(registrationAttemptRepository.save(registrationAttempt))
           .map(_ => registrationAttempt.id.asLeft[User])
