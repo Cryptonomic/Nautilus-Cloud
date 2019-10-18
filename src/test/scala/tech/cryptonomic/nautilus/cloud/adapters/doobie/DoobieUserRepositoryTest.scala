@@ -2,8 +2,8 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
-import org.scalatest._
 import cats.implicits._
+import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}

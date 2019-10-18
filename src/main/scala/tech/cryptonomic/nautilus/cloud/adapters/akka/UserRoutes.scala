@@ -4,8 +4,7 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, UserEndpoints}
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserApplication}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
