@@ -44,11 +44,11 @@ class UserQueriesTest extends WordSpec with Matchers with IOChecker with InMemor
             Pagination.allResults
           )
         )
-        check(sut.getUsersQuery(SearchCriteria.empty)(Pagination.allResults))
+        check(sut.getUsersQuery(SearchCriteria())(Pagination.allResults))
       }
       "check getUsersCount" in {
         check(sut.getUsersCountQuery(SearchCriteria(Some(1), Some("name@domain.com"), apiKey = Some("api-key"))))
-        check(sut.getUsersCountQuery(SearchCriteria.empty))
+        check(sut.getUsersCountQuery(SearchCriteria()))
       }
     }
 }

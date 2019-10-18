@@ -67,8 +67,4 @@ final case class SearchCriteria(
 ) extends Product
     with Serializable
 
-object SearchCriteria {
-  lazy val empty = SearchCriteria()
-}
-
 final case class DoobieUniqueUserViolationException(message: String) extends Exception(message)
