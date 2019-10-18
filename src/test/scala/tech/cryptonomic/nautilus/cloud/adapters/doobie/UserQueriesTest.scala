@@ -41,11 +41,11 @@ class UserQueriesTest extends WordSpec with Matchers with Fixtures with IOChecke
             Pagination.allResults
           )
         )
-        check(sut.getUsersQuery(SearchCriteria.empty)(Pagination.allResults))
+        check(sut.getUsersQuery(SearchCriteria())(Pagination.allResults))
       }
       "check getUsersCount" in {
         check(sut.getUsersCountQuery(SearchCriteria(1.some, "name@domain.com".some, apiKey = "api-key".some)))
-        check(sut.getUsersCountQuery(SearchCriteria.empty))
+        check(sut.getUsersCountQuery(SearchCriteria()))
       }
     }
 }
