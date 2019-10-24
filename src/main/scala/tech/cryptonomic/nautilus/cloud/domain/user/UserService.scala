@@ -1,7 +1,5 @@
 package tech.cryptonomic.nautilus.cloud.domain.user
 
-import java.time.Instant
-
 import cats.Monad
 import cats.implicits._
 import cats.effect.Clock

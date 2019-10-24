@@ -10,7 +10,11 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.tier.{TierConfiguration, TierName, Usage}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedClock, JsonMatchers}
+import tech.cryptonomic.nautilus.cloud.tools.{
+  DefaultNautilusContextWithInMemoryImplementations,
+  FixedClock,
+  JsonMatchers
+}
 
 class TierRoutesTest
     extends WordSpec

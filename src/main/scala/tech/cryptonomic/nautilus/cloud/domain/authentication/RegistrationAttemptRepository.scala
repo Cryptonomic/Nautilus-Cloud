@@ -12,4 +12,4 @@ trait RegistrationAttemptRepository[F[_]] {
 
 /* Registration Attempt Not Found Exception */
 final case class RegistrationAttemptNotFoundException(registrationAttemptId: String = "")
-  extends Exception(s"Not found registration attempt for $registrationAttemptId")
+    extends Exception(s"Not found registration attempt for $registrationAttemptId")

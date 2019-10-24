@@ -23,8 +23,8 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
   }
 
   /** Current user update route implementation */
-  def updateCurrentUserRoute(implicit session: Session): Route = updateCurrentUser.implementedByAsync(user =>
-    userApplication.updateCurrentUser(user).unsafeToFuture())
+  def updateCurrentUserRoute(implicit session: Session): Route =
+    updateCurrentUser.implementedByAsync(user => userApplication.updateCurrentUser(user).unsafeToFuture())
 
   /** User route implementation */
   def getUserRoute(implicit session: Session): Route = getUser.implementedByAsync { userId =>

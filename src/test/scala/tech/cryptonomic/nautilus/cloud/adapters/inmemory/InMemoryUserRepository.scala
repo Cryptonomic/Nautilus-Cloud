@@ -12,7 +12,8 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User
 
 import scala.language.higherKinds
 
-class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: ApiKeyRepository[F]) extends UserRepository[F] {
+class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: ApiKeyRepository[F])
+    extends UserRepository[F] {
 
   /** list of all users
     *
@@ -29,7 +30,7 @@ class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: Ap
   }
 
   /** Updates user */
-  override def updateUser(id: UserId, user: UpdateUser, now: Instant): F[Unit] = this.synchronized {
+  override def updateUser(id: UserId, user: UpdateUser, now: => Instant): F[Unit] = this.synchronized {
     users = users.collect {
       case it if it.userId == id =>
         it.copy(
@@ -72,8 +73,7 @@ class InMemoryUserRepository[F[_]: Applicative](private val apiKeyRepository: Ap
             apiKey =>
               apiKeyRepository
                 .getCurrentActiveApiKeys(user.userId)
-                .map(_.exists(a =>
-                  a.key.contains(apiKey)))
+                .map(_.exists(a => a.key.contains(apiKey)))
           )
       )
       .map(

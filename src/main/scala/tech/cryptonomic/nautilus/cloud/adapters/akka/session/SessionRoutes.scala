@@ -84,7 +84,9 @@ class SessionRoutes(
                       .unsafeToFuture()
                   ) {
                     case Success(Right(user)) =>
-                      sessionOperations.setSession(user.asSession) { ctx =>
+                      sessionOperations.setSession(
+                        user.copy(tosAccepted = registrationAttemptRequest.tosAccepted).asSession
+                      ) { ctx =>
                         ctx.complete(UserResponse(user))
                       }
                     case Failure(exception) =>

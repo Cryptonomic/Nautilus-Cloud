@@ -11,7 +11,11 @@ import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedClock, JsonMatchers}
+import tech.cryptonomic.nautilus.cloud.tools.{
+  DefaultNautilusContextWithInMemoryImplementations,
+  FixedClock,
+  JsonMatchers
+}
 
 class UserRoutesTest
     extends WordSpec

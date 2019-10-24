@@ -63,5 +63,6 @@ case class TierConfigurationDto(
     startdate: Instant
 ) {
   lazy val asTierName = TierName(tier, subtier)
-  lazy val asTierConfiguration = TierConfiguration(description, Usage(dailyhits, monthlyhits), maxResultSetSize, startdate)
+  lazy val asTierConfiguration =
+    TierConfiguration(description, Usage(dailyhits, monthlyhits), maxResultSetSize, startdate)
 }

@@ -62,7 +62,7 @@ class DoobieApiKeyRepositoryTest
 
       "validate apiKey" in {
         // given
-        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(false)
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe (false)
 
         // when
         sut
@@ -70,17 +70,19 @@ class DoobieApiKeyRepositoryTest
           .unsafeRunSync()
 
         // then
-        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(true)
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe (true)
       }
 
       "suspended apiKey should not be valid" in {
         // when
         sut
-          .putApiKey(CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, Some(Instant.now())))
+          .putApiKey(
+            CreateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3", Environment.Development, 1, now, Some(Instant.now()))
+          )
           .unsafeRunSync()
 
         // then
-        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe(false)
+        sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe (false)
       }
 
       "refresh apiKey" in {

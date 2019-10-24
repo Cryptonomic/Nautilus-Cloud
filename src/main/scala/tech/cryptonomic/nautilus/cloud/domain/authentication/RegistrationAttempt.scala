@@ -16,7 +16,7 @@ case class RegistrationAttempt(
   def toCreateUser(
       confirmRegistration: ConfirmRegistration,
       authenticationProvider: AuthenticationProvider,
-      tierId: TierId,
+      tierId: TierId
   ) =
     CreateUser(
       userEmail,

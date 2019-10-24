@@ -36,7 +36,9 @@ trait UserQueries {
     val setFragment = setOpt(
       user.userRole.map(role => fr"userrole = $role"),
       user.newsletterAccepted.map(newsletterAccepted => fr"newsletterAccepted = $newsletterAccepted"),
-      user.newsletterAcceptedDate(now).map(newsletterAcceptedDate => fr"newsletterAcceptedDate = $newsletterAcceptedDate"),
+      user
+        .newsletterAcceptedDate(now)
+        .map(newsletterAcceptedDate => fr"newsletterAcceptedDate = $newsletterAcceptedDate"),
       user.accountDescription.map(accountDescription => fr"accountdescription = $accountDescription")
     )
     (fr"UPDATE users" ++ setFragment ++ fr"WHERE userid = $id and deleteddate is null").update
@@ -48,7 +50,8 @@ trait UserQueries {
 
   /** Returns user */
   def getUserQuery(userId: UserId): Query0[User] =
-    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE userid = $userId and deleteddate is null".query[User]
+    sql"SELECT userid, useremail, userrole, registrationdate, accountsource, tosAccepted, newsletterAccepted, newsletterAcceptedDate, accountdescription FROM users WHERE userid = $userId and deleteddate is null"
+      .query[User]
 
   /** Returns user by email address */
   def getUserByEmailQuery(email: String): Query0[User] =

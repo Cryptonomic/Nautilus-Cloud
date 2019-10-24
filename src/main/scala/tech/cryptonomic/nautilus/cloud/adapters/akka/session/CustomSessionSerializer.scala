@@ -16,12 +16,19 @@ object CustomSessionSerializer {
         "id" -> session.userId.toString,
         "provider" -> session.provider.name,
         "role" -> session.role.name,
-        "email" -> session.email
+        "email" -> session.email,
+        "tosAccepted" -> session.tosAccepted.toString
       )
 
   private def deserialize: Map[String, String] => Try[Session] =
     map =>
       Try(
-        Session(map("id").toInt, map("email"), AuthenticationProvider.byName(map("provider")), Role.byName(map("role")))
+        Session(
+          map("id").toInt,
+          map("email"),
+          AuthenticationProvider.byName(map("provider")),
+          Role.byName(map("role")),
+          map("tosAccepted").toBoolean
+        )
       )
 }

@@ -70,24 +70,26 @@ class ResourceApplicationTest
         )
 
         // expect
-        sut.getResources shouldBe (List(
-          Resource(
-            resourceId = 1,
-            resourceName = "Tezos Alphanet Dev",
-            description = "Conseil alphanet development environment",
-            platform = "tezos",
-            network = "alphanet",
-            environment = Environment.Development
-          ),
-          Resource(
-            resourceId = 2,
-            resourceName = "Tezos Mainnet Conseil Prod",
-            description = "Conseil mainnet production environment",
-            platform = "tezos",
-            network = "mainnet",
-            environment = Environment.Production
+        sut.getResources shouldBe (
+          List(
+            Resource(
+              resourceId = 1,
+              resourceName = "Tezos Alphanet Dev",
+              description = "Conseil alphanet development environment",
+              platform = "tezos",
+              network = "alphanet",
+              environment = Environment.Development
+            ),
+            Resource(
+              resourceId = 2,
+              resourceName = "Tezos Mainnet Conseil Prod",
+              description = "Conseil mainnet production environment",
+              platform = "tezos",
+              network = "mainnet",
+              environment = Environment.Production
+            )
           )
-        ))
+        )
       }
     }
 }

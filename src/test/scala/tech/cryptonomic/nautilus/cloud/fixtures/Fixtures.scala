@@ -28,8 +28,8 @@ trait Fixtures {
 
   val exampleConfirmRegistration = ConfirmRegistration("some-id")
 
-  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User)
-  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator)
+  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User, false)
+  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator, true)
 
   val exampleCreateTier = CreateTier("some description", Usage(1, 2), 3)
   val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Instant.now.some)

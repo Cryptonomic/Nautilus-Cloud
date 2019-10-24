@@ -7,7 +7,14 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role, UpdateCurrentUser, UpdateUser, User, UserService}
+import tech.cryptonomic.nautilus.cloud.domain.user.{
+  AdminUpdateUser,
+  Role,
+  UpdateCurrentUser,
+  UpdateUser,
+  User,
+  UserService
+}
 
 import scala.language.higherKinds
 
