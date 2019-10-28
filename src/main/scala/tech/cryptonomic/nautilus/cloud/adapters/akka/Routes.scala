@@ -34,7 +34,7 @@ class Routes(
     else HttpOriginMatcher(HttpOrigin(corsConfig.allowedOrigin))
   )
 
-  private def sessionTos(session: Session): Directive0 =
+  private def validatesTosInSession(session: Session): Directive0 =
     if (session.tosAccepted) pass
     else complete(HttpResponse(StatusCode.int2StatusCode(403)))
 
@@ -57,7 +57,7 @@ class Routes(
           apiKeysRoutes.getAllApiKeysForEnvRoute,
           sessionOperations.requiredSession {
             implicit session =>
-              sessionTos(session) {
+              validatesTosInSession(session) {
                 concat(
                   // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
                   concat(
