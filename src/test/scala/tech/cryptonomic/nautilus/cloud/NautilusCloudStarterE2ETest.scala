@@ -102,6 +102,17 @@ class NautilusCloudStarterE2ETest
         response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
 
+      "return HTTP 403 when ToS is not accepted" in {
+        // given
+        val authCookies = loginWithoutToS("name@domain.com").cookies
+
+        // when
+        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCookies).send()
+
+        // and
+        response.code shouldBe HTTP_FORBIDDEN
+      }
+
       "return user apiKeys generated with first login" in {
         // given
         val authCookies = login().cookies
@@ -128,6 +139,20 @@ class NautilusCloudStarterE2ETest
                                              |    "userId": 1
                                              |  }
                                              |]""".stripMargin)
+      }
+
+      "return HTTP 403 when ToS was not accepted" in {
+        // given
+        val authCookies = loginWithoutToS().cookies
+
+        // when
+        val apiKeys = sttp
+          .get(uri"http://localhost:1235/users/me/apiKeys")
+          .cookies(authCookies)
+          .send()
+
+        // then
+        apiKeys.code shouldBe HTTP_FORBIDDEN
       }
 
       "refresh apiKeys" in {
@@ -280,6 +305,32 @@ class NautilusCloudStarterE2ETest
               |  "tosAccepted": true,
               |  "newsletterAccepted": true
               |}""".stripMargin)
+      .followRedirects(false)
+      .send()
+
+    result
+  }
+
+  private def loginWithoutToS(email: String = "some@domain.com"): Response[String] = {
+    stubAuthServiceFor(authCode = "auth-code", email = email)
+
+    val githubInit = sttp
+      .post(uri"http://localhost:1235/users/github-init")
+      .header("Content-Type", "application/json")
+      .body(s"""{"code": "auth-code"}""")
+      .followRedirects(false)
+      .send()
+
+    val registrationAttemptId = extractRegistrationAttemptId(githubInit)
+
+    val result = sttp
+      .post(uri"http://localhost:1235/users/accept-registration")
+      .header("Content-Type", "application/json")
+      .body(s"""{
+               |  "registrationAttemptId": "$registrationAttemptId",
+               |  "tosAccepted": false,
+               |  "newsletterAccepted": true
+               |}""".stripMargin)
       .followRedirects(false)
       .send()
 

@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.application
 
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
 import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{ConfirmRegistration, AuthenticationService, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, ConfirmRegistration, Session}
 import tech.cryptonomic.nautilus.cloud.domain.user.User
 
 import scala.language.higherKinds

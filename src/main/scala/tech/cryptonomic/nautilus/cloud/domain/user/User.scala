@@ -20,7 +20,7 @@ case class User(
     newsletterAcceptedDate: Option[Instant],
     accountDescription: Option[String] = None
 ) {
-  lazy val asSession = Session(userId, userEmail, accountSource, userRole)
+  lazy val asSession = Session(userId, userEmail, accountSource, userRole, tosAccepted)
 }
 
 object User {

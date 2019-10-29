@@ -16,8 +16,10 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User
 import scala.language.higherKinds
 
 /** Trait representing User repo queries */
-class DoobieUserRepository[F[_]: Applicative](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable], monad: Monad[F])
-    extends UserRepository[F]
+class DoobieUserRepository[F[_]: Applicative](transactor: Transactor[F])(
+    implicit bracket: Bracket[F, Throwable],
+    monad: Monad[F]
+) extends UserRepository[F]
     with UserQueries {
 
   val UNIQUE_VIOLATION = SqlState("23505")

@@ -12,11 +12,21 @@ import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
 import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, RegistrationAttemptConfiguration, RegistrationAttemptIdGenerator}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationService,
+  RegistrationAttemptConfiguration,
+  RegistrationAttemptIdGenerator
+}
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
 import tech.cryptonomic.nautilus.cloud.domain.user.UserService
-import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
+import tech.cryptonomic.nautilus.cloud.application.{
+  ApiKeyApplication,
+  AuthenticationApplication,
+  ResourceApplication,
+  TierApplication,
+  UserApplication
+}
 
 object DefaultNautilusContext extends NautilusContext
 
