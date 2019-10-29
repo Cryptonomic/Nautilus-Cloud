@@ -5,7 +5,7 @@ import java.time.{Instant, ZonedDateTime}
 import cats.implicits._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{ConfirmRegistration, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
@@ -26,7 +26,7 @@ trait Fixtures {
 
   val exampleUpdateUser = UpdateUser()
 
-  val exampleConfirmRegistration = ConfirmRegistration("some-id")
+  val exampleConfirmRegistration = RegistrationConfirmation("some-id")
 
   val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User, false)
   val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator, true)

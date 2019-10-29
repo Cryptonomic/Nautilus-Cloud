@@ -4,6 +4,7 @@ import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
 
 import cats.implicits._
 import com.softwaremill.sttp._
+import io.circe.HCursor
 import io.circe.parser._
 import org.scalatest._
 import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role}
@@ -244,7 +245,9 @@ class NautilusCloudStarterE2ETest
         val response = login("name@domain.com")
 
         // then
-        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
+        response.body.right.value should matchJson(
+          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+        )
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
 
@@ -261,7 +264,9 @@ class NautilusCloudStarterE2ETest
           .send()
 
         // then
-        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
+        response.body.right.value should matchJson(
+          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+        )
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
     }
@@ -298,7 +303,7 @@ class NautilusCloudStarterE2ETest
     val registrationAttemptId = extractRegistrationAttemptId(githubInit)
 
     val result = sttp
-      .post(uri"http://localhost:1235/users/accept-registration")
+      .post(uri"http://localhost:1235/users/register")
       .header("Content-Type", "application/json")
       .body(s"""{
               |  "registrationAttemptId": "$registrationAttemptId",
@@ -338,5 +343,13 @@ class NautilusCloudStarterE2ETest
   }
 
   private def extractRegistrationAttemptId(githubInit: Response[String]): String =
-    parse(githubInit.body.right.value).right.value.hcursor.get[String]("registrationAttemptId").right.value
+    parse(githubInit.body.right.value).right.value.hcursor
+      .get[HCursor]("payload")
+      .right
+      .value
+      .value
+      .hcursor
+      .get[String]("registrationAttemptId")
+      .right
+      .get
 }

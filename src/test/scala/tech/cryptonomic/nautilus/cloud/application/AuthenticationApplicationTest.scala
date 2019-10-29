@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{ConfirmRegistration, TosNotAcceptedException}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, TosNotAcceptedException}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -81,7 +81,9 @@ class AuthenticationApplicationTest
         // when
         val registrationAttemptId = authenticationApplication.resolveAuthCode("authCode").right.value.left.value
         val user = authenticationApplication
-          .acceptRegistration(ConfirmRegistration(registrationAttemptId = registrationAttemptId, tosAccepted = true))
+          .acceptRegistration(
+            RegistrationConfirmation(registrationAttemptId = registrationAttemptId, tosAccepted = true)
+          )
           .right
           .value
 

@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.application
 
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationProviderRepository.Result
 import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, ConfirmRegistration, Session}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AuthenticationService, RegistrationConfirmation, Session}
 import tech.cryptonomic.nautilus.cloud.domain.user.User
 
 import scala.language.higherKinds
@@ -20,6 +20,6 @@ class AuthenticationApplication[F[_]](
     authenticationService.resolveAuthCode(code)
 
   /* accept registration */
-  def acceptRegistration(acceptRegistration: ConfirmRegistration): F[Result[User]] =
+  def acceptRegistration(acceptRegistration: RegistrationConfirmation): F[Result[User]] =
     authenticationService.acceptRegistration(acceptRegistration)
 }

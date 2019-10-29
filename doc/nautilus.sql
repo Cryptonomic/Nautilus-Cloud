@@ -34,10 +34,10 @@ create TABLE users(
     userrole text NOT NULL DEFAULT 'user',
     registrationdate timestamp NOT NULL,
     accountsource text NOT NULL,
-    registrationIp varchar(30),
+    registrationIp varchar(50),
     tosAccepted boolean NOT NULL,
     newsletterAccepted boolean NOT NULL,
-    newsletterAcceptedDate timestamp,
+    newsletterAcceptedDate timestamp with time zone,
     accountdescription text,
     deleteddate timestamp with time zone
 );

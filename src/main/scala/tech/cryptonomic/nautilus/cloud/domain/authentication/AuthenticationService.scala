@@ -37,7 +37,7 @@ class AuthenticationService[F[_]: Monad](
       .value
 
   /* confirms started registration */
-  def acceptRegistration(confirmRegistration: ConfirmRegistration): F[Result[User]] =
+  def acceptRegistration(confirmRegistration: RegistrationConfirmation): F[Result[User]] =
     validate(confirmRegistration) {
       for {
         registrationAttempt <- EitherT(registrationAttemptRepository.pop(confirmRegistration.registrationAttemptId))
@@ -51,7 +51,7 @@ class AuthenticationService[F[_]: Monad](
     }
 
   private def validate(
-      confirmRegistration: ConfirmRegistration
+      confirmRegistration: RegistrationConfirmation
   )(ifValid: => EitherT[F, Throwable, User]): F[Result[User]] =
     if (confirmRegistration.tosAccepted)
       ifValid.value

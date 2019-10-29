@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.application
 import cats.implicits._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, ConfirmRegistration}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, RegistrationConfirmation}
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user._
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -161,7 +161,7 @@ class UserApplicationTest
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         val registrationAttemptId = authService.resolveAuthCode("authCode").right.value.left.value
         authService.acceptRegistration(
-          ConfirmRegistration(registrationAttemptId = registrationAttemptId, tosAccepted = true)
+          RegistrationConfirmation(registrationAttemptId = registrationAttemptId, tosAccepted = true)
         )
 
         sut.getCurrentUser(userSession.copy(email = "name@domain.com")) should not be empty
