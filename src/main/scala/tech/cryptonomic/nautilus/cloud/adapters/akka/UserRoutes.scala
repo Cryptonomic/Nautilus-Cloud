@@ -4,12 +4,10 @@ import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import endpoints.akkahttp.server
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.EndpointStatusSyntax
-import tech.cryptonomic.nautilus.cloud.adapters.endpoints.UserEndpoints
+import tech.cryptonomic.nautilus.cloud.adapters.endpoints.{EndpointStatusSyntax, UserEndpoints}
 import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, UserApplication}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
-import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** User routes implementation */
 class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKeyApplication[IO])
@@ -24,6 +22,10 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
       userApplication.updateUser(userId, user).unsafeToFuture()
   }
 
+  /** Current user update route implementation */
+  def updateCurrentUserRoute(implicit session: Session): Route =
+    updateCurrentUser.implementedByAsync(user => userApplication.updateCurrentUser(user).unsafeToFuture())
+
   /** User route implementation */
   def getUserRoute(implicit session: Session): Route = getUser.implementedByAsync { userId =>
     userApplication.getUser(userId).unsafeToFuture()
@@ -35,8 +37,9 @@ class UserRoutes(userApplication: UserApplication[IO], apiKeyApplication: ApiKey
   }
 
   /** Users route implementation */
-  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync { case ((userId, email, apiKey), limit, page) =>
-    userApplication.getUsers(userId, email, apiKey)(Pagination(limit, page)).unsafeToFuture()
+  def getUsersRoute(implicit session: Session): Route = getUsers.implementedByAsync {
+    case ((userId, email, apiKey), limit, page) =>
+      userApplication.getUsers(userId, email, apiKey)(Pagination(limit, page)).unsafeToFuture()
   }
 
   /** Delete current user route implementation */

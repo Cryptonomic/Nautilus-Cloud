@@ -10,12 +10,23 @@ import tech.cryptonomic.nautilus.cloud.NautilusContext
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.{GithubAuthenticationConfiguration, GithubConfig}
 import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.adapters.inmemory._
+import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
-import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthenticationService
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{
+  AuthenticationService,
+  RegistrationAttemptConfiguration,
+  RegistrationAttemptIdGenerator
+}
 import tech.cryptonomic.nautilus.cloud.domain.resources.ResourceService
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierService
 import tech.cryptonomic.nautilus.cloud.domain.user.UserService
-import tech.cryptonomic.nautilus.cloud.application.{ApiKeyApplication, AuthenticationApplication, ResourceApplication, TierApplication, UserApplication}
+import tech.cryptonomic.nautilus.cloud.application.{
+  ApiKeyApplication,
+  AuthenticationApplication,
+  ResourceApplication,
+  TierApplication,
+  UserApplication
+}
 
 object DefaultNautilusContext extends NautilusContext
 
@@ -33,17 +44,21 @@ class IdContext {
   lazy val githubConfig = loadConfig[GithubConfig](namespace = "security.auth.github").toOption.get
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val conseilConfig = loadConfig[ConseilConfig](namespace = "conseil").toOption.get
+  lazy val registrationAttemptConfiguration =
+    loadConfig[RegistrationAttemptConfiguration](namespace = "registration-attempt").toOption.get
 
   lazy val now = ZonedDateTime.parse("2019-05-27T12:03:48.081+01:00").toInstant
   lazy val clock = new FixedClock[Id](now)
 
   lazy val apiKeyGenerator = new FixedApiKeyGenerator()
+  lazy val registrationAttemptIdGenerator = new RegistrationAttemptIdGenerator()
 
   lazy val authRepository = new InMemoryAuthenticationProviderRepository()
   lazy val apiKeyRepository = new InMemoryApiKeyRepository()
   lazy val userRepository = new InMemoryUserRepository(apiKeyRepository)
   lazy val tiersRepository = new InMemoryTierRepository()
   lazy val resourceRepository = new InMemoryResourceRepository()
+  lazy val registrationAttemptRepository = wire[InMemoryRegistrationAttemptRepository[Id]]
 
   lazy val apiKeyService = wire[ApiKeyService[Id]]
   lazy val authenticationService = wire[AuthenticationService[Id]]

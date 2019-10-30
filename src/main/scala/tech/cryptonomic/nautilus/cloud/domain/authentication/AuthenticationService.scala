@@ -3,10 +3,12 @@ package tech.cryptonomic.nautilus.cloud.domain.authentication
 import cats.Monad
 import cats.data.EitherT
 import cats.effect.Clock
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.ApiKeyService
+import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyService}
+import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
 import tech.cryptonomic.nautilus.cloud.domain.tier.TierRepository
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User, UserRepository}
+import tech.cryptonomic.nautilus.cloud.domain.user.{User, UserRepository}
 
 import scala.language.higherKinds
 
@@ -16,6 +18,8 @@ class AuthenticationService[F[_]: Monad](
     authenticationRepository: AuthenticationProviderRepository[F],
     userRepository: UserRepository[F],
     tiersRepository: TierRepository[F],
+    registrationAttemptRepository: RegistrationAttemptRepository[F],
+    registrationAttemptIdGenerator: RegistrationAttemptIdGenerator,
     apiKeyService: ApiKeyService[F],
     clock: Clock[F]
 ) {
@@ -26,32 +30,53 @@ class AuthenticationService[F[_]: Monad](
   def loginUrl: String = config.loginUrl
 
   /* resolve auth code */
-  def resolveAuthCode(code: String): F[Result[User]] =
+  def resolveAuthCode(code: String): F[Result[Either[RegistrationAttemptId, User]]] =
     exchangeCodeForAccessToken(code)
       .flatMap(fetchEmail)
-      .flatMap(getOrCreateUser)
+      .flatMap(getUserOrStartRegistration)
       .value
+
+  /* confirms started registration */
+  def acceptRegistration(confirmRegistration: RegistrationConfirmation): F[Result[User]] =
+    validate(confirmRegistration) {
+      for {
+        registrationAttempt <- EitherT(registrationAttemptRepository.pop(confirmRegistration.registrationAttemptId))
+        defaultTier <- EitherT.right(tiersRepository.getDefault)
+        now <- EitherT.right(clock.currentInstant)
+        currentUsage = defaultTier.getCurrentUsage(now)
+        createUser = registrationAttempt.toCreateUser(confirmRegistration, config.provider, defaultTier.tierId)
+        userId <- EitherT(userRepository.createUser(createUser))
+        _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
+      } yield createUser.toUser(userId)
+    }
+
+  private def validate(
+      confirmRegistration: RegistrationConfirmation
+  )(ifValid: => EitherT[F, Throwable, User]): F[Result[User]] =
+    if (confirmRegistration.tosAccepted)
+      ifValid.value
+    else
+      (TosNotAcceptedException().asLeft[User]: Result[User]).pure[F]
 
   private def exchangeCodeForAccessToken(code: String) =
     EitherT(authenticationRepository.exchangeCodeForAccessToken(code))
 
   private def fetchEmail(accessToken: String) = EitherT(authenticationRepository.fetchEmail(accessToken))
 
-  private def getOrCreateUser(email: String): EitherT[F, Throwable, User] = getUserByEmailAddress(email).flatMap {
-    case Some(user) => EitherT.rightT(user)
-    case None => createUser(email)
+  private def getUserOrStartRegistration(email: String): EitherT[F, Throwable, Either[RegistrationAttemptId, User]] = {
+    val result = EitherT.right(for {
+      now <- clock.currentInstant
+      user <- userRepository.getUserByEmailAddress(email)
+    } yield user.toRight(RegistrationAttempt(registrationAttemptIdGenerator.generateId, email, now, config.provider)))
+
+    result.flatMap {
+      case Right(user) =>
+        EitherT.rightT(user.asRight[RegistrationAttemptId])
+      case Left(registrationAttempt) =>
+        EitherT(registrationAttemptRepository.save(registrationAttempt))
+          .map(_ => registrationAttempt.id.asLeft[User])
+    }
   }
-
-  private def getUserByEmailAddress(email: String): EitherT[F, Throwable, Option[User]] =
-    EitherT.right(userRepository.getUserByEmailAddress(email))
-
-  private def createUser(email: String): EitherT[F, Throwable, User] =
-    for {
-      defaultTier <- EitherT.right(tiersRepository.getDefault)
-      now <- EitherT.right(clock.currentInstant)
-      currentUsage = defaultTier.getCurrentUsage(now)
-      createUser = CreateUser(email, Role.defaultRole, now, config.provider, defaultTier.tierId)
-      userId <- EitherT(userRepository.createUser(createUser))
-      _ <- EitherT.right(apiKeyService.initializeApiKeys(userId, currentUsage))
-    } yield createUser.toUser(userId)
 }
+
+final case class TosNotAcceptedException() extends Throwable

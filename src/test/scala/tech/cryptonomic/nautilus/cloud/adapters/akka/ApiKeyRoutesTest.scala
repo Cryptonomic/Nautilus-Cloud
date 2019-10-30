@@ -10,7 +10,12 @@ import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment.Production
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedApiKeyGenerator, FixedClock, JsonMatchers}
+import tech.cryptonomic.nautilus.cloud.tools.{
+  DefaultNautilusContextWithInMemoryImplementations,
+  FixedApiKeyGenerator,
+  FixedClock,
+  JsonMatchers
+}
 
 class ApiKeyRoutesTest
     extends WordSpec
@@ -23,7 +28,7 @@ class ApiKeyRoutesTest
   "The API Keys route" should {
 
       val context = new DefaultNautilusContextWithInMemoryImplementations {
-        override implicit val clock: FixedClock[IO] = new FixedClock(now)
+        implicit override val clock: FixedClock[IO] = new FixedClock(now)
         override lazy val apiKeyGenerator = new FixedApiKeyGenerator()
       }
       val userRepository = context.userRepository

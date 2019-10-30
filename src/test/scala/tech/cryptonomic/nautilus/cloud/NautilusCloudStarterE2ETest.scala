@@ -2,9 +2,12 @@ package tech.cryptonomic.nautilus.cloud
 
 import java.net.HttpURLConnection.{HTTP_FORBIDDEN, HTTP_NO_CONTENT, HTTP_OK}
 
+import cats.implicits._
 import com.softwaremill.sttp._
+import io.circe.HCursor
+import io.circe.parser._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.user.{Role, UpdateUser}
+import tech.cryptonomic.nautilus.cloud.domain.user.{AdminUpdateUser, Role}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
 import tech.cryptonomic.nautilus.cloud.tools._
 
@@ -40,19 +43,13 @@ class NautilusCloudStarterE2ETest
 
       "return info about user when user is logged-in with administrator role" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
 
         // create user through first login
-        sttp
-          .post(uri"http://localhost:1235/users/github-init")
-          .header("Content-Type", "application/json")
-          .body("""{"code": "auth-code"}""")
-          .followRedirects(false)
-          .send()
+        login(email = "name@domain.com")
 
         // update role for that user
-        nautilusContext.userRepository
-          .updateUser(1, UpdateUser(Role.Administrator, None))
+        nautilusContext.userApplication
+          .updateUser(1, AdminUpdateUser(Role.Administrator.some))(adminSession)
           .unsafeRunSync()
 
         // log-in again with administrator role
@@ -74,12 +71,10 @@ class NautilusCloudStarterE2ETest
 
       "return HTTP 403 FORBIDDEN when user is logged-in with user role (which is default)" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-        val authCodeResult =
-          sttp.get(uri"http://localhost:1235/users/github-init?code=auth-code").followRedirects(false).send()
+        val authCookies = login().cookies
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
+        val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCookies).send()
 
         // then
         response.code shouldBe HTTP_FORBIDDEN
@@ -98,39 +93,35 @@ class NautilusCloudStarterE2ETest
 
       "should return email address and current role (user is default)" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-        val authCodeResult =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val authCookies = login("name@domain.com").cookies
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCodeResult.cookies).send()
+        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCookies).send()
 
         // and
         response.code shouldBe HTTP_OK
         response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
       }
 
+      "return HTTP 403 when ToS is not accepted" in {
+        // given
+        val authCookies = loginWithoutToS("name@domain.com").cookies
+
+        // when
+        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCookies).send()
+
+        // and
+        response.code shouldBe HTTP_FORBIDDEN
+      }
+
       "return user apiKeys generated with first login" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-
-        val authCodeResult =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val authCookies = login().cookies
 
         // when
         val apiKeys = sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCodeResult.cookies)
+          .cookies(authCookies)
           .send()
 
         // then
@@ -151,21 +142,27 @@ class NautilusCloudStarterE2ETest
                                              |]""".stripMargin)
       }
 
+      "return HTTP 403 when ToS was not accepted" in {
+        // given
+        val authCookies = loginWithoutToS().cookies
+
+        // when
+        val apiKeys = sttp
+          .get(uri"http://localhost:1235/users/me/apiKeys")
+          .cookies(authCookies)
+          .send()
+
+        // then
+        apiKeys.code shouldBe HTTP_FORBIDDEN
+      }
+
       "refresh apiKeys" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-
-        val authCodeResult =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val authCookies = login().cookies
 
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCodeResult.cookies)
+          .cookies(authCookies)
           .send()
           .body
           .right
@@ -183,7 +180,7 @@ class NautilusCloudStarterE2ETest
         // when
         val apiKeys = sttp
           .post(uri"http://localhost:1235/users/me/apiKeys/prod/refresh")
-          .cookies(authCodeResult.cookies)
+          .cookies(authCookies)
           .send()
 
         // then
@@ -194,7 +191,7 @@ class NautilusCloudStarterE2ETest
 
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCodeResult.cookies)
+          .cookies(authCookies)
           .send()
           .body
           .right
@@ -212,20 +209,12 @@ class NautilusCloudStarterE2ETest
 
       "return initial usageLeft generated for a user with first login" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-
-        val authCodeResult =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val authCookies = login().cookies
 
         // when
         val usageLeft = sttp
           .get(uri"http://localhost:1235/users/me/usage")
-          .cookies(authCodeResult.cookies)
+          .cookies(authCookies)
           .send()
 
         // then
@@ -249,23 +238,35 @@ class NautilusCloudStarterE2ETest
       }
     }
 
-  "users/github-init endpoint" should {
+  "login endpoints" should {
 
       "set a cookie after successful log-in" in {
-        // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-
         // when
-        val response =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val response = login("name@domain.com")
 
         // then
-        response.body.right.value should matchJson("""{"userEmail": "name@domain.com", "userRole": "user"}""")
+        response.body.right.value should matchJson(
+          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+        )
+        response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
+      }
+
+      "set a cookie after successful log-in when user exists" in {
+        // given
+        login("name@domain.com")
+
+        // when
+        val response = sttp
+          .post(uri"http://localhost:1235/users/github-init")
+          .header("Content-Type", "application/json")
+          .body("""{"code": "auth-code"}""")
+          .followRedirects(false)
+          .send()
+
+        // then
+        response.body.right.value should matchJson(
+          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+        )
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
     }
@@ -274,19 +275,11 @@ class NautilusCloudStarterE2ETest
 
       "invalidate session" in {
         // given
-        stubAuthServiceFor(authCode = "auth-code", email = "name@domain.com")
-
-        val authCodeResult =
-          sttp
-            .post(uri"http://localhost:1235/users/github-init")
-            .header("Content-Type", "application/json")
-            .body("""{"code": "auth-code"}""")
-            .followRedirects(false)
-            .send()
+        val authCookies = login().cookies
 
         // when
         val response =
-          sttp.post(uri"http://localhost:1235/logout").cookies(authCodeResult.cookies).followRedirects(false).send()
+          sttp.post(uri"http://localhost:1235/logout").cookies(authCookies).followRedirects(false).send()
 
         // and
         response.code shouldBe HTTP_NO_CONTENT
@@ -296,4 +289,67 @@ class NautilusCloudStarterE2ETest
         )
       }
     }
+
+  private def login(email: String = "some@domain.com"): Response[String] = {
+    stubAuthServiceFor(authCode = "auth-code", email = email)
+
+    val githubInit = sttp
+      .post(uri"http://localhost:1235/users/github-init")
+      .header("Content-Type", "application/json")
+      .body(s"""{"code": "auth-code"}""")
+      .followRedirects(false)
+      .send()
+
+    val registrationAttemptId = extractRegistrationAttemptId(githubInit)
+
+    val result = sttp
+      .post(uri"http://localhost:1235/users/register")
+      .header("Content-Type", "application/json")
+      .body(s"""{
+              |  "registrationAttemptId": "$registrationAttemptId",
+              |  "tosAccepted": true,
+              |  "newsletterAccepted": true
+              |}""".stripMargin)
+      .followRedirects(false)
+      .send()
+
+    result
+  }
+
+  private def loginWithoutToS(email: String = "some@domain.com"): Response[String] = {
+    stubAuthServiceFor(authCode = "auth-code", email = email)
+
+    val githubInit = sttp
+      .post(uri"http://localhost:1235/users/github-init")
+      .header("Content-Type", "application/json")
+      .body(s"""{"code": "auth-code"}""")
+      .followRedirects(false)
+      .send()
+
+    val registrationAttemptId = extractRegistrationAttemptId(githubInit)
+
+    val result = sttp
+      .post(uri"http://localhost:1235/users/accept-registration")
+      .header("Content-Type", "application/json")
+      .body(s"""{
+               |  "registrationAttemptId": "$registrationAttemptId",
+               |  "tosAccepted": false,
+               |  "newsletterAccepted": true
+               |}""".stripMargin)
+      .followRedirects(false)
+      .send()
+
+    result
+  }
+
+  private def extractRegistrationAttemptId(githubInit: Response[String]): String =
+    parse(githubInit.body.right.value).right.value.hcursor
+      .get[HCursor]("payload")
+      .right
+      .value
+      .value
+      .hcursor
+      .get[String]("registrationAttemptId")
+      .right
+      .get
 }

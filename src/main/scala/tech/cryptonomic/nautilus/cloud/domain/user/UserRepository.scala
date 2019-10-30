@@ -15,7 +15,7 @@ trait UserRepository[F[_]] {
   def createUser(user: CreateUser): F[Either[Throwable, UserId]]
 
   /** Updates user */
-  def updateUser(id: UserId, user: UpdateUser): F[Unit]
+  def updateUser(id: UserId, user: UpdateUser, now: => Instant): F[Unit]
 
   /** Delete user */
   def deleteUser(id: UserId, now: Instant): F[Unit]

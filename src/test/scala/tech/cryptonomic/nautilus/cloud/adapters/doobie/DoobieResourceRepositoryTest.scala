@@ -20,10 +20,12 @@ class DoobieResourceRepositoryTest
   val sut = DefaultNautilusContext.resourcesRepository
 
   "Resource repo" should {
-    "save and receive resource" in {
-      // when
-      val id =
-        sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development)).unsafeRunSync()
+      "save and receive resource" in {
+        // when
+        val id =
+          sut
+            .createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development))
+            .unsafeRunSync()
 
         // then
         id should equal(1)
@@ -31,23 +33,29 @@ class DoobieResourceRepositoryTest
         // when
         val fetchedResource = sut.getResource(1).unsafeRunSync()
 
-      // then
-      fetchedResource.value should equal(Resource(1, "dev", "development", "tezos", "alphanet", Environment.Development))
-    }
+        // then
+        fetchedResource.value should equal(
+          Resource(1, "dev", "development", "tezos", "alphanet", Environment.Development)
+        )
+      }
 
-    "save and receive multiple resources" in {
-      // given
-      sut.createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development)).unsafeRunSync()
-      sut.createResource(CreateResource("dev", "development", "tezos", "mainnet", Environment.Development)).unsafeRunSync()
+      "save and receive multiple resources" in {
+        // given
+        sut
+          .createResource(CreateResource("dev", "development", "tezos", "alphanet", Environment.Development))
+          .unsafeRunSync()
+        sut
+          .createResource(CreateResource("dev", "development", "tezos", "mainnet", Environment.Development))
+          .unsafeRunSync()
 
         // when
         val fetchedResources = sut.getResources.unsafeRunSync()
 
-      // then
-      fetchedResources should contain theSameElementsAs List(
-        Resource(1, "dev", "development", "tezos", "alphanet", Environment.Development),
-        Resource(2, "dev", "development", "tezos", "mainnet", Environment.Development)
-      )
+        // then
+        fetchedResources should contain theSameElementsAs List(
+          Resource(1, "dev", "development", "tezos", "alphanet", Environment.Development),
+          Resource(2, "dev", "development", "tezos", "mainnet", Environment.Development)
+        )
+      }
     }
-  }
 }

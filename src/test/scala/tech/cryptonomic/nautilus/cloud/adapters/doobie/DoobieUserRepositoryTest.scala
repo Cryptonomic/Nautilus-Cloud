@@ -2,8 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
+import cats.implicits._
 import org.scalatest._
-import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
+import tech.cryptonomic.nautilus.cloud.domain.pagination.Pagination
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, UpdateUser, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -28,7 +29,20 @@ class DoobieUserRepositoryTest
       "save and receive user" in {
         // when
         val id =
-          sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+          sut
+            .createUser(
+              CreateUser(
+                userEmail = "login@domain.com",
+                userRole = Role.Administrator,
+                registrationDate = now,
+                accountSource = Github,
+                tierId = 1,
+                tosAccepted = true,
+                newsletterAccepted = true,
+                registrationIp = None
+              )
+            )
+            .unsafeRunSync()
 
         // then
         id.right.value should equal(1)
@@ -37,15 +51,27 @@ class DoobieUserRepositoryTest
         val fetchedUser = sut.getUser(1).unsafeRunSync()
 
         // then
-        fetchedUser.value should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
+        fetchedUser.value should equal(
+          User(
+            userId = 1,
+            userEmail = "login@domain.com",
+            userRole = Role.Administrator,
+            registrationDate = now,
+            accountSource = Github,
+            tosAccepted = true,
+            newsletterAccepted = true,
+            newsletterAcceptedDate = Some(now),
+            accountDescription = None
+          )
+        )
       }
 
       "shouldn't save user when user with a given email address already exists" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
 
         // when
-        val id = sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync
+        val id = sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync
 
         // then
         id.isLeft shouldBe true
@@ -53,13 +79,38 @@ class DoobieUserRepositoryTest
 
       "fetch user by email" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut
+          .createUser(
+            CreateUser(
+              userEmail = "login@domain.com",
+              userRole = Role.Administrator,
+              registrationDate = now,
+              accountSource = Github,
+              tierId = 1,
+              tosAccepted = true,
+              newsletterAccepted = false,
+              registrationIp = None
+            )
+          )
+          .unsafeRunSync()
 
         // when
         val fetchedUser = sut.getUserByEmailAddress("login@domain.com").unsafeRunSync()
 
         // then
-        fetchedUser.value should equal(User(1, "login@domain.com", Role.Administrator, now, Github, None))
+        fetchedUser.value should equal(
+          User(
+            userId = 1,
+            userEmail = "login@domain.com",
+            userRole = Role.Administrator,
+            registrationDate = now,
+            accountSource = Github,
+            tosAccepted = true,
+            newsletterAccepted = false,
+            newsletterAcceptedDate = None,
+            accountDescription = None
+          )
+        )
       }
 
       "return None when fetching non existing user" in {
@@ -70,25 +121,40 @@ class DoobieUserRepositoryTest
 
       "update user" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut
+          .createUser(
+            exampleCreateUser.copy(userRole = Role.Administrator, newsletterAccepted = false, accountDescription = None)
+          )
+          .unsafeRunSync()
 
         // when
         sut
-          .updateUser(1, UpdateUser(Role.User, Some("brand new description")))
+          .updateUser(
+            1,
+            UpdateUser(
+              userRole = Role.User.some,
+              newsletterAccepted = true.some,
+              accountDescription = "brand new description".some
+            ),
+            now
+          )
           .unsafeRunSync()
 
         // and
         val fetchedUser = sut.getUser(1).unsafeRunSync()
 
         // then
-        fetchedUser.value should equal(
-          User(1, "login@domain.com", Role.User, now, Github, Some("brand new description"))
+        fetchedUser.value should have(
+          'userRole (Role.User),
+          'newsletterAccepted (true),
+          'newsletterAcceptedDate (now.some),
+          'accountDescription (Some("brand new description"))
         )
       }
 
       "delete user" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
         sut.getUser(1).unsafeRunSync() should not be empty
 
         // when
@@ -101,45 +167,34 @@ class DoobieUserRepositoryTest
 
       "get all users" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
-        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "some-other-login@domain.com")).unsafeRunSync()
 
         // when
         val users = sut.getUsers()().unsafeRunSync()
 
         // then
-        users should equal(
-          PaginatedResult(
-            pagesTotal = 1,
-            resultCount = 2,
-            result = List(
-              User(1, "login@domain.com", Role.Administrator, now, Github),
-              User(2, "some-other-login@domain.com", Role.User, now, Github)
-            )
-          )
-        )
+        users.pagesTotal should equal(1)
+        users.resultCount should equal(2)
+        users.result.map(_.userEmail) should equal(List("login@domain.com", "some-other-login@domain.com"))
       }
 
       "filter users by id" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
-        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "some-other-login@domain.com")).unsafeRunSync()
 
         // when
         val users = sut.getUsers(SearchCriteria(userId = Some(1)))().unsafeRunSync()
 
         // then
-        users.result should equal(
-          List(
-            User(1, "login@domain.com", Role.Administrator, now, Github)
-          )
-        )
+        users.result.map(_.userEmail) should equal(List("login@domain.com"))
       }
 
       "filter users by email" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
-        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "some-other-login@domain.com")).unsafeRunSync()
 
         // expect
         sut
@@ -161,8 +216,8 @@ class DoobieUserRepositoryTest
 
       "filter users by api keys" in {
         // given
-        sut.createUser(CreateUser("login@domain.com", Role.Administrator, now, Github, 1, None)).unsafeRunSync()
-        sut.createUser(CreateUser("some-other-login@domain.com", Role.User, now, Github, 1, None)).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "login@domain.com")).unsafeRunSync()
+        sut.createUser(exampleCreateUser.copy(userEmail = "some-other-login@domain.com")).unsafeRunSync()
 
         apiKeyRepository.putApiKey(exampleCreateApiKey.copy(userId = 1, key = "some-api-key-1")).unsafeRunSync()
         apiKeyRepository.putApiKey(exampleCreateApiKey.copy(userId = 2, key = "some-api-key-2")).unsafeRunSync()

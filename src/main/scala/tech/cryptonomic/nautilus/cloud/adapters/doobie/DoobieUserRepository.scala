@@ -2,9 +2,9 @@ package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
 import java.time.Instant
 
-import cats.Monad
+import cats.{Applicative, Monad}
 import cats.effect.Bracket
-import cats.syntax.functor._
+import cats.implicits._
 import doobie.enum.SqlState
 import doobie.implicits._
 import doobie.util.transactor.Transactor
@@ -16,8 +16,10 @@ import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, UpdateUser, User
 import scala.language.higherKinds
 
 /** Trait representing User repo queries */
-class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Bracket[F, Throwable], monad: Monad[F])
-    extends UserRepository[F]
+class DoobieUserRepository[F[_]: Applicative](transactor: Transactor[F])(
+    implicit bracket: Bracket[F, Throwable],
+    monad: Monad[F]
+) extends UserRepository[F]
     with UserQueries {
 
   val UNIQUE_VIOLATION = SqlState("23505")
@@ -32,8 +34,11 @@ class DoobieUserRepository[F[_]](transactor: Transactor[F])(implicit bracket: Br
       .transact(transactor)
 
   /** Updates user */
-  override def updateUser(id: UserId, user: UpdateUser): F[Unit] =
-    updateUserQuery(id, user).run.void.transact(transactor)
+  override def updateUser(id: UserId, user: UpdateUser, now: => Instant): F[Unit] =
+    if (user.isEmpty)
+      ().pure[F]
+    else
+      updateUserQuery(id, user, now).run.void.transact(transactor)
 
   /** Delete user */
   override def deleteUser(id: UserId, now: Instant): F[Unit] = deleteUserQuery(id, now).run.void.transact(transactor)

@@ -3,6 +3,7 @@ package tech.cryptonomic.nautilus.cloud.application
 import java.time.{Instant, ZonedDateTime}
 
 import org.scalatest._
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, TosNotAcceptedException}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
 import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role, User}
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
@@ -33,16 +34,28 @@ class AuthenticationApplicationTest
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
         userRepository.createUser(
-          CreateUser("name@domain.com", Role.User, context.now.minusSeconds(1), Github, 1, None)
+          exampleCreateUser.copy(
+            userEmail = "name@domain.com",
+            userRole = Role.User,
+            registrationDate = context.now.minusSeconds(1),
+            accountSource = Github,
+            tierId = 1,
+            tosAccepted = true,
+            newsletterAccepted = false,
+            registrationIp = None
+          )
         )
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
+        authenticationApplication.resolveAuthCode("authCode").right.value.right.value shouldBe User(
           userId = 1,
           userEmail = "name@domain.com",
           userRole = Role.User,
           registrationDate = context.now.minusSeconds(1),
           accountSource = Github,
+          tosAccepted = true,
+          newsletterAccepted = false,
+          newsletterAcceptedDate = None,
           accountDescription = None
         )
       }
@@ -50,32 +63,13 @@ class AuthenticationApplicationTest
       "resolve an auth code when user exists with administrator role" in {
         // given
         authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.createUser(CreateUser("name@domain.com", Role.Administrator, context.now.minusSeconds(1), Github, 1, None))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "name@domain.com", userRole = Role.Administrator))
 
         // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
-          userId = 1,
-          userEmail = "name@domain.com",
-          userRole = Role.Administrator,
-          registrationDate = context.now.minusSeconds(1),
-          accountSource = Github,
-          accountDescription = None
-        )
-      }
-
-      "resolve an auth code when user doesn't exist" in {
-        // given
-        authRepository.addMapping("authCode", "accessToken", "name@domain.com")
-        userRepository.getUser(1) should be(None)
-
-        // expect
-        authenticationApplication.resolveAuthCode("authCode").right.value shouldBe User(
-          userId = 1,
-          userEmail = "name@domain.com",
-          userRole = Role.User,
-          registrationDate = context.now,
-          accountSource = Github,
-          accountDescription = None
+        authenticationApplication.resolveAuthCode("authCode").right.value.right.value should have(
+          'userId (1),
+          'userEmail ("name@domain.com"),
+          'userRole (Role.Administrator)
         )
       }
 
@@ -85,10 +79,17 @@ class AuthenticationApplicationTest
         userRepository.getUser(1) should be(None)
 
         // when
-        authenticationApplication.resolveAuthCode("authCode")
+        val registrationAttemptId = authenticationApplication.resolveAuthCode("authCode").right.value.left.value
+        val user = authenticationApplication
+          .acceptRegistration(
+            RegistrationConfirmation(registrationAttemptId = registrationAttemptId, tosAccepted = true)
+          )
+          .right
+          .value
 
         // then
-        userRepository.getUser(1).value should have(
+        user shouldEqual userRepository.getUser(1).value
+        user should have(
           'userId (1),
           'userEmail ("name@domain.com"),
           'userRole (Role.User),
@@ -101,6 +102,14 @@ class AuthenticationApplicationTest
       "return Left when a given auth code shouldn't be resolved" in {
         // expect
         authenticationApplication.resolveAuthCode("authCode").left.value
+      }
+
+      "not process when terms of conditions weren't accepted" in {
+        // expect
+        authenticationApplication
+          .acceptRegistration(exampleConfirmRegistration.copy(tosAccepted = false))
+          .left
+          .value shouldBe TosNotAcceptedException()
       }
     }
 }

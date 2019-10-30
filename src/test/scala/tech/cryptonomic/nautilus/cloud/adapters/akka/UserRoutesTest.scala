@@ -2,14 +2,20 @@ package tech.cryptonomic.nautilus.cloud.adapters.akka
 
 import java.time.ZonedDateTime
 
+import cats.implicits._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
+import cats.effect.{Clock, IO}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
-import tech.cryptonomic.nautilus.cloud.domain.user.{CreateUser, Role}
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, JsonMatchers}
+import tech.cryptonomic.nautilus.cloud.tools.{
+  DefaultNautilusContextWithInMemoryImplementations,
+  FixedClock,
+  JsonMatchers
+}
 
 class UserRoutesTest
     extends WordSpec
@@ -20,7 +26,9 @@ class UserRoutesTest
     with MockFactory
     with OneInstancePerTest {
 
-  val context = new DefaultNautilusContextWithInMemoryImplementations
+  val context = new DefaultNautilusContextWithInMemoryImplementations() {
+    override val clock: Clock[IO] = new FixedClock[IO](now)
+  }
   val userRepository = context.userRepository
   val apiKeyRepository = context.apiKeyRepository
   val sut = context.userRoutes
@@ -30,13 +38,14 @@ class UserRoutesTest
       "get user" in {
         // given
         userRepository.createUser(
-          CreateUser(
-            "email@example.com",
-            Role.User,
-            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            Github,
-            1,
-            None
+          exampleCreateUser.copy(
+            userEmail = "email@example.com",
+            userRole = Role.User,
+            registrationDate = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            accountSource = Github,
+            tosAccepted = true,
+            newsletterAccepted = true,
+            accountDescription = "some description".some
           )
         )
 
@@ -50,10 +59,14 @@ class UserRoutesTest
           responseAs[String] should matchJson(
             """{
                                                     |  "userId": 1,
-                                                    |  "userRole": "user",
                                                     |  "userEmail": "email@example.com",
+                                                    |  "userRole": "user",
                                                     |  "registrationDate": "2019-05-27T17:03:48.081Z",
-                                                    |  "accountSource": "github"
+                                                    |  "accountSource": "github",
+                                                    |  "tosAccepted": true,
+                                                    |  "newsletterAccepted": true,
+                                                    |  "newsletterAcceptedDate": "2019-05-27T17:03:48.081Z",
+                                                    |  "accountDescription": "some description"
                                                     |}
                                                   """.stripMargin
           )
@@ -69,13 +82,11 @@ class UserRoutesTest
       "get current user" in {
         // given
         userRepository.createUser(
-          CreateUser(
-            "email@example.com",
-            Role.User,
-            ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
-            Github,
-            1,
-            None
+          exampleCreateUser.copy(
+            userEmail = "email@example.com",
+            userRole = Role.User,
+            registrationDate = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant,
+            accountSource = Github
           )
         )
 
@@ -122,6 +133,39 @@ class UserRoutesTest
         Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
           responseAs[String] should matchJson(
             """{"userRole": "user", "accountDescription": "description"}"""
+          )
+        }
+      }
+
+      "successfully update current user" in {
+        // given
+        userRepository.createUser(
+          exampleCreateUser
+            .copy(newsletterAccepted = false, accountDescription = None)
+        )
+
+        // when
+        val putRequest = HttpRequest(
+            HttpMethods.PUT,
+            uri = "/users/me",
+            entity = HttpEntity(
+              MediaTypes.`application/json`,
+              """{"newsletterAccepted": true, "accountDescription": "description"}"""
+            )
+          ) ~> sut.updateCurrentUserRoute(userSession)
+
+        // then
+        putRequest ~> check {
+          status shouldEqual StatusCodes.Created
+        }
+
+        Get("/users/1") ~> sut.getUserRoute(adminSession) ~> check {
+          responseAs[String] should matchJson(
+            """{
+              |  "newsletterAccepted": true,
+              |  "newsletterAcceptedDate": "2019-05-27T11:03:48.081Z",
+              |  "accountDescription": "description"
+              |}""".stripMargin
           )
         }
       }

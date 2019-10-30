@@ -36,7 +36,8 @@ class UserService[F[_]: Monad](
     userRepo.getUsers(SearchCriteria(userId, email, apiKey))(pagination)
 
   /** Updated user */
-  def updateUser(id: UserId, user: UpdateUser): F[Unit] = userRepo.updateUser(id, user)
+  def updateUser(id: UserId, user: UpdateUser): F[Unit] =
+    clock.currentInstant.flatMap(now => userRepo.updateUser(id, user, now))
 
   /** Returns user with given ID */
   def getUser(userId: UserId): F[Option[User]] = userRepo.getUser(userId)

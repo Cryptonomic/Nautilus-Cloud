@@ -37,7 +37,9 @@ class TierService[F[_]: Monad](tierRepository: TierRepository[F], clock: Clock[F
       tier <- if (isValid)
         f(tierConfiguration)
       else
-        (NotAllowedConfigurationOverride(s"Given time ${tierConfiguration.startDate} is from the past. Current time: $now"): Throwable)
+        (NotAllowedConfigurationOverride(
+          s"Given time ${tierConfiguration.startDate} is from the past. Current time: $now"
+        ): Throwable)
           .asLeft[Unit]
           .pure[F]
     } yield tier

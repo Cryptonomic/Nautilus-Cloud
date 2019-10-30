@@ -2,9 +2,10 @@ package tech.cryptonomic.nautilus.cloud.fixtures
 
 import java.time.{Instant, ZonedDateTime}
 
+import cats.implicits._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
-import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
@@ -19,17 +20,19 @@ trait Fixtures {
     CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, time, None)
   val exampleApiKey = ApiKey(1, "cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 1, Some(time), None)
 
-  val exampleUser = User(1, "email@example.com", Role.User, time, Github, None)
+  val exampleUser = User(1, "email@example.com", Role.User, time, Github, true, false, None, None)
 
-  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, None)
+  val exampleCreateUser = CreateUser("email@example.com", Role.User, time, Github, 1, true, true)
 
-  val exampleUpdateUser = UpdateUser(Role.User, None)
+  val exampleUpdateUser = UpdateUser()
 
-  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User)
-  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator)
+  val exampleConfirmRegistration = RegistrationConfirmation("some-id")
+
+  val userSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.User, false)
+  val adminSession = Session(1, "email@example.com", AuthenticationProvider.Github, Role.Administrator, true)
 
   val exampleCreateTier = CreateTier("some description", Usage(1, 2), 3)
-  val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Some(Instant.now))
+  val exampleUpdateTier = UpdateTier("some description", Usage(1, 2), 3, Instant.now.some)
 
   val exampleUsageLeft = UsageLeft("apikey", Usage(500, 15000))
 
