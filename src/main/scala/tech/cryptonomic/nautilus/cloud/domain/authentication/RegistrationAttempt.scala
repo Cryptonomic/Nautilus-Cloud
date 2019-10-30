@@ -3,7 +3,7 @@ package tech.cryptonomic.nautilus.cloud.domain.authentication
 import java.time.Instant
 
 import io.circe.Json
-import tech.cryptonomic.nautilus.cloud.domain.authentication.HeaderType.HeaderType
+import tech.cryptonomic.nautilus.cloud.domain.authentication.PayloadType.PayloadType
 import tech.cryptonomic.nautilus.cloud.domain.authentication.RegistrationAttempt.RegistrationAttemptId
 import tech.cryptonomic.nautilus.cloud.domain.tier.Tier.TierId
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -37,9 +37,9 @@ object RegistrationAttempt {
   type RegistrationAttemptId = String
 }
 
-object HeaderType extends Enumeration {
+object PayloadType extends Enumeration {
 
-  type HeaderType = Value
+  type PayloadType = Value
   val REGISTRATION, REGISTERED = Value
 }
 
@@ -54,7 +54,9 @@ final case class InitRequest(code: String)
 
 sealed trait InitResponsePayload
 
-final case class InitResponse(header: HeaderType, payload: InitResponsePayload)
+final case class InitResponse(header: Header, payload: InitResponsePayload)
+
+final case class Header(payloadType: PayloadType)
 
 final case class UserResponse(
     userId: UserId,
@@ -85,7 +87,8 @@ object InitResponseEncoders {
       Json.obj("registrationAttemptId" -> Json.fromString(registrationAttemptId))
   }
   implicit lazy val userResponseEncoder: Encoder[UserResponse] = deriveEncoder
+  implicit lazy val payloadTpeEncoder: Encoder[Header] = deriveEncoder
   implicit lazy val registrationAttemptResponseEncoder: Encoder[RegistrationAttemptResponse] = deriveEncoder
   implicit lazy val instantEncoder: Encoder[Instant] = Encoder.encodeString.contramap[Instant](_.toString)
-  implicit lazy val headerTypeEncoder: Encoder[HeaderType] = Encoder.enumEncoder(HeaderType)
+  implicit lazy val headerTypeEncoder: Encoder[PayloadType] = Encoder.enumEncoder(PayloadType)
 }

@@ -9,9 +9,10 @@ import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.generic.auto._
 import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
-  HeaderType,
+  Header,
   InitRequest,
   InitResponse,
+  PayloadType,
   RegistrationAttemptResponse,
   RegistrationConfirmation,
   UserResponse
@@ -39,10 +40,12 @@ class SessionRoutes(
               onComplete(authenticationApplication.resolveAuthCode(code.code).unsafeToFuture()) {
                 case Success(Right(Right(user))) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
-                    ctx.complete(InitResponse(HeaderType.REGISTERED, UserResponse(user)))
+                    ctx.complete(InitResponse(Header(PayloadType.REGISTERED), UserResponse(user)))
                   }
                 case Success(Right(Left(registrationAttemptId))) =>
-                  complete(InitResponse(HeaderType.REGISTRATION, RegistrationAttemptResponse(registrationAttemptId)))
+                  complete(
+                    InitResponse(Header(PayloadType.REGISTRATION), RegistrationAttemptResponse(registrationAttemptId))
+                  )
                 case Failure(exception) =>
                   logger.error(exception.getMessage, exception)
                   reject(AuthorizationFailedRejection)
@@ -73,7 +76,7 @@ class SessionRoutes(
                       sessionOperations.setSession(
                         user.copy(tosAccepted = registrationAttemptRequest.tosAccepted).asSession
                       ) { ctx =>
-                        ctx.complete(InitResponse(HeaderType.REGISTERED, UserResponse(user)))
+                        ctx.complete(InitResponse(Header(PayloadType.REGISTERED), UserResponse(user)))
                       }
                     case Failure(exception) =>
                       logger.error(exception.getMessage, exception)
