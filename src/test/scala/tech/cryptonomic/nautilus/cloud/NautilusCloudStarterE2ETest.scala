@@ -246,7 +246,7 @@ class NautilusCloudStarterE2ETest
 
         // then
         response.body.right.value should matchJson(
-          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+          """{"header":{"payloadType":"REGISTERED"},"payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
         )
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
@@ -265,7 +265,7 @@ class NautilusCloudStarterE2ETest
 
         // then
         response.body.right.value should matchJson(
-          """{"header":"REGISTERED","payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
+          """{"header":{"payloadType":"REGISTERED"},"payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
         )
         response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
       }
