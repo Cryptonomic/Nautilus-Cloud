@@ -65,4 +65,9 @@ trait ApiKeyQueries extends EnvironmentMappers {
   def getKeysForEnvQuery(environment: Environment): Query0[String] =
     sql"SELECT key FROM api_keys WHERE environment = ${environment.name} AND datesuspended IS NULL".query[String]
 
+  /** Query returning API keys connected to user */
+  def getUserKeysForLastMonthQuery(userId: UserId): Query0[ApiKey] =
+    sql"SELECT keyid, key, environment, userid, dateissued, datesuspended FROM api_keys WHERE userid = $userId AND dateissued > current_date - interval '30 days'"
+      .query[ApiKey]
+
 }

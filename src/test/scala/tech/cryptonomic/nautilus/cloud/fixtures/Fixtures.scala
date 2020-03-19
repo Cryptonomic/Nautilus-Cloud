@@ -4,7 +4,7 @@ import java.time.{Instant, ZonedDateTime}
 
 import cats.implicits._
 import com.github.tomakehurst.wiremock.client.WireMock._
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, CreateApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, Session}
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
@@ -15,6 +15,14 @@ import scala.language.higherKinds
 
 trait Fixtures {
   val time = ZonedDateTime.parse("2019-05-27T18:03:48.081+01:00").toInstant
+
+  val time5m = ZonedDateTime.parse("2019-05-27T00:05:00.000+01:00").toInstant
+
+  val time5m2 = ZonedDateTime.parse("2019-05-27T00:10:00.000+01:00").toInstant
+
+  val time24h = ZonedDateTime.parse("2019-05-27T00:00:00.000+01:00").toInstant
+
+  val time24h2 = ZonedDateTime.parse("2019-05-28T00:00:00.000+01:00").toInstant
 
   val exampleCreateApiKey =
     CreateApiKey("cce27d90-2d8a-403f-a5b8-84f771e38629", Environment.Development, 2, time, None)
@@ -81,6 +89,18 @@ trait Fixtures {
         |  "monthly":15000
         |}]
       """.stripMargin
+
+  val exampleApiKeyStats5m = List(ApiKeyStats(time5m, 1, Some("apikey")), ApiKeyStats(time5m2, 1, None))
+
+  val exampleApiKeyStats24h = List(ApiKeyStats(time24h, 1, Some("apikey")), ApiKeyStats(time24h2, 1, None))
+
+  val exampleRouteStats5m = List(RouteStats(time5m, 1, "url", Some("apikey")), RouteStats(time5m2, 1, "url", None))
+
+  val exampleRouteStats24h = List(RouteStats(time24h, 1, "url", Some("apikey")), RouteStats(time24h2, 1, "url", None))
+
+  val exampleIpStats5m = List(IpStats(time5m, 1, "ip", Some("apikey")), IpStats(time5m2, 1, "ip", None))
+
+  val exampleIpStats24h = List(IpStats(time24h, 1, "ip", Some("apikey")), IpStats(time24h, 1, "ip", None))
 
   def stubAuthServiceFor(authCode: String, email: String): Unit = {
     val accessToken = """stubbed-access-token"""

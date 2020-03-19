@@ -100,4 +100,19 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
     apiKeys = apiKeys.filterNot(_.userId == userId)
     ().pure[F]
   }
+
+  /** Gets keys which were active during last month */
+  override def getUserActiveKeysForLastMonth(userId: UserId): F[List[ApiKey]] = this.synchronized {
+    import scala.concurrent.duration._
+
+    apiKeys
+      .filter(
+        key =>
+          key.userId == userId && key.dateIssued.exists(
+              _.isAfter(Instant.now().minusSeconds(30.days.toSeconds))
+            )
+      )
+      .pure[F]
+  }
+
 }

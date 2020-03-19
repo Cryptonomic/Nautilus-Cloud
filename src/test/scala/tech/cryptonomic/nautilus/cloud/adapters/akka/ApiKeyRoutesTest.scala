@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.Instant
 
 import akka.http.scaladsl.model.{ContentTypes, StatusCodes}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
@@ -34,6 +34,7 @@ class ApiKeyRoutesTest
       val userRepository = context.userRepository
       val apiKeyRepository = context.apiKeyRepository
       val sut = context.apiKeysRoutes
+      val meteringApiRepository = context.meteringApiRepository
 
       "return list containing one api key" in {
         // when
@@ -216,6 +217,78 @@ class ApiKeyRoutesTest
                                               |  }]
                                             """.stripMargin)
         }
+      }
+
+      "get API key stats" in {
+        // given
+        apiKeyRepository.add(exampleApiKey.copy(key = "apikey", userId = 1, dateIssued = Some(Instant.now())))
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
+        meteringApiRepository.addApiKeyStats5m(exampleApiKeyStats5m)
+        meteringApiRepository.addApiKeyStats24h(exampleApiKeyStats24h)
+        meteringApiRepository.addRouteStats5m(exampleRouteStats5m)
+        meteringApiRepository.addRouteStats24h(exampleRouteStats24h)
+        meteringApiRepository.addIpStats5m(exampleIpStats5m)
+        meteringApiRepository.addIpStats24h(exampleIpStats24h)
+
+        // when
+        val result = Get("/users/me/stats") ~> sut.getApiKeyQueryStatsRoute(
+                userSession.copy(email = "email@example.com")
+              )
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""{
+                                                |  "apiKeyStats5m":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:05:00Z",
+                                                |      "count":1,
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ],
+                                                |  "apiKeyStats24h":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:00:00Z",
+                                                |      "count":1,
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ],
+                                                |  "routeStats5m":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:05:00Z",
+                                                |      "count":1,
+                                                |      "uri":"url",
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ],
+                                                |  "routeStats24h":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:00:00Z",
+                                                |      "count":1,
+                                                |      "uri":"url",
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ],
+                                                |  "ipStats5m":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:05:00Z",
+                                                |      "count":1,
+                                                |      "ip":"ip",
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ],
+                                                |  "ipStats24h":[
+                                                |    {
+                                                |      "time":"2019-05-26T23:00:00Z",
+                                                |      "count":1,
+                                                |      "ip":"ip",
+                                                |      "apiKey":"apikey"
+                                                |    }
+                                                |  ]
+                                                |}""".stripMargin)
+        }
+
       }
     }
 }

@@ -67,6 +67,10 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   /** Invalidate all API keys connected to user */
   override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] =
     invalidateApiKeysQuery(userId, now).run.void.transact(transactor)
+
+  /** Gets keys which were active during last month */
+  override def getUserActiveKeysForLastMonth(userId: UserId): F[List[ApiKey]] =
+    getUserKeysForLastMonthQuery(userId).to[List].transact(transactor)
 }
 
 case class InvalidateApiKey(

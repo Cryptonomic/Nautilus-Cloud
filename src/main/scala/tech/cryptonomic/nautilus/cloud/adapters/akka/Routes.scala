@@ -71,7 +71,8 @@ class Routes(
                     apiKeysRoutes.getApiKeysRoute,
                     apiKeysRoutes.validateApiKeyRoute,
                     apiKeysRoutes.getUserKeysRoute,
-                    apiKeysRoutes.getApiKeyUsageRoute
+                    apiKeysRoutes.getApiKeyUsageRoute,
+                    apiKeysRoutes.getApiKeyQueryStatsRoute
                   ),
                   concat(
                     userRoutes.getUserRoute,
