@@ -74,8 +74,8 @@ class ApiKeyService[F[_]: Monad](
 
   private def fetchMeteringStats(activeApiKeys: List[ApiKey]): F[MeteringStats] =
     (
-      meteringApi.getApiKeyQueries5mStats(activeApiKeys),
-      meteringApi.getApiKeyQueries24hStats(activeApiKeys),
+      meteringApi.getApiKey5mStats(activeApiKeys),
+      meteringApi.getApiKey24hStats(activeApiKeys),
       meteringApi.getRoute5mStats(activeApiKeys),
       meteringApi.getRoute24hStats(activeApiKeys),
       meteringApi.getIp5mStats(activeApiKeys),

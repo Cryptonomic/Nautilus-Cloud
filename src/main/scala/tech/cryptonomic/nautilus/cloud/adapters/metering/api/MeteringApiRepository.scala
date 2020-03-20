@@ -12,10 +12,12 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi._
 
+/** Implementation of API for Metering stats */
 class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     implicit sttpBackend: SttpBackend[F, Nothing]
 ) extends MeteringApi[F] {
-  override def getApiKeyQueries5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
+  /** Fetches ApiKey stats per 5m */
+  override def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
@@ -30,7 +32,8 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
   }
 
-  override def getApiKeyQueries24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
+  /** Fetches ApiKey stats per 24h */
+  override def getApiKey24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/24h".params(apiKeys.map("apiKey" -> _.key): _*))
@@ -45,6 +48,7 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
   }
 
+  /** Fetches Route stats per 5m */
   override def getRoute5mStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
@@ -59,6 +63,8 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
           )
       }
   }
+
+  /** Fetches Route stats per 24h */
   override def getRoute24hStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
@@ -73,6 +79,8 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
           )
       }
   }
+
+  /** Fetches IP stats per 5m */
   override def getIp5mStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
@@ -87,6 +95,8 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
           )
       }
   }
+
+  /** Fetches IP stats per 24h */
   override def getIp24hStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = {
     apiKeys.map("apiKey" -> _.key)
     sttp
@@ -102,6 +112,6 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
   }
 
+  /** Custom exception class */
   final case class QueryException(message: String = "", cause: Throwable = null) extends Exception(message, cause)
-
 }

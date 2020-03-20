@@ -29,12 +29,12 @@ class InMemoryMeteringApiRepository[F[_]: Monad] extends MeteringApi[F] {
 
   def addIpStats24h(list: List[IpStats]): Unit = this.synchronized(ipStats24h ++= list)
 
-  override def getApiKeyQueries5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
+  override def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
     Either
       .cond(true, apiKeyStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
       .pure[F]
   }
-  override def getApiKeyQueries24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
+  override def getApiKey24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
     Either
       .cond(
         true,
