@@ -1,0 +1,14 @@
+FROM nautilus-cloud:base-latest as builder
+
+ADD . /build
+RUN chown -R sbtuser:sbtuser /build
+USER sbtuser
+WORKDIR /build
+RUN sbt 'set test in assembly := {}' assembly
+
+FROM openjdk:8-jre-alpine
+WORKDIR /nc
+COPY --from=builder /build/target/scala-2.12/nautilus-cloud*.jar /nc/
+EXPOSE 1234
+RUN addgroup --gid 1001 nc && adduser --home /nc --no-create-home --uid 1001 -G nc --gecos '' --disabled-password nc
+CMD java -Xms${NC_JAVA_XMS:-"512m"} -Xmx${NC_JAVA_XMX:-"1g"} -Dconfig.file=/nc.conf -cp ./*.jar tech.cryptonomic.nautilus.cloud.NautilusCloud

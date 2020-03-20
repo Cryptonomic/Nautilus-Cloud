@@ -1,0 +1,8 @@
+FROM nautilus-cloud:base-tmp
+RUN apt update && apt-get install -y apt-transport-https ca-certificates curl gnupg2
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg |  apt-key add -
+RUN echo "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable" >> /etc/apt/sources.list
+RUN apt-get update && \
+    apt-get install -y \
+      docker-ce-cli build-essential libjansson-dev libpcre++-dev zlib1g-dev && \
+   apt clean
