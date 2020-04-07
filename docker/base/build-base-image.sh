@@ -15,5 +15,3 @@ docker build \
 github.com/hseeberger/scala-sbt.git#:debian
 
 docker build -f docker/base/dockerfile-base -t $IMAGE_NAME:$IMAGE_VERSION .
-#docker tag $IMAGE_NAME:$IMAGE_VERSION $DOCKER_REPO/$IMAGE_NAME:$IMAGE_VERSION
-#docker push $DOCKER_REPO/$IMAGE_NAME:$IMAGE_VERSION
