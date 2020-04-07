@@ -35,3 +35,11 @@ as described above (take note of the doobie.host config), follow these steps:
 # Usage
 * swagger: http://localhost:1234/docs
 * login-panel: http://localhost:1234/site
+
+#Docker-based build
+
+For Docker base build follow these steps:
+
+    1. Be in the root directory of the repo.
+    2. To build Nautilus-Cloud run `./docker/build/build-images.sh`
+    3. The final container will be named `nautilus-cloud:latest`. The `NC_JAVA_XMS` `NC_JAVA_XMX` env variables can be used to set Java `-Xms` and `-Xmx` parameters. The Nautilus-Cloud config file needs to be mount inside the container in `/nc.conf` location.
