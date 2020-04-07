@@ -6,10 +6,26 @@ import com.softwaremill.session._
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.CustomSessionSerializer._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 
+/* Overridden class to enable same-site extension support */
+sealed class SessionManager2[T](config: SessionConfig)(implicit sessionEncoder: SessionEncoder[T])
+    extends SessionManager(config)(sessionEncoder) { manager =>
+
+  override val clientSessionManager: ClientSessionManager[T] = new ClientSessionManager[T] {
+    override def config = manager.config
+    override def sessionEncoder = manager.sessionEncoder
+    override def nowMillis = manager.nowMillis
+
+    override def createCookieWithValue(value: String) =
+      super.createCookieWithValue(value).copy(extension = Some("SameSite=None"))
+
+  }
+
+}
+
 /* wrapper for akka-session */
 class SessionOperations(config: SessionConfig) {
 
-  implicit val sessionManager: SessionManager[Session] = new SessionManager[Session](config)
+  implicit val sessionManager: SessionManager[Session] = new SessionManager2[Session](config)
 
   private val sessionContinuity: SessionContinuity[Session] = oneOff
   private val sessionTransport: SetSessionTransport = usingCookies
