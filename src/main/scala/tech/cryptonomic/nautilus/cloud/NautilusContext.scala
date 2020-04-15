@@ -31,7 +31,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
   DoobieUserRepository
 }
 import tech.cryptonomic.nautilus.cloud.adapters.metering.MeteringApiConfig
-import tech.cryptonomic.nautilus.cloud.adapters.metering.api.MeteringApiRepository
+import tech.cryptonomic.nautilus.cloud.adapters.metering.api.SttpMeteringApiRepository
 import tech.cryptonomic.nautilus.cloud.adapters.scalacache.InMemoryRegistrationAttemptRepository
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKeyGenerator, ApiKeyRepository, ApiKeyService}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
@@ -51,7 +51,7 @@ import tech.cryptonomic.nautilus.cloud.application.{
   TierApplication,
   UserApplication
 }
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 
 import scala.concurrent.ExecutionContext
 
@@ -90,7 +90,7 @@ trait NautilusContext extends StrictLogging {
   lazy val resourcesRepository: ResourceRepository[IO] = wire[DoobieResourceRepository[IO]]
   lazy val registrationAttemptRepository: RegistrationAttemptRepository[IO] =
     wire[InMemoryRegistrationAttemptRepository[IO]]
-  lazy val meteringApiRepository: MeteringApi[IO] = wire[MeteringApiRepository[IO]]
+  lazy val meteringApiRepository: MeteringApiRepository[IO] = wire[SttpMeteringApiRepository[IO]]
 
   lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]

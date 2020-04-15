@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -16,7 +16,7 @@ import scala.language.higherKinds
 class ApiKeyService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     tiersRepository: TierRepository[F],
-    meteringApi: MeteringApi[F],
+    meteringApi: MeteringApiRepository[F],
     clock: Clock[F],
     apiKeyGenerator: ApiKeyGenerator
 ) {

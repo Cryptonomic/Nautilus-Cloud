@@ -3,22 +3,21 @@ import cats.Applicative
 import com.softwaremill.sttp.SttpBackend
 import tech.cryptonomic.nautilus.cloud.adapters.metering.MeteringApiConfig
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyStats, IpStats, RouteStats}
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 
 import scala.language.higherKinds
 import cats.implicits._
 import com.softwaremill.sttp._
 import io.circe.generic.auto._
 import io.circe.parser._
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi._
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository._
 
 /** Implementation of API for Metering stats */
-class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
+class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     implicit sttpBackend: SttpBackend[F, Nothing]
-) extends MeteringApi[F] {
+) extends MeteringApiRepository[F] {
   /** Fetches ApiKey stats per 5m */
   override def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)
@@ -34,7 +33,6 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 
   /** Fetches ApiKey stats per 24h */
   override def getApiKey24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/24h".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)
@@ -50,7 +48,6 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 
   /** Fetches Route stats per 5m */
   override def getRoute5mStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/routes/5m".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)
@@ -66,7 +63,6 @@ class MeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 
   /** Fetches Route stats per 24h */
   override def getRoute24hStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/routes/24h".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)

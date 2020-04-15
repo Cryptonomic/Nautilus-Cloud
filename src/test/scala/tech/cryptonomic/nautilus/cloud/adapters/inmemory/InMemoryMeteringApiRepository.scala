@@ -2,12 +2,12 @@ package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyStats, IpStats, RouteStats}
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi.Result
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository.Result
 
 import scala.language.higherKinds
 
-class InMemoryMeteringApiRepository[F[_]: Monad] extends MeteringApi[F] {
+class InMemoryMeteringApiRepository[F[_]: Monad] extends MeteringApiRepository[F] {
 
   private var apiKeyStats5m: List[ApiKeyStats] = List.empty
   private var routeStats5m: List[RouteStats] = List.empty

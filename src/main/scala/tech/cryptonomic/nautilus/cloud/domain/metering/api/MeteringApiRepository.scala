@@ -1,11 +1,11 @@
 package tech.cryptonomic.nautilus.cloud.domain.metering.api
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, ApiKeyStats, IpStats, RouteStats}
-import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApi.Result
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository.Result
 
 import scala.language.higherKinds
 
 /** Interface for metering API */
-trait MeteringApi[F[_]] {
+trait MeteringApiRepository[F[_]] {
   /** Fetches ApiKey stats per 5m */
   def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]]
 
@@ -26,7 +26,7 @@ trait MeteringApi[F[_]] {
 }
 
 /** Companion object for Metering API */
-object MeteringApi {
+object MeteringApiRepository {
   /** Type representing result of fetching from Metering API*/
   type Result[T] = Either[Throwable, T]
 }
