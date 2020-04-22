@@ -78,7 +78,6 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 
   /** Fetches IP stats per 5m */
   override def getIp5mStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)
@@ -94,7 +93,6 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 
   /** Fetches IP stats per 24h */
   override def getIp24hStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = {
-    apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
       .readTimeout(config.readTimeout)
