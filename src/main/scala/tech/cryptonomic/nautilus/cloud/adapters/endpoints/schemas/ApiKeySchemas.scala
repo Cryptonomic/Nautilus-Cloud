@@ -1,6 +1,6 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
 
@@ -34,4 +34,20 @@ trait ApiKeySchemas extends InstantSchema with EnvironmentSchema {
       roleName => Role.byName(roleName),
       _.name
     )
+
+  /** Apik Key stats schema */
+  implicit lazy val apiKeyStatsSchema: JsonSchema[ApiKeyStats] =
+    genericJsonSchema[ApiKeyStats]
+
+  /** Route stats schema */
+  implicit lazy val routeStatsSchema: JsonSchema[RouteStats] =
+    genericJsonSchema[RouteStats]
+
+  /** Ip stats schema */
+  implicit lazy val ipStatsSchema: JsonSchema[IpStats] =
+    genericJsonSchema[IpStats]
+
+  /** Metering stats schema */
+  implicit lazy val meteringStatsSchema: JsonSchema[MeteringStats] =
+    genericJsonSchema[MeteringStats]
 }

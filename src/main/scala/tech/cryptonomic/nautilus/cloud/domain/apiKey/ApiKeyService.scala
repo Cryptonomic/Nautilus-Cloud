@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
+import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -15,6 +16,7 @@ import scala.language.higherKinds
 class ApiKeyService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     tiersRepository: TierRepository[F],
+    meteringApi: MeteringApiRepository[F],
     clock: Clock[F],
     apiKeyGenerator: ApiKeyGenerator
 ) {
@@ -62,6 +64,38 @@ class ApiKeyService[F[_]: Monad](
       initialUsages = createInitialUsages(apiKeys, usage)
       _ <- insert(apiKeys, initialUsages)
     } yield ()
+
+  /** Returns stats for ApiKeyQueries */
+  def getMeteringStats(userId: UserId): F[MeteringStats] =
+    for {
+      activeApiKeys <- apiKeyRepository.getUserActiveKeysForLastMonth(userId)
+      meteringStats <- fetchMeteringStats(activeApiKeys)
+    } yield meteringStats
+
+  private def fetchMeteringStats(activeApiKeys: List[ApiKey]): F[MeteringStats] =
+    (
+      meteringApi.getApiKey5mStats(activeApiKeys),
+      meteringApi.getApiKey24hStats(activeApiKeys),
+      meteringApi.getRoute5mStats(activeApiKeys),
+      meteringApi.getRoute24hStats(activeApiKeys),
+      meteringApi.getIp5mStats(activeApiKeys),
+      meteringApi.getIp24hStats(activeApiKeys)
+    ).mapN {
+      case (apiKeyStats5m, apiKeyStats24h, routeStats5m, routeStats24h, ipStats5m, ipStats24h) =>
+        val res = for {
+          a5m <- apiKeyStats5m
+          a24h <- apiKeyStats24h
+          r5m <- routeStats5m
+          r24h <- routeStats24h
+          i5m <- ipStats5m
+          i24h <- ipStats24h
+        } yield MeteringStats(a5m, a24h, r5m, r24h, i5m, i24h)
+
+        res match {
+          case Left(exception) => throw exception
+          case Right(value) => value
+        }
+    }
 
   private def insert(apiKeys: List[CreateApiKey], initialUsages: List[UsageLeft]): F[Unit] =
     for {

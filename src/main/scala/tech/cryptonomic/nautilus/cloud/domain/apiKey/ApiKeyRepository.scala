@@ -12,6 +12,7 @@ trait ApiKeyRepository[F[_]] {
   /** Query returning all API keys from the DB */
   def getAllApiKeys: F[List[ApiKey]]
 
+  /** Query returning currently active API keys*/
   def getCurrentActiveApiKeys(id: UserId): F[List[ApiKey]]
 
   /** Query checking if API key is valid */
@@ -43,5 +44,8 @@ trait ApiKeyRepository[F[_]] {
 
   /** Gets keys for environment */
   def getKeysForEnv(environment: Environment): F[List[String]]
+
+  /** Gets keys which were active during last month */
+  def getUserActiveKeysForLastMonth(userId: Int): F[List[ApiKey]]
 
 }

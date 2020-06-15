@@ -2,7 +2,7 @@ package tech.cryptonomic.nautilus.cloud.adapters.endpoints
 
 import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ApiKeySchemas
-import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
+import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
@@ -77,6 +77,14 @@ trait ApiKeyEndpoints
     endpoint(
       request = post(url = path / "users" / "me" / "apiKeys" / segment[Environment]("env") / "refresh", emptyRequest),
       response = jsonResponse[ApiKey](),
+      tags = List("User")
+    )
+
+  /** Api keys usage endpoint definition */
+  def getApiKeyStats: Endpoint[Unit, MeteringStats] =
+    endpoint(
+      request = get(url = path / "users" / "me" / "stats"),
+      response = jsonResponse[MeteringStats](),
       tags = List("User")
     )
 }
