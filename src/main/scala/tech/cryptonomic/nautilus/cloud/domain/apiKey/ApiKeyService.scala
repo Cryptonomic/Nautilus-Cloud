@@ -5,7 +5,9 @@ import java.time.Instant
 import cats.Monad
 import cats.effect.Clock
 import cats.implicits._
+import com.typesafe.scalalogging.StrictLogging
 import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
+import tech.cryptonomic.nautilus.cloud.domain.metering.stats.{AggregatedMeteringStats, MeteringStatsRepository}
 import tech.cryptonomic.nautilus.cloud.domain.tier.{Tier, TierRepository, Usage}
 import tech.cryptonomic.nautilus.cloud.domain.tools.ClockTool.ExtendedClock
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -17,9 +19,10 @@ class ApiKeyService[F[_]: Monad](
     apiKeyRepository: ApiKeyRepository[F],
     tiersRepository: TierRepository[F],
     meteringApi: MeteringApiRepository[F],
+    meteringStatsRepository: MeteringStatsRepository[F],
     clock: Clock[F],
     apiKeyGenerator: ApiKeyGenerator
-) {
+) extends StrictLogging {
 
   /** Returns all API keys from the DB */
   def getAllApiKeys: F[List[ApiKey]] = apiKeyRepository.getAllApiKeys
@@ -72,6 +75,10 @@ class ApiKeyService[F[_]: Monad](
       meteringStats <- fetchMeteringStats(activeApiKeys)
     } yield meteringStats
 
+  /** Returns aggregated stats for the user */
+  def getAggregatedMeteringStatsForUser(userId: UserId): F[List[AggregatedMeteringStats]] =
+    meteringStatsRepository.getStatsPerUser(userId)
+
   private def fetchMeteringStats(activeApiKeys: List[ApiKey]): F[MeteringStats] =
     (
       meteringApi.getApiKey5mStats(activeApiKeys),
@@ -92,7 +99,9 @@ class ApiKeyService[F[_]: Monad](
         } yield MeteringStats(a5m, a24h, r5m, r24h, i5m, i24h)
 
         res match {
-          case Left(exception) => throw exception
+          case Left(exception) =>
+            logger.error(exception.getMessage, exception)
+            throw exception
           case Right(value) => value
         }
     }

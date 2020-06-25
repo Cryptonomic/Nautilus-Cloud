@@ -115,4 +115,13 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
       .pure[F]
   }
 
+  /** Gets keys which were active in between dates */
+  override def getUserActiveKeysInGivenRange(userId: UserId, start: Instant, end: Instant): F[List[ApiKey]] =
+    this.synchronized {
+      apiKeys.filter { key =>
+        key.userId == userId &&
+        (key.dateIssued.exists(di => di.isAfter(start) && di.isBefore(end)) ||
+        key.dateSuspended.exists(ds => ds.isAfter(start) && ds.isBefore(end)))
+      }.pure[F]
+    }
 }

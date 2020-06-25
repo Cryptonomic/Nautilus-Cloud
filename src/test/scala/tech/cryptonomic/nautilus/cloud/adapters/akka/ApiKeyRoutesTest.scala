@@ -33,6 +33,7 @@ class ApiKeyRoutesTest
       }
       val userRepository = context.userRepository
       val apiKeyRepository = context.apiKeyRepository
+      val meteringStatsRepository = context.meteringStatsRepository
       val sut = context.apiKeysRoutes
       val meteringApiRepository = context.meteringApiRepository
 
@@ -289,6 +290,30 @@ class ApiKeyRoutesTest
                                                 |}""".stripMargin)
         }
 
+      }
+
+      "get API key aggregated statistics" in {
+        // given
+        meteringStatsRepository.insertStats(exampleAggregatedMeteringStats)
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
+
+        // when
+        val result = Get("/users/me/stats/aggregated") ~> sut.getApiKeyAggregatedStatsRoute(
+                userSession.copy(email = "email@example.com")
+              )
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""[{
+                                                |	"userId": 1,
+                                                |	"service": "service",
+                                                |	"hits": 42,
+                                                |	"periodStart": "2019-05-26T23:05:00Z",
+                                                |	"periodEnd": "2019-05-26T23:10:00Z"
+                                                |}]""".stripMargin)
+        }
       }
     }
 }

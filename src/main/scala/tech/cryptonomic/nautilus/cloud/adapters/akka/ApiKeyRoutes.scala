@@ -62,4 +62,10 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
   def getApiKeyQueryStatsRoute(implicit session: Session): Route = getApiKeyStats.implementedByAsync { _ =>
     apiKeysApplication.getMeteringStats.unsafeToFuture()
   }
+
+  /** ApiKey Query Stats route implementation*/
+  def getApiKeyAggregatedStatsRoute(implicit session: Session): Route = getApiKeyAggregatedStats.implementedByAsync {
+    _ =>
+      apiKeysApplication.getAggregatedMeteringStats.unsafeToFuture()
+  }
 }

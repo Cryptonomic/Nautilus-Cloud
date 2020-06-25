@@ -64,6 +64,17 @@ create TABLE usage_left(
       REFERENCES api_keys (key) MATCH SIMPLE
       ON update NO ACTION ON delete NO ACTION
 );
+create TABLE metering_statistics(
+    id serial PRIMARY KEY,
+    userid integer NOT NULL,
+    service text NOT NULL,
+    hits integer NOT NULL,
+    period_start timestamp with time zone NOT NULL,
+    period_end timestamp with time zone NOT NULL,
+    CONSTRAINT userid_fk FOREIGN KEY (userid)
+      REFERENCES users (userid) MATCH SIMPLE
+      ON update NO ACTION ON delete NO ACTION
+);
 
 insert into environments (name) values('dev');
 insert into environments (name) values('prod');
