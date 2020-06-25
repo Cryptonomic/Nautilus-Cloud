@@ -20,7 +20,7 @@ trait MeteringStatsQueries {
 
   /** Fetches metering stats for given user */
   def meteringStatsPerUser(userId: UserId): Query0[AggregatedMeteringStats] =
-    sql"SELECT userid, service, hits, period_start, period_end FROM metering_statistics WHERE userid = $userId"
+    sql"SELECT userid, service, hits, period_start, period_end FROM metering_statistics WHERE userid = $userId ORDER BY period_end DESC"
       .query[AggregatedMeteringStats]
 
 }
