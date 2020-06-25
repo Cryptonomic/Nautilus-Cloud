@@ -39,18 +39,20 @@ class MeteringProcessor[F[_]: Monad](
       apiKeys: List[ApiKey],
       apiKeyStats: List[ApiKeyStats]
   ): List[AggregatedMeteringStats] =
-    users.map { user =>
-      val apiKey = apiKeys.find(_.userId == user.userId)
-      val stats = apiKeyStats.find(_.apiKey == apiKey.map(_.key))
+    for {
+      stats <- apiKeyStats
+      user <- users
+      apiKey <- apiKeys
+      key <- stats.apiKey.toList
+      if key == apiKey.key && apiKey.userId == user.userId
+    } yield
       AggregatedMeteringStats(
         userId = user.userId,
-        service = apiKey.map(_.environment.name).getOrElse("unknown"),
-        hits = stats.map(_.count).getOrElse(0),
-        periodStart =
-          stats.map(_.time.minusSeconds(meteringApiConfig.statsInterval.toSeconds)).getOrElse(Instant.ofEpochSecond(0)),
-        periodEnd = stats.map(_.time).getOrElse(Instant.ofEpochSecond(0))
+        service = apiKey.environment.name,
+        hits = stats.count,
+        periodStart = stats.time.minusSeconds(meteringApiConfig.statsInterval.toSeconds),
+        periodEnd = stats.time
       )
-    }
 
   private def fetchApiKeyStats(
       validApiKeys: List[ApiKey],
