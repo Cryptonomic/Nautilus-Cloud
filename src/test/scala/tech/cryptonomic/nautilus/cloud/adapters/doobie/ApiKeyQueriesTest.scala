@@ -54,7 +54,7 @@ class ApiKeyQueriesTest extends WordSpec with Matchers with IOChecker with InMem
       "check invalidateApiKeysQuery" in {
         check(sut.invalidateApiKeysQuery(1, Instant.now()))
       }
-      "check invalidateApiKeysQuery" in {
+      "check getUserKeysValidIn" in {
         check(sut.getUserKeysValidIn(1, Instant.now(), Instant.now()))
       }
     }
