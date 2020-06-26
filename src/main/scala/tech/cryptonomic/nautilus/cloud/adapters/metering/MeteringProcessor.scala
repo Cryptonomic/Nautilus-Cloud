@@ -59,7 +59,7 @@ class MeteringProcessor[F[_]: Monad](
       meteringStats: List[AggregatedMeteringStats]
   ): F[List[ApiKeyStats]] =
     meteringApiRepository
-      .getApiKey5mStats(validApiKeys, Some(meteringStats.map(_.periodEnd).min.toEpochMilli / 1000))
+      .getApiKey5mStats(validApiKeys, meteringStats.map(_.periodEnd.toEpochMilli).minimumOption.map(_ / 1000))
       .map {
         case Left(e) =>
           logger.error(e.getMessage, e)
