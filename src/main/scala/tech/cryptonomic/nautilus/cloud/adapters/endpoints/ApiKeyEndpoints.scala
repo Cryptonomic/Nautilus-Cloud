@@ -82,7 +82,7 @@ trait ApiKeyEndpoints
     )
 
   /** Api keys usage endpoint definition */
-  def getApiKeyStats: Endpoint[Unit, MeteringStats] =
+  def getCurrentUserApiKeyStats: Endpoint[Unit, MeteringStats] =
     endpoint(
       request = get(url = path / "users" / "me" / "stats"),
       response = jsonResponse[MeteringStats](),
@@ -90,7 +90,7 @@ trait ApiKeyEndpoints
     )
 
   /** Api keys usage endpoint definition */
-  def getApiKeyAggregatedStats: Endpoint[Unit, List[AggregatedMeteringStats]] =
+  def getCurrentUserApiKeyAggregatedStats: Endpoint[Unit, List[AggregatedMeteringStats]] =
     endpoint(
       request = get(url = path / "users" / "me" / "stats" / "aggregated"),
       response = jsonResponse[List[AggregatedMeteringStats]](),

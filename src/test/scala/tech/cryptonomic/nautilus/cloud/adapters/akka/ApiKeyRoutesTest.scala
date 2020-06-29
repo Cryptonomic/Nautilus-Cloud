@@ -232,7 +232,7 @@ class ApiKeyRoutesTest
         meteringApiRepository.addIpStats24h(exampleIpStats24h)
 
         // when
-        val result = Get("/users/me/stats") ~> sut.getApiKeyQueryStatsRoute(
+        val result = Get("/users/me/stats") ~> sut.getCurrentUserApiKeyQueryStatsRoute(
                 userSession.copy(email = "email@example.com")
               )
 
@@ -298,7 +298,7 @@ class ApiKeyRoutesTest
         userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
 
         // when
-        val result = Get("/users/me/stats/aggregated") ~> sut.getApiKeyAggregatedStatsRoute(
+        val result = Get("/users/me/stats/aggregated") ~> sut.getCurrentUserApiKeyAggregatedStatsRoute(
                 userSession.copy(email = "email@example.com")
               )
 

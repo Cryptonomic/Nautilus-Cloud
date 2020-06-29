@@ -52,31 +52,28 @@ class Routes(
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
       cors(settings) {
-        logger.info(s"got request")
         concat(
           sessionRoutes.routes,
           apiKeysRoutes.getAllApiKeysForEnvRoute,
           sessionOperations.requiredSession {
             implicit session =>
-              logger.info(s"with session")
               validatesTosInSession(session) {
-                logger.info(s"and it was valid")
                 concat(
                   // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
                   concat(
                     userRoutes.getCurrentUserRoute,
                     userRoutes.updateCurrentUserRoute,
                     apiKeysRoutes.getCurrentUserKeysRoute,
-                    apiKeysRoutes.getCurrentKeyUsageRoute
+                    apiKeysRoutes.getCurrentKeyUsageRoute,
+                    apiKeysRoutes.getCurrentUserApiKeyQueryStatsRoute,
+                    apiKeysRoutes.getCurrentUserApiKeyAggregatedStatsRoute
                   ),
                   concat(
                     apiKeysRoutes.refreshKeysRoute,
                     apiKeysRoutes.getApiKeysRoute,
                     apiKeysRoutes.validateApiKeyRoute,
                     apiKeysRoutes.getUserKeysRoute,
-                    apiKeysRoutes.getApiKeyUsageRoute,
-                    apiKeysRoutes.getApiKeyQueryStatsRoute,
-                    apiKeysRoutes.getApiKeyAggregatedStatsRoute
+                    apiKeysRoutes.getApiKeyUsageRoute
                   ),
                   concat(
                     userRoutes.getUserRoute,

@@ -59,13 +59,13 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
   }
 
   /** ApiKey Query Stats route implementation*/
-  def getApiKeyQueryStatsRoute(implicit session: Session): Route = getApiKeyStats.implementedByAsync { _ =>
+  def getCurrentUserApiKeyQueryStatsRoute(implicit session: Session): Route = getCurrentUserApiKeyStats.implementedByAsync { _ =>
     logger.info(s"Querying stats for user ${session.email}")
     apiKeysApplication.getMeteringStats.unsafeToFuture()
   }
 
   /** ApiKey Query Stats route implementation*/
-  def getApiKeyAggregatedStatsRoute(implicit session: Session): Route = getApiKeyAggregatedStats.implementedByAsync {
+  def getCurrentUserApiKeyAggregatedStatsRoute(implicit session: Session): Route = getCurrentUserApiKeyAggregatedStats.implementedByAsync {
     _ =>
       apiKeysApplication.getAggregatedMeteringStats.unsafeToFuture()
   }
