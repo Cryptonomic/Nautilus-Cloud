@@ -31,7 +31,7 @@ class MeteringProcessor[F[_]: Monad](
       validApiKeys <- users
         .map { user =>
           apiKeyRepository
-            .getUserActiveKeysInGivenRange(user.userId, meteringStats.find(_.userId == user.userId).map(_.periodStart).getOrElse(Instant.MIN), Instant.now())
+            .getUserActiveKeysInGivenRange(user.userId, meteringStats.find(_.userId == user.userId).map(_.periodStart).getOrElse(Instant.ofEpochSecond(0)), Instant.now())
         }
         .sequence
       _ = logger.info(s"Valid API keys: ${validApiKeys.flatten}")
