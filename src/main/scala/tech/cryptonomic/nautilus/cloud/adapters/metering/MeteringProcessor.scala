@@ -28,14 +28,16 @@ class MeteringProcessor[F[_]: Monad](
       _ = logger.info(s"Got users from DB: $users")
       meteringStats <- meteringStatsRepository.getLastStats(users.map(_.userId))
       _ = logger.info(s"Got last stats from DB: $meteringStats")
-      validApiKeys <- users
-        .map { user =>
-          apiKeyRepository
-            .getUserActiveKeysInGivenRange(user.userId, meteringStats.find(_.userId == user.userId).map(_.periodStart).getOrElse(Instant.ofEpochSecond(0)), Instant.now())
-        }
-        .sequence
+      validApiKeys <- users.map { user =>
+        val periodStart = meteringStats
+          .find(_.userId == user.userId)
+          .map(_.periodStart)
+          .getOrElse(Instant.ofEpochSecond(0))
+        apiKeyRepository
+          .getUserActiveKeysInGivenRange(user.userId, periodStart, Instant.now())
+      }.sequence
       _ = logger.info(s"Valid API keys: ${validApiKeys.flatten}")
-      apiKeyStats <- if(validApiKeys.flatten.isEmpty) {
+      apiKeyStats <- if (validApiKeys.flatten.isEmpty) {
         List.empty[ApiKeyStats].pure[F]
       } else {
         fetchApiKeyStats(validApiKeys.flatten, meteringStats)
