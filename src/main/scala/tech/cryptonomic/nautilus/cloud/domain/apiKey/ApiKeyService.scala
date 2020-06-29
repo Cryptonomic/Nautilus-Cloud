@@ -72,9 +72,9 @@ class ApiKeyService[F[_]: Monad](
   def getMeteringStats(userId: UserId): F[MeteringStats] =
     for {
       activeApiKeys <- apiKeyRepository.getUserActiveKeysForLastMonth(userId)
-      _ = logger.info(s"active keys for user ${activeApiKeys}")
+      _ = logger.debug(s"active keys for $userId: $activeApiKeys")
       meteringStats <- fetchMeteringStats(activeApiKeys)
-      _ = logger.info(s"metering stats for ${userId}")
+      _ = logger.debug(s"metering stats for $userId: $meteringStats")
     } yield meteringStats
 
   /** Returns aggregated stats for the user */
@@ -105,7 +105,7 @@ class ApiKeyService[F[_]: Monad](
             logger.error(exception.getMessage, exception)
             throw exception
           case Right(value) =>
-            logger.info(s"Fetched metering stats: $value")
+            logger.debug(s"Fetched metering stats: $value")
             value
         }
     }

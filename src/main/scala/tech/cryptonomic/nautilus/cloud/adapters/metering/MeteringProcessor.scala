@@ -25,9 +25,9 @@ class MeteringProcessor[F[_]: Monad](
   def process(): F[Unit] =
     for {
       users <- userRepository.getUsers()().map(_.result)
-      _ = logger.info(s"Got users from DB: $users")
+      _ = logger.debug(s"Got users from DB: $users")
       meteringStats <- meteringStatsRepository.getLastStats(users.map(_.userId))
-      _ = logger.info(s"Got last stats from DB: $meteringStats")
+      _ = logger.debug(s"Got last stats from DB: $meteringStats")
       validApiKeys <- users.map { user =>
         val periodStart = meteringStats
           .find(_.userId == user.userId)
@@ -36,14 +36,14 @@ class MeteringProcessor[F[_]: Monad](
         apiKeyRepository
           .getUserActiveKeysInGivenRange(user.userId, periodStart, Instant.now())
       }.sequence
-      _ = logger.info(s"Valid API keys: ${validApiKeys.flatten}")
+      _ = logger.debug(s"Valid API keys: ${validApiKeys.flatten}")
       apiKeyStats <- if (validApiKeys.flatten.isEmpty) {
         List.empty[ApiKeyStats].pure[F]
       } else {
         fetchApiKeyStats(validApiKeys.flatten, meteringStats)
       }
       aggregatedStats = aggregateStats(users, validApiKeys.flatten, apiKeyStats)
-      _ = logger.info(s"Inserting stats $aggregatedStats")
+      _ = logger.debug(s"Inserting stats $aggregatedStats")
       _ <- meteringStatsRepository.insertStats(aggregatedStats)
     } yield ()
 
@@ -78,7 +78,7 @@ class MeteringProcessor[F[_]: Monad](
           logger.error(e.getMessage, e)
           throw e
         case Right(result) =>
-          logger.info(s"Got metering stats for aggregation: $result")
+          logger.debug(s"Got metering stats for aggregation: $result")
           result
       }
 
