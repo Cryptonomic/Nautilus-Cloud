@@ -29,6 +29,7 @@ class MeteringProcessor[F[_]: Monad](
       validApiKeys <- meteringStats
         .map(stats => apiKeyRepository.getUserActiveKeysInGivenRange(stats.userId, stats.periodStart, Instant.now()))
         .sequence
+      _ = logger.info(s"Valid API keys: ${validApiKeys.flatten}")
       apiKeyStats <- fetchApiKeyStats(validApiKeys.flatten, meteringStats)
       aggregatedStats = aggregateStats(users, validApiKeys.flatten, apiKeyStats)
       _ <- meteringStatsRepository.insertStats(aggregatedStats)

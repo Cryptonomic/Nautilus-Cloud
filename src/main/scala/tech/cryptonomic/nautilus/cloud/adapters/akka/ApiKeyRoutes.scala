@@ -60,6 +60,7 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
 
   /** ApiKey Query Stats route implementation*/
   def getApiKeyQueryStatsRoute(implicit session: Session): Route = getApiKeyStats.implementedByAsync { _ =>
+    logger.info(s"Querying stats for user ${session.email}")
     apiKeysApplication.getMeteringStats.unsafeToFuture()
   }
 

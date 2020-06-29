@@ -72,7 +72,9 @@ class ApiKeyService[F[_]: Monad](
   def getMeteringStats(userId: UserId): F[MeteringStats] =
     for {
       activeApiKeys <- apiKeyRepository.getUserActiveKeysForLastMonth(userId)
+      _ = logger.info(s"active keys for user ${activeApiKeys}")
       meteringStats <- fetchMeteringStats(activeApiKeys)
+      _ = logger.info(s"metering stats for ${userId}")
     } yield meteringStats
 
   /** Returns aggregated stats for the user */
