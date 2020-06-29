@@ -103,7 +103,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
   override def getIp24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] = {
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/5m".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/24h".params(params: _*))
       .readTimeout(config.readTimeout)
       .send()
       .map {
