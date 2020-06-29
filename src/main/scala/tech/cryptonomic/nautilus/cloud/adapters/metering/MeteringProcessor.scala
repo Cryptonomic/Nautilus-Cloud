@@ -25,12 +25,21 @@ class MeteringProcessor[F[_]: Monad](
   def process(): F[Unit] =
     for {
       users <- userRepository.getUsers()().map(_.result)
+      _ = logger.info(s"Got users from DB: $users")
       meteringStats <- meteringStatsRepository.getLastStats(users.map(_.userId))
-      validApiKeys <- meteringStats
-        .map(stats => apiKeyRepository.getUserActiveKeysInGivenRange(stats.userId, stats.periodStart, Instant.now()))
+      _ = logger.info(s"Got last stats from DB: $meteringStats")
+      validApiKeys <- users
+        .map { user =>
+          apiKeyRepository
+            .getUserActiveKeysInGivenRange(user.userId, meteringStats.find(_.userId == user.userId).map(_.periodStart).getOrElse(Instant.MIN), Instant.now())
+        }
         .sequence
       _ = logger.info(s"Valid API keys: ${validApiKeys.flatten}")
-      apiKeyStats <- fetchApiKeyStats(validApiKeys.flatten, meteringStats)
+      apiKeyStats <- if(validApiKeys.flatten.isEmpty) {
+        List.empty[ApiKeyStats].pure[F]
+      } else {
+        fetchApiKeyStats(validApiKeys.flatten, meteringStats)
+      }
       aggregatedStats = aggregateStats(users, validApiKeys.flatten, apiKeyStats)
       _ <- meteringStatsRepository.insertStats(aggregatedStats)
     } yield ()
