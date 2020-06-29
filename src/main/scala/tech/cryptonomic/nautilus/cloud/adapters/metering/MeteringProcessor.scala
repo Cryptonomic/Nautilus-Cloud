@@ -64,7 +64,9 @@ class MeteringProcessor[F[_]: Monad](
         case Left(e) =>
           logger.error(e.getMessage, e)
           throw e
-        case Right(result) => result
+        case Right(result) =>
+          logger.info(s"Got metering stats for aggregation: $result")
+          result
       }
 
 }

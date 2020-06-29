@@ -102,7 +102,9 @@ class ApiKeyService[F[_]: Monad](
           case Left(exception) =>
             logger.error(exception.getMessage, exception)
             throw exception
-          case Right(value) => value
+          case Right(value) =>
+            logger.info(s"Fetched metering stats: $value")
+            value
         }
     }
 
