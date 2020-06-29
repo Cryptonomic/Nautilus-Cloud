@@ -51,7 +51,7 @@ class Routes(
       pathPrefix("swagger-ui") {
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
-      cors(settings) { requestContext =>
+      cors(settings) {
         logger.info(s"got request")
         concat(
           sessionRoutes.routes,
@@ -60,7 +60,7 @@ class Routes(
             implicit session =>
               logger.info(s"with session")
               validatesTosInSession(session) {
-                logger.info(s"and it was valid ${requestContext.unmatchedPath}")
+                logger.info(s"and it was valid")
                 concat(
                   // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
                   concat(
