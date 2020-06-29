@@ -41,6 +41,7 @@ class MeteringProcessor[F[_]: Monad](
         fetchApiKeyStats(validApiKeys.flatten, meteringStats)
       }
       aggregatedStats = aggregateStats(users, validApiKeys.flatten, apiKeyStats)
+      _ = logger.info(s"Inserting stats $aggregatedStats")
       _ <- meteringStatsRepository.insertStats(aggregatedStats)
     } yield ()
 
