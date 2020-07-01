@@ -8,5 +8,6 @@ case class MeteringApiConfig(
     port: Int,
     readTimeout: Duration,
     gatherInterval: FiniteDuration,
-    statsInterval: FiniteDuration
+    statsInterval: FiniteDuration,
+    key: String
 )

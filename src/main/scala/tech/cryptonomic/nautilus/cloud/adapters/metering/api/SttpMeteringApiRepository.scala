@@ -24,6 +24,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/queries/5m".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -40,6 +41,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/queries/24h".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -56,6 +58,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/routes/5m".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -72,6 +75,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/routes/24h".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -88,6 +92,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/ips/5m".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -104,6 +109,7 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
     sttp
       .get(uri"${config.protocol}://${config.host}:${config.port}/ips/24h".params(params: _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
