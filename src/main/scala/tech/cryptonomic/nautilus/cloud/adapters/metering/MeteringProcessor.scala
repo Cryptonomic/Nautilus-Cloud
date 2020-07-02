@@ -45,6 +45,7 @@ class MeteringProcessor[F[_]: Monad](
       aggregatedStats = aggregateStats(users, validApiKeys.flatten, apiKeyStats)
       _ = logger.debug(s"Inserting stats $aggregatedStats")
       _ <- meteringStatsRepository.insertStats(aggregatedStats)
+      _ = logger.info(s"Successfully inserted ${aggregatedStats.size} aggregated stats")
     } yield ()
 
   private def aggregateStats(

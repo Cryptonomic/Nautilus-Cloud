@@ -76,6 +76,8 @@ create TABLE metering_statistics(
       ON update NO ACTION ON delete NO ACTION
 );
 
+CREATE UNIQUE INDEX metering_statistics_idx ON metering_statistics(userid, period_start, period_end);
+
 insert into environments (name) values('dev');
 insert into environments (name) values('prod');
 

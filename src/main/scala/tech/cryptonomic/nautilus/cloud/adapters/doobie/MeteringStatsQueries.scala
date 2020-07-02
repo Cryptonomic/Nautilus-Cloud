@@ -16,7 +16,7 @@ trait MeteringStatsQueries {
 
   /** Inserts metering stats */
   def insertMeteringStats(stats: AggregatedMeteringStats): Update0 =
-    sql"INSERT INTO metering_statistics (userid, service, hits, period_start, period_end) values (${stats.userId}, ${stats.service}, ${stats.hits}, ${stats.periodStart}, ${stats.periodEnd})".update
+    sql"INSERT INTO metering_statistics (userid, service, hits, period_start, period_end) values (${stats.userId}, ${stats.service}, ${stats.hits}, ${stats.periodStart}, ${stats.periodEnd}) ON CONFLICT DO NOTHING".update
 
   /** Fetches metering stats for given user */
   def meteringStatsPerUser(userId: UserId): Query0[AggregatedMeteringStats] =

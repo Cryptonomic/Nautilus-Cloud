@@ -8,12 +8,19 @@ import scala.language.higherKinds
 
 class InMemoryMeteringStatsRepository[F[_]: Monad] extends MeteringStatsRepository[F] {
 
-  private var statsRepository = List.empty[AggregatedMeteringStats]
+  var statsRepository = List.empty[AggregatedMeteringStats]
 
   /** Inserts metering stats to the DB */
   override def insertStats(stats: List[AggregatedMeteringStats]): F[Unit] =
     this.synchronized {
       statsRepository = statsRepository ::: stats
+              .filterNot(
+                stat =>
+                  statsRepository.exists(
+                    rep =>
+                      stat.userId == rep.userId && stat.periodStart == rep.periodStart && stat.periodEnd == rep.periodEnd
+                  )
+              )
     }.pure[F]
 
   /** Fetches last stats for the given users */
