@@ -64,6 +64,8 @@ class ApiKeyApplication[F[_]: Monad](conseilConfig: ConseilConfig, apiKeyService
     apiKeyService.getMeteringStats(session.userId)
 
   /** Returns API Keys query stats */
-  def getAggregatedMeteringStats(implicit session: Session): F[List[AggregatedMeteringStats]] =
-    apiKeyService.getAggregatedMeteringStatsForUser(session.userId)
+  def getAggregatedMeteringStats(userId: UserId)(implicit session: Session): F[Permission[List[AggregatedMeteringStats]]] =
+    requiredRole(Administrator) {
+      apiKeyService.getAggregatedMeteringStatsForUser(userId)
+    }
 }

@@ -89,11 +89,11 @@ trait ApiKeyEndpoints
       tags = List("User")
     )
 
-  /** Api keys usage endpoint definition */
-  def getCurrentUserApiKeyAggregatedStats: Endpoint[Unit, List[AggregatedMeteringStats]] =
+  /** Api keys aggregated stats endpoint definition */
+  def getApiKeyAggregatedStats: Endpoint[UserId, Permission[List[AggregatedMeteringStats]]] =
     endpoint(
-      request = get(url = path / "users" / "me" / "stats" / "aggregated"),
-      response = jsonResponse[List[AggregatedMeteringStats]](),
+      request = get(url = path / "users" / segment[UserId]("userId") / "stats" / "aggregated"),
+      response = jsonResponse[List[AggregatedMeteringStats]]().orForbidden(),
       tags = List("User")
     )
 }

@@ -9,13 +9,9 @@ import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment.Production
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{
-  DefaultNautilusContextWithInMemoryImplementations,
-  FixedApiKeyGenerator,
-  FixedClock,
-  JsonMatchers
-}
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedApiKeyGenerator, FixedClock, JsonMatchers}
 
 class ApiKeyRoutesTest
     extends WordSpec
@@ -298,8 +294,8 @@ class ApiKeyRoutesTest
         userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
 
         // when
-        val result = Get("/users/me/stats/aggregated") ~> sut.getCurrentUserApiKeyAggregatedStatsRoute(
-                userSession.copy(email = "email@example.com")
+        val result = Get("/users/1/stats/aggregated") ~> sut.getApiKeyAggregatedStatsRoute(
+                adminSession.copy(email = "email@example.com")
               )
 
         // then
