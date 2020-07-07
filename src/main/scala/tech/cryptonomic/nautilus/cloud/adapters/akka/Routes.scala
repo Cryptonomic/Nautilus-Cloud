@@ -1,15 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.model.{HttpResponse, StatusCode}
+import akka.http.scaladsl.model.{HttpResponse, RemoteAddress, StatusCode}
 import akka.http.scaladsl.model.headers.HttpOrigin
-import akka.http.scaladsl.server.Directives.{
-  getFromResource,
-  getFromResourceDirectory,
-  pathEndOrSingleSlash,
-  pathPrefix,
-  _
-}
-import akka.http.scaladsl.server.{Directive0, Route}
+import akka.http.scaladsl.server.Directives.{getFromResource, getFromResourceDirectory, pathEndOrSingleSlash, pathPrefix, _}
+import akka.http.scaladsl.server.directives.BasicDirectives
+import akka.http.scaladsl.server.{Directive, Directive0, Route}
 import ch.megard.akka.http.cors.scaladsl.model.HttpOriginMatcher
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings.defaultSettings
 import com.typesafe.scalalogging.StrictLogging
@@ -39,6 +34,16 @@ class Routes(
     else complete(HttpResponse(StatusCode.int2StatusCode(403)))
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
+
+  private def xxx(ip: RemoteAddress): Directive[Unit] = {
+    BasicDirectives.extractRequest.map { yyy =>
+      yyy.method.value match {
+        case "POST" =>
+        case "PUT" =>
+        case "DELETE" =>
+      }
+    }
+  }
 
   def getAll: Route =
     concat(

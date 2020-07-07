@@ -65,6 +65,14 @@ create TABLE usage_left(
       ON update NO ACTION ON delete NO ACTION
 );
 
+create TABLE user_history(
+    time timestamp with time zone NOT NULL,
+    userid integer NOT NULL,
+    performed_by integer,
+    ip varchar(50),
+    action text NOT NULL
+);
+
 insert into environments (name) values('dev');
 insert into environments (name) values('prod');
 
