@@ -12,6 +12,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.cors.CorsConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
+import tech.cryptonomic.nautilus.cloud.domain.user.UserAction
 
 class Routes(
     private val corsConfig: CorsConfig,
@@ -35,13 +36,9 @@ class Routes(
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
-  private def xxx(ip: RemoteAddress): Directive[Unit] = {
+  private def log(ip: RemoteAddress)(implicit session: Option[Session] = None): Directive[Unit] = {
     BasicDirectives.extractRequest.map { yyy =>
-      yyy.method.value match {
-        case "POST" =>
-        case "PUT" =>
-        case "DELETE" =>
-      }
+      UserAction()
     }
   }
 
