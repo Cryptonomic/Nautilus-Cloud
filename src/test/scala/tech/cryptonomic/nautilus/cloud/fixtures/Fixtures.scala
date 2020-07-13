@@ -103,7 +103,7 @@ trait Fixtures {
 
   val exampleIpStats24h = List(IpStats(time24h, 1, "ip", Some("apikey")), IpStats(time24h, 1, "ip", None))
 
-  val exampleAggregatedMeteringStats = List(AggregatedMeteringStats(1, "service", 42, time5m, time5m2))
+  val exampleAggregatedMeteringStats = List(AggregatedMeteringStats(1, "environment", 42, time5m, time5m2))
 
   def stubAuthServiceFor(authCode: String, email: String): Unit = {
     val accessToken = """stubbed-access-token"""

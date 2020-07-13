@@ -304,7 +304,7 @@ class ApiKeyRoutesTest
           contentType shouldBe ContentTypes.`application/json`
           responseAs[String] should matchJson("""[{
                                                 |	"userId": 1,
-                                                |	"service": "service",
+                                                |	"environment": "environment",
                                                 |	"hits": 42,
                                                 |	"periodStart": "2019-05-26T23:05:00Z",
                                                 |	"periodEnd": "2019-05-26T23:10:00Z"
