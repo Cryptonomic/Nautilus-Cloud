@@ -5,4 +5,4 @@ import java.time.Instant
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** Representation of the metering stats in the DB */
-case class AggregatedMeteringStats(userId: UserId, service: String, hits: Int, periodStart: Instant, periodEnd: Instant)
+case class AggregatedMeteringStats(userId: UserId, environment: String, hits: Int, periodStart: Instant, periodEnd: Instant)

@@ -62,7 +62,7 @@ class MeteringProcessor[F[_]: Monad](
     } yield
       AggregatedMeteringStats(
         userId = user.userId,
-        service = apiKey.environment.name,
+        environment = apiKey.environment.name,
         hits = stats.count,
         periodStart = stats.time.minusSeconds(meteringApiConfig.statsInterval.toSeconds),
         periodEnd = stats.time

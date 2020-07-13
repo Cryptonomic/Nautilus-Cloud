@@ -67,7 +67,7 @@ create TABLE usage_left(
 create TABLE metering_statistics(
     id serial PRIMARY KEY,
     userid integer NOT NULL,
-    service text NOT NULL,
+    environment text NOT NULL,
     hits integer NOT NULL,
     period_start timestamp with time zone NOT NULL,
     period_end timestamp with time zone NOT NULL,
