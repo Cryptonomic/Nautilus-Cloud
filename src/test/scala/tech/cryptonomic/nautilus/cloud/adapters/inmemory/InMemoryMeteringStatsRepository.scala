@@ -32,7 +32,6 @@ class InMemoryMeteringStatsRepository[F[_]: Monad] extends MeteringStatsReposito
   /** Fetches stats for the given user */
   override def getStatsPerUser(userId: UserId): F[List[AggregatedMeteringStats]] =
     this.synchronized {
-      println(statsRepository)
       statsRepository.filter(_.userId == userId)
     }.pure[F]
 }

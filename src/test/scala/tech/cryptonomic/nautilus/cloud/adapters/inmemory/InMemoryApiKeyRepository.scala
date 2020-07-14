@@ -121,7 +121,8 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
       apiKeys.filter { key =>
         key.userId == userId &&
         (key.dateIssued.exists(di => di.isAfter(start) && di.isBefore(end)) ||
-        key.dateSuspended.exists(ds => ds.isAfter(start) && ds.isBefore(end)) || key.dateSuspended.isEmpty)
+        key.dateSuspended.exists(ds => ds.isAfter(start) && ds.isBefore(end)) ||
+          (key.dateIssued.exists(di => di.isBefore(end))  && key.dateSuspended.isEmpty))
       }.pure[F]
     }
 }

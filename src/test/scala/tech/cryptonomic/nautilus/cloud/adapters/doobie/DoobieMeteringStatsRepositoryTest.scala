@@ -51,6 +51,7 @@ class DoobieMeteringStatsRepositoryTest extends WordSpec
       // then
       result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
     }
+
     "not insert duplicated stats" in {
       // given
       val exampleAggregateMeteringStats = List(AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds), time5m))
@@ -60,6 +61,7 @@ class DoobieMeteringStatsRepositoryTest extends WordSpec
       // then
       result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
     }
+
     "get correct statistics by timestamp" in {
       // given
       val exampleAggregateMeteringStats = List(

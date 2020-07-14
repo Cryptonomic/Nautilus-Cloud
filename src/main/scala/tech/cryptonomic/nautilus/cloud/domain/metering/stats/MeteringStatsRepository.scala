@@ -4,6 +4,7 @@ import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
 
+/** Interface for MeteringStats repository operations */
 trait MeteringStatsRepository[F[_]] {
 
   /** Inserts metering stats to the DB */

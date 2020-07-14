@@ -57,8 +57,9 @@ class MeteringProcessor[F[_]: Monad](
       stats <- apiKeyStats
       user <- users
       apiKey <- apiKeys
+      if apiKey.userId == user.userId
       key <- stats.apiKey.toList
-      if key == apiKey.key && apiKey.userId == user.userId
+      if key == apiKey.key
     } yield
       AggregatedMeteringStats(
         userId = user.userId,

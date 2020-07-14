@@ -19,11 +19,13 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
 ) extends MeteringApiRepository[F]
     with StrictLogging {
 
+  private def genParams(apiKeys: List[ApiKey], from: Option[Long] = None) =
+    from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+
   /** Fetches ApiKey stats per 5m */
-  override def getApiKey5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getApiKey5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/5m".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/5m".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -34,13 +36,11 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[ApiKeyStats]](_)
           )
       }
-  }
 
   /** Fetches ApiKey stats per 24h */
-  override def getApiKey24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getApiKey24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/24h".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/24h".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -51,13 +51,11 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[ApiKeyStats]](_)
           )
       }
-  }
 
   /** Fetches Route stats per 5m */
-  override def getRoute5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getRoute5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/5m".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/5m".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -68,13 +66,11 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[RouteStats]](_)
           )
       }
-  }
 
   /** Fetches Route stats per 24h */
-  override def getRoute24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getRoute24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/24h".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/24h".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -85,13 +81,11 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[RouteStats]](_)
           )
       }
-  }
 
   /** Fetches IP stats per 5m */
-  override def getIp5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getIp5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/5m".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/5m".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -102,13 +96,11 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[IpStats]](_)
           )
       }
-  }
 
   /** Fetches IP stats per 24h */
-  override def getIp24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] = {
-    val params = from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
+  override def getIp24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] =
     sttp
-      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/24h".params(params: _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/24h".params(genParams(apiKeys, from): _*))
       .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
@@ -119,7 +111,6 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
             decode[List[IpStats]](_)
           )
       }
-  }
 
   /** Custom exception class */
   final case class QueryException(message: String = "", cause: Throwable = null) extends Exception(message, cause)
