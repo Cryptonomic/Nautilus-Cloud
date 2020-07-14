@@ -11,14 +11,15 @@ import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContext, InMemoryDa
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
 
-class DoobieMeteringStatsRepositoryTest extends WordSpec
-  with Matchers
-  with EitherValues
-  with OptionValues
-  with InMemoryDatabase
-  with BeforeAndAfterEach
-  with Fixtures
-  with OneInstancePerTest {
+class DoobieMeteringStatsRepositoryTest
+    extends WordSpec
+    with Matchers
+    with EitherValues
+    with OptionValues
+    with InMemoryDatabase
+    with BeforeAndAfterEach
+    with Fixtures
+    with OneInstancePerTest {
 
   val context = DefaultNautilusContext
   val sut = context.meteringStatsRepository
@@ -32,7 +33,6 @@ class DoobieMeteringStatsRepositoryTest extends WordSpec
     "key"
   )
 
-
   override def beforeEach(): Unit = {
     super.beforeEach()
 
@@ -42,39 +42,77 @@ class DoobieMeteringStatsRepositoryTest extends WordSpec
   }
 
   "DoobieMeteringStatsRepository" should {
-    "insert and read aggregated stats" in {
-      // given
-      val exampleAggregateMeteringStats = List(AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds), time5m))
-      sut.insertStats(exampleAggregateMeteringStats).unsafeRunSync()
-      // when
-      val result = sut.getStatsPerUser(exampleUser.userId)
-      // then
-      result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
-    }
+      "insert and read aggregated stats" in {
+        // given
+        val exampleAggregateMeteringStats = List(
+          AggregatedMeteringStats(
+            exampleUser.userId,
+            "dev",
+            1,
+            time5m.minusSeconds(config.statsInterval.toSeconds),
+            time5m
+          )
+        )
+        sut.insertStats(exampleAggregateMeteringStats).unsafeRunSync()
+        // when
+        val result = sut.getStatsPerUser(exampleUser.userId)
+        // then
+        result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
+      }
 
-    "not insert duplicated stats" in {
-      // given
-      val exampleAggregateMeteringStats = List(AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds), time5m))
-      sut.insertStats(exampleAggregateMeteringStats).flatMap(_ => sut.insertStats(exampleAggregateMeteringStats)).unsafeRunSync()
-      // when
-      val result = sut.getStatsPerUser(exampleUser.userId)
-      // then
-      result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
-    }
+      "not insert duplicated stats" in {
+        // given
+        val exampleAggregateMeteringStats = List(
+          AggregatedMeteringStats(
+            exampleUser.userId,
+            "dev",
+            1,
+            time5m.minusSeconds(config.statsInterval.toSeconds),
+            time5m
+          )
+        )
+        sut
+          .insertStats(exampleAggregateMeteringStats)
+          .flatMap(_ => sut.insertStats(exampleAggregateMeteringStats))
+          .unsafeRunSync()
+        // when
+        val result = sut.getStatsPerUser(exampleUser.userId)
+        // then
+        result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
+      }
 
-    "get correct statistics by timestamp" in {
-      // given
-      val exampleAggregateMeteringStats = List(
-        AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds - 300), time5m.minusSeconds(300)),
-        AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds + 300), time5m.plusSeconds(300)),
-        AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds ), time5m)
-      )
-      sut.insertStats(exampleAggregateMeteringStats).unsafeRunSync()
-      // when
-      val result = sut.getLastStats(List(exampleUser.userId))
-      // then
-      result.unsafeRunSync() should contain theSameElementsAs List(AggregatedMeteringStats(exampleUser.userId, "dev", 1, time5m.minusSeconds(config.statsInterval.toSeconds + 300), time5m.plusSeconds(300)))
+      "get correct statistics by timestamp" in {
+        // given
+        val statsInterval = config.statsInterval.toSeconds
+        val middleInterval = time5m
+        val firstInterval = time5m.minusSeconds(statsInterval)
+        val lastInterval = time5m.plusSeconds(statsInterval)
+        val exampleMiddleMeteringStats = AggregatedMeteringStats(
+          userId = exampleUser.userId,
+          environment = "dev",
+          hits = 1,
+          periodStart = middleInterval.minusSeconds(statsInterval),
+          periodEnd = middleInterval
+        )
+        val exampleFirstMeteringStats = exampleMiddleMeteringStats.copy(
+          periodStart = firstInterval.minusSeconds(statsInterval),
+          periodEnd = firstInterval
+        )
+        val exampleLastMeteringStats = exampleMiddleMeteringStats.copy(
+          periodStart = lastInterval.minusSeconds(statsInterval),
+          periodEnd = lastInterval
+        )
+        val exampleAggregateMeteringStats = List(
+          exampleFirstMeteringStats,
+          exampleMiddleMeteringStats,
+          exampleLastMeteringStats
+        )
+        sut.insertStats(exampleAggregateMeteringStats).unsafeRunSync()
+        // when
+        val result = sut.getLastStats(List(exampleUser.userId))
+        // then
+        result.unsafeRunSync() should contain theSameElementsAs List(exampleLastMeteringStats)
+      }
     }
-  }
 
 }
