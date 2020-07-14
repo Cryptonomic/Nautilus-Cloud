@@ -69,6 +69,9 @@ class MeteringProcessor[F[_]: Monad](
         periodEnd = stats.time
       )
 
+  /** We fetch API Key stats for given valid API Keys from the minimum recorded periodEnd timestamp,
+    * which is divided by 1000 because we use seconds.
+    */
   private def fetchApiKeyStats(
       validApiKeys: List[ApiKey],
       meteringStats: List[AggregatedMeteringStats]
