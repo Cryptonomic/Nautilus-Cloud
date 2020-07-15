@@ -48,4 +48,7 @@ trait ApiKeyRepository[F[_]] {
   /** Gets keys which were active during last month */
   def getUserActiveKeysForLastMonth(userId: Int): F[List[ApiKey]]
 
+  /** Gets keys which were active in between dates */
+  def getUserActiveKeysInGivenRange(userId: Int, start: Instant, end: Instant): F[List[ApiKey]]
+
 }

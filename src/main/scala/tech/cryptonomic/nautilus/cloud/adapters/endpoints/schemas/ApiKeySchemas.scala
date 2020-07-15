@@ -1,6 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas
 
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
+import tech.cryptonomic.nautilus.cloud.domain.metering.stats.AggregatedMeteringStats
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
 import tech.cryptonomic.nautilus.cloud.domain.user.{AuthenticationProvider, Role}
 
@@ -50,4 +51,8 @@ trait ApiKeySchemas extends InstantSchema with EnvironmentSchema {
   /** Metering stats schema */
   implicit lazy val meteringStatsSchema: JsonSchema[MeteringStats] =
     genericJsonSchema[MeteringStats]
+
+  /** Aggregated metering stats schema */
+  implicit lazy val aggregatedMeteringStatsSchema: JsonSchema[AggregatedMeteringStats] =
+    genericJsonSchema[AggregatedMeteringStats]
 }
