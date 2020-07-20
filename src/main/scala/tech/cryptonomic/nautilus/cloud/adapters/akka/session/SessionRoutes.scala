@@ -42,11 +42,13 @@ class SessionRoutes(
               onComplete(authenticationApplication.resolveAuthCode(code.code).unsafeToFuture()) {
                 case Success(Right(Right(user))) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
+                    logger.info("Right.right.user")
                     userActionHistoryOperations
-                      .logReqest(user.userId, ip.toIP.map(_.ip.getHostAddress), "users/github-init")
+                      .logReqest(user.userId, ip.toIP.map(_.ip.getHostAddress), "/users/github-init")
                     ctx.complete(InitResponse(Header(PayloadType.REGISTERED), UserResponse(user)))
                   }
                 case Success(Right(Left(registrationAttemptId))) =>
+                  logger.info("Right.left.registrationAttemptId")
                   complete(
                     InitResponse(Header(PayloadType.REGISTRATION), RegistrationAttemptResponse(registrationAttemptId))
                   )
@@ -94,7 +96,7 @@ class SessionRoutes(
         }
       },
       sessionOperations.requiredSession { session =>
-        path("logout") {
+        path("/logout") {
           post {
             sessionOperations.invalidateSession {
               userActionHistoryOperations.logReqest(session.userId, ip.toIP.map(_.ip.getHostAddress), "logout")
