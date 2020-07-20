@@ -97,7 +97,7 @@ class SessionRoutes(
         path("/logout") {
           post {
             sessionOperations.invalidateSession {
-              userActionHistoryOperations.logReqest(session.userId, ip.toIP.map(_.ip.getHostAddress), "logout")
+              userActionHistoryOperations.logReqest(session.userId, ip.toIP.map(_.ip.getHostAddress), "/logout")
               complete(NoContent)
             }
           }

@@ -78,7 +78,7 @@ class NautilusCloudStarterE2ETest
           """[{
             |	"userId": 1,
             |	"performedBy": 1,
-            |	"action": "users/github-init"
+            |	"action": "/users/github-init"
             |}]""".stripMargin
         )
       }
