@@ -53,10 +53,10 @@ class SessionRoutes(
                     InitResponse(Header(PayloadType.REGISTRATION), RegistrationAttemptResponse(registrationAttemptId))
                   )
                 case Failure(exception) =>
-                  logger.error(exception.getMessage, exception)
+                  logger.info(exception.getMessage, exception)
                   reject(AuthorizationFailedRejection)
                 case Success(Left(exception)) =>
-                  logger.error(exception.getMessage, exception)
+                  logger.info(exception.getMessage, exception)
                   reject(AuthorizationFailedRejection)
               }
           }
