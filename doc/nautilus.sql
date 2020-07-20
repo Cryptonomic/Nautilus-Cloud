@@ -64,6 +64,19 @@ create TABLE usage_left(
       REFERENCES api_keys (key) MATCH SIMPLE
       ON update NO ACTION ON delete NO ACTION
 );
+create TABLE metering_statistics(
+    id serial PRIMARY KEY,
+    userid integer NOT NULL,
+    environment text NOT NULL,
+    hits integer NOT NULL,
+    period_start timestamp with time zone NOT NULL,
+    period_end timestamp with time zone NOT NULL,
+    CONSTRAINT userid_fk FOREIGN KEY (userid)
+      REFERENCES users (userid) MATCH SIMPLE
+      ON update NO ACTION ON delete NO ACTION
+);
+
+CREATE UNIQUE INDEX metering_statistics_idx ON metering_statistics(userid, period_start, period_end);
 
 create TABLE user_history(
     time timestamp with time zone NOT NULL,

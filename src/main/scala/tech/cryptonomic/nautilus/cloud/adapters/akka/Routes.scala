@@ -69,7 +69,8 @@ class Routes(
                           userRoutes.updateCurrentUserRoute,
                           userRoutes.getCurrentUserActions,
                           apiKeysRoutes.getCurrentUserKeysRoute,
-                          apiKeysRoutes.getCurrentKeyUsageRoute
+                          apiKeysRoutes.getCurrentKeyUsageRoute,
+                          apiKeysRoutes.getCurrentUserApiKeyQueryStatsRoute
                         ),
                         concat(
                           apiKeysRoutes.refreshKeysRoute,
@@ -78,7 +79,8 @@ class Routes(
                           apiKeysRoutes.getUserKeysRoute,
                           userRoutes.getUserActions,
                           apiKeysRoutes.getApiKeyUsageRoute,
-                          apiKeysRoutes.getApiKeyQueryStatsRoute
+                          apiKeysRoutes.getApiKeyQueryStatsRoute,
+                          apiKeysRoutes.getApiKeyAggregatedStatsRoute
                         ),
                         concat(
                           userRoutes.getUserRoute,

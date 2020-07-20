@@ -6,6 +6,7 @@ import cats.implicits._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{RegistrationConfirmation, Session}
+import tech.cryptonomic.nautilus.cloud.domain.metering.stats.AggregatedMeteringStats
 import tech.cryptonomic.nautilus.cloud.domain.resources.{CreateResource, Resource}
 import tech.cryptonomic.nautilus.cloud.domain.tier._
 import tech.cryptonomic.nautilus.cloud.domain.user.AuthenticationProvider.Github
@@ -101,6 +102,8 @@ trait Fixtures {
   val exampleIpStats5m = List(IpStats(time5m, 1, "ip", Some("apikey")), IpStats(time5m2, 1, "ip", None))
 
   val exampleIpStats24h = List(IpStats(time24h, 1, "ip", Some("apikey")), IpStats(time24h, 1, "ip", None))
+
+  val exampleAggregatedMeteringStats = List(AggregatedMeteringStats(1, "environment", 42, time5m, time5m2))
 
   def stubAuthServiceFor(authCode: String, email: String): Unit = {
     val accessToken = """stubbed-access-token"""

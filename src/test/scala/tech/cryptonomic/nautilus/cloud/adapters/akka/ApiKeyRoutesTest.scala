@@ -9,13 +9,9 @@ import org.scalatest.{Matchers, OneInstancePerTest, WordSpec}
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.Environment.Production
 import tech.cryptonomic.nautilus.cloud.domain.apiKey.{ApiKey, Environment, UsageLeft}
 import tech.cryptonomic.nautilus.cloud.domain.tier.Usage
+import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.fixtures.Fixtures
-import tech.cryptonomic.nautilus.cloud.tools.{
-  DefaultNautilusContextWithInMemoryImplementations,
-  FixedApiKeyGenerator,
-  FixedClock,
-  JsonMatchers
-}
+import tech.cryptonomic.nautilus.cloud.tools.{DefaultNautilusContextWithInMemoryImplementations, FixedApiKeyGenerator, FixedClock, JsonMatchers}
 
 class ApiKeyRoutesTest
     extends WordSpec
@@ -33,6 +29,7 @@ class ApiKeyRoutesTest
       }
       val userRepository = context.userRepository
       val apiKeyRepository = context.apiKeyRepository
+      val meteringStatsRepository = context.meteringStatsRepository
       val sut = context.apiKeysRoutes
       val meteringApiRepository = context.meteringApiRepository
 
@@ -231,7 +228,7 @@ class ApiKeyRoutesTest
         meteringApiRepository.addIpStats24h(exampleIpStats24h)
 
         // when
-        val result = Get("/users/me/stats") ~> sut.getApiKeyQueryStatsRoute(
+        val result = Get("/users/me/stats") ~> sut.getCurrentUserApiKeyQueryStatsRoute(
                 userSession.copy(email = "email@example.com")
               )
 
@@ -289,6 +286,30 @@ class ApiKeyRoutesTest
                                                 |}""".stripMargin)
         }
 
+      }
+
+      "get API key aggregated statistics" in {
+        // given
+        meteringStatsRepository.insertStats(exampleAggregatedMeteringStats)
+        userRepository.createUser(exampleCreateUser.copy(userEmail = "email@example.com"))
+
+        // when
+        val result = Get("/users/1/stats/aggregated") ~> sut.getApiKeyAggregatedStatsRoute(
+                adminSession.copy(email = "email@example.com")
+              )
+
+        // then
+        result ~> check {
+          status shouldEqual StatusCodes.OK
+          contentType shouldBe ContentTypes.`application/json`
+          responseAs[String] should matchJson("""[{
+                                                |	"userId": 1,
+                                                |	"environment": "environment",
+                                                |	"hits": 42,
+                                                |	"periodStart": "2019-05-26T23:05:00Z",
+                                                |	"periodEnd": "2019-05-26T23:10:00Z"
+                                                |}]""".stripMargin)
+        }
       }
     }
 }

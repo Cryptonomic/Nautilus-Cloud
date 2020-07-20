@@ -4,6 +4,7 @@ import endpoints.algebra
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.schemas.ApiKeySchemas
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.Permission
+import tech.cryptonomic.nautilus.cloud.domain.metering.stats.AggregatedMeteringStats
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 /** ApiKey relevant endpoints */
@@ -81,10 +82,18 @@ trait ApiKeyEndpoints
     )
 
   /** Api keys usage endpoint definition */
-  def getApiKeyStats: Endpoint[Unit, MeteringStats] =
+  def getCurrentUserApiKeyStats: Endpoint[Unit, MeteringStats] =
     endpoint(
       request = get(url = path / "users" / "me" / "stats"),
       response = jsonResponse[MeteringStats](),
+      tags = List("User")
+    )
+
+  /** Api keys aggregated stats endpoint definition */
+  def getApiKeyAggregatedStats: Endpoint[UserId, Permission[List[AggregatedMeteringStats]]] =
+    endpoint(
+      request = get(url = path / "users" / segment[UserId]("userId") / "stats" / "aggregated"),
+      response = jsonResponse[List[AggregatedMeteringStats]]().orForbidden(),
       tags = List("User")
     )
 }

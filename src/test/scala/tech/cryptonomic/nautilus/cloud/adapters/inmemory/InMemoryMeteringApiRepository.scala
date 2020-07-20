@@ -29,36 +29,52 @@ class InMemoryMeteringApiRepository[F[_]: Monad] extends MeteringApiRepository[F
 
   def addIpStats24h(list: List[IpStats]): Unit = this.synchronized(ipStats24h ++= list)
 
-  override def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
-    Either
-      .cond(true, apiKeyStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
-      .pure[F]
-  }
-  override def getApiKey24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] = this.synchronized {
-    Either
-      .cond(
-        true,
-        apiKeyStats24h.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))),
-        new Throwable
-      )
-      .pure[F]
-  }
-  override def getRoute5mStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = this.synchronized {
-    Either
-      .cond(true, routeStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
-      .pure[F]
-  }
-  override def getRoute24hStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] = this.synchronized {
-    Either
-      .cond(true, routeStats24h.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
-      .pure[F]
-  }
-  override def getIp5mStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = this.synchronized {
+  override def getApiKey5mStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[ApiKeyStats]]] =
+    this.synchronized {
+      Either
+        .cond(
+          true,
+          apiKeyStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))),
+          new Throwable
+        )
+        .pure[F]
+    }
+  override def getApiKey24hStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[ApiKeyStats]]] =
+    this.synchronized {
+      Either
+        .cond(
+          true,
+          apiKeyStats24h.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))),
+          new Throwable
+        )
+        .pure[F]
+    }
+  override def getRoute5mStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[RouteStats]]] =
+    this.synchronized {
+      Either
+        .cond(
+          true,
+          routeStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))),
+          new Throwable
+        )
+        .pure[F]
+    }
+  override def getRoute24hStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[RouteStats]]] =
+    this.synchronized {
+      Either
+        .cond(
+          true,
+          routeStats24h.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))),
+          new Throwable
+        )
+        .pure[F]
+    }
+  override def getIp5mStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[IpStats]]] = this.synchronized {
     Either
       .cond(true, ipStats5m.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
       .pure[F]
   }
-  override def getIp24hStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] = this.synchronized {
+  override def getIp24hStats(apiKeys: List[ApiKey], from: Option[Long]): F[Result[List[IpStats]]] = this.synchronized {
     Either
       .cond(true, ipStats24h.filter(stats => apiKeys.map(_.key).contains(stats.apiKey.getOrElse(""))), new Throwable)
       .pure[F]

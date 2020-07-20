@@ -41,6 +41,8 @@ class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext 
   override lazy val resourcesRepository = new InMemoryResourceRepository()
   override lazy val meteringApiRepository = new InMemoryMeteringApiRepository()
   override lazy val userHistoryRepository = new InMemoryUserHistoryRepository()
+  override lazy val meteringStatsRepository = new InMemoryMeteringStatsRepository()
+
 }
 
 class IdContext {
@@ -63,6 +65,7 @@ class IdContext {
   lazy val resourceRepository = new InMemoryResourceRepository()
   lazy val registrationAttemptRepository = wire[InMemoryRegistrationAttemptRepository[Id]]
   lazy val meteringApiRepository = wire[InMemoryMeteringApiRepository[Id]]
+  lazy val meteringStatsRepository = wire[InMemoryMeteringStatsRepository[Id]]
   lazy val userHistoryRepository = wire[InMemoryUserHistoryRepository[Id]]
 
   lazy val apiKeyService = wire[ApiKeyService[Id]]

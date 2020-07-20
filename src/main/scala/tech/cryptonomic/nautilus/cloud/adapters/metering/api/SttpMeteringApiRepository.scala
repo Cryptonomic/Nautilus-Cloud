@@ -8,6 +8,7 @@ import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 import scala.language.higherKinds
 import cats.implicits._
 import com.softwaremill.sttp._
+import com.typesafe.scalalogging.StrictLogging
 import io.circe.generic.auto._
 import io.circe.parser._
 import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository._
@@ -15,12 +16,17 @@ import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
 /** Implementation of API for Metering stats */
 class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
     implicit sttpBackend: SttpBackend[F, Nothing]
-) extends MeteringApiRepository[F] {
+) extends MeteringApiRepository[F]
+    with StrictLogging {
+
+  private def genParams(apiKeys: List[ApiKey], from: Option[Long] = None) =
+    from.map(from => "from" -> from.toString).toList ::: apiKeys.map("apiKey" -> _.key)
 
   /** Fetches ApiKey stats per 5m */
-  override def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] =
+  override def getApiKey5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/5m".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -32,9 +38,10 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
 
   /** Fetches ApiKey stats per 24h */
-  override def getApiKey24hStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]] =
+  override def getApiKey24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[ApiKeyStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/queries/24h".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/queries/24h".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -46,9 +53,10 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
 
   /** Fetches Route stats per 5m */
-  override def getRoute5mStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] =
+  override def getRoute5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/routes/5m".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/5m".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -60,9 +68,10 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
 
   /** Fetches Route stats per 24h */
-  override def getRoute24hStats(apiKeys: List[ApiKey]): F[Result[List[RouteStats]]] =
+  override def getRoute24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[RouteStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/routes/24h".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/routes/24h".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -74,9 +83,10 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
 
   /** Fetches IP stats per 5m */
-  override def getIp5mStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] =
+  override def getIp5mStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/5m".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {
@@ -88,9 +98,10 @@ class SttpMeteringApiRepository[F[_]: Applicative](config: MeteringApiConfig)(
       }
 
   /** Fetches IP stats per 24h */
-  override def getIp24hStats(apiKeys: List[ApiKey]): F[Result[List[IpStats]]] =
+  override def getIp24hStats(apiKeys: List[ApiKey], from: Option[Long] = None): F[Result[List[IpStats]]] =
     sttp
-      .get(uri"${config.host}:${config.port}/queries/5m".params(apiKeys.map("apiKey" -> _.key): _*))
+      .get(uri"${config.protocol}://${config.host}:${config.port}/ips/24h".params(genParams(apiKeys, from): _*))
+      .header("apiKey", config.key)
       .readTimeout(config.readTimeout)
       .send()
       .map {

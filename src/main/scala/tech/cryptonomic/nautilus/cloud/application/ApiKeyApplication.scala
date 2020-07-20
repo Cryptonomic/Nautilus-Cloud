@@ -6,6 +6,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.conseil.ConseilConfig
 import tech.cryptonomic.nautilus.cloud.domain.apiKey._
 import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationService.{requiredRole, Permission}
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{AccessDenied, Session}
+import tech.cryptonomic.nautilus.cloud.domain.metering.stats.AggregatedMeteringStats
 import tech.cryptonomic.nautilus.cloud.domain.user.Role
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
@@ -61,4 +62,10 @@ class ApiKeyApplication[F[_]: Monad](conseilConfig: ConseilConfig, apiKeyService
   /** Returns API Keys query stats */
   def getMeteringStats(implicit session: Session): F[MeteringStats] =
     apiKeyService.getMeteringStats(session.userId)
+
+  /** Returns API Keys query stats */
+  def getAggregatedMeteringStats(userId: UserId)(implicit session: Session): F[Permission[List[AggregatedMeteringStats]]] =
+    requiredRole(Administrator) {
+      apiKeyService.getAggregatedMeteringStatsForUser(userId)
+    }
 }

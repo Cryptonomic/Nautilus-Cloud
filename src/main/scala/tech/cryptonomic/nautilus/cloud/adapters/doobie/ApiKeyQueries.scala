@@ -70,4 +70,9 @@ trait ApiKeyQueries extends EnvironmentMappers {
     sql"SELECT keyid, key, environment, userid, dateissued, datesuspended FROM api_keys WHERE userid = $userId AND dateissued > current_date - interval '30 days'"
       .query[ApiKey]
 
+  /** Query returning API keys connected to user active in the given range of time */
+  def getUserKeysValidIn(userId: UserId, begin: Instant, end: Instant): Query0[ApiKey] =
+    sql"SELECT keyid, key, environment, userid, dateissued, datesuspended FROM api_keys WHERE userid = $userId AND ((dateissued >= $begin AND dateissued <= $end) OR (datesuspended >= $begin AND datesuspended <= $end) OR (dateissued <= $end AND datesuspended IS NULL))"
+      .query[ApiKey]
+
 }
