@@ -10,6 +10,8 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.history.{UserAction, UserHistoryService}
 
+import scala.util.Try
+
 /** Class with methods for gathering user history */
 class UserActionHistoryOperations(userHistoryService: UserHistoryService[IO]) {
 
@@ -18,15 +20,16 @@ class UserActionHistoryOperations(userHistoryService: UserHistoryService[IO]) {
     BasicDirectives.extractRequest.flatMap { request =>
       val path = request.uri.path.toString()
       val user = if (path.contains("/users/me")) {
-        session.userId
-      } else {
-        path.stripPrefix("/users/").takeWhile(_ != '/').toInt
-      }
+        Some(session.userId)
+      } else
+        Try {
+          path.stripPrefix("/users/").takeWhile(_ != '/').toInt
+        }.toOption
       val address = ip.toIP.map(_.ip.getHostAddress)
-      val userAction = UserAction(user, Some(session.userId), Instant.now(), address, path)
+      val userAction = user.map(u => UserAction(u, Some(session.userId), Instant.now(), address, path))
       request.method match {
         case HttpMethods.OPTIONS | HttpMethods.GET => ()
-        case _ => userHistoryService.insertUserAction(userAction).unsafeRunSync()
+        case _ => userAction.foreach(ua => userHistoryService.insertUserAction(ua).unsafeRunSync())
       }
       BasicDirectives.mapResponse(identity)
     }
