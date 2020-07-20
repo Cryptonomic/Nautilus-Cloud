@@ -6,6 +6,7 @@ import scala.language.higherKinds
 
 /** Interface for metering API */
 trait MeteringApiRepository[F[_]] {
+
   /** Fetches ApiKey stats per 5m */
   def getApiKey5mStats(apiKeys: List[ApiKey]): F[Result[List[ApiKeyStats]]]
 
@@ -27,6 +28,7 @@ trait MeteringApiRepository[F[_]] {
 
 /** Companion object for Metering API */
 object MeteringApiRepository {
+
   /** Type representing result of fetching from Metering API*/
   type Result[T] = Either[Throwable, T]
 }

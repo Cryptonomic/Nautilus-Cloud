@@ -7,6 +7,7 @@ import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.generic.auto._
+import tech.cryptonomic.nautilus.cloud.adapters.akka.UserActionHistoryOperations
 import tech.cryptonomic.nautilus.cloud.application.AuthenticationApplication
 import tech.cryptonomic.nautilus.cloud.domain.authentication.{
   Header,
@@ -22,13 +23,14 @@ import scala.util.{Failure, Success}
 
 class SessionRoutes(
     private val authenticationApplication: AuthenticationApplication[IO],
-    private val sessionOperations: SessionOperations
+    private val sessionOperations: SessionOperations,
+    private val userActionHistoryOperations: UserActionHistoryOperations
 ) extends ErrorAccumulatingCirceSupport
     with StrictLogging {
 
   import tech.cryptonomic.nautilus.cloud.domain.authentication.InitResponseEncoders._
 
-  lazy val routes: Route =
+  lazy val routes: Route = extractClientIP { ip =>
     concat(
       path("github-login") {
         redirect(authenticationApplication.loginUrl, Found)
@@ -40,6 +42,8 @@ class SessionRoutes(
               onComplete(authenticationApplication.resolveAuthCode(code.code).unsafeToFuture()) {
                 case Success(Right(Right(user))) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
+                    userActionHistoryOperations
+                      .logReqest(user.userId, ip.toIP.map(_.ip.getHostAddress), "users/github-init")
                     ctx.complete(InitResponse(Header(PayloadType.REGISTERED), UserResponse(user)))
                   }
                 case Success(Right(Left(registrationAttemptId))) =>
@@ -93,10 +97,12 @@ class SessionRoutes(
         path("logout") {
           post {
             sessionOperations.invalidateSession {
+              userActionHistoryOperations.logReqest(session.userId, ip.toIP.map(_.ip.getHostAddress), "logout")
               complete(NoContent)
             }
           }
         }
       }
     )
+  }
 }

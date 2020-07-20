@@ -1,7 +1,6 @@
-package tech.cryptonomic.nautilus.cloud.domain.user
+package tech.cryptonomic.nautilus.cloud.domain.user.history
 
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
-
 
 /** Interface for handling user history entries */
 trait UserHistoryRepository[F[_]] {

@@ -1,10 +1,15 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
-import akka.http.scaladsl.model.{HttpResponse, RemoteAddress, StatusCode}
+import akka.http.scaladsl.model.{HttpResponse, StatusCode}
 import akka.http.scaladsl.model.headers.HttpOrigin
-import akka.http.scaladsl.server.Directives.{getFromResource, getFromResourceDirectory, pathEndOrSingleSlash, pathPrefix, _}
-import akka.http.scaladsl.server.directives.BasicDirectives
-import akka.http.scaladsl.server.{Directive, Directive0, Route}
+import akka.http.scaladsl.server.Directives.{
+  getFromResource,
+  getFromResourceDirectory,
+  pathEndOrSingleSlash,
+  pathPrefix,
+  _
+}
+import akka.http.scaladsl.server.{Directive0, Route}
 import ch.megard.akka.http.cors.scaladsl.model.HttpOriginMatcher
 import ch.megard.akka.http.cors.scaladsl.settings.CorsSettings.defaultSettings
 import com.typesafe.scalalogging.StrictLogging
@@ -12,7 +17,6 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.cors.CorsConfig
 import tech.cryptonomic.nautilus.cloud.adapters.akka.session.{SessionOperations, SessionRoutes}
 import tech.cryptonomic.nautilus.cloud.adapters.endpoints.Docs
 import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
-import tech.cryptonomic.nautilus.cloud.domain.user.UserAction
 
 class Routes(
     private val corsConfig: CorsConfig,
@@ -21,7 +25,8 @@ class Routes(
     private val sessionRoutes: SessionRoutes,
     private val resourceRoutes: ResourceRoutes,
     private val tierRoutes: TierRoutes,
-    private val sessionOperations: SessionOperations
+    private val sessionOperations: SessionOperations,
+    private val userActionHistoryOperations: UserActionHistoryOperations
 ) extends StrictLogging {
 
   private val settings = defaultSettings.withAllowedOrigins(
@@ -36,12 +41,6 @@ class Routes(
 
   import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 
-  private def log(ip: RemoteAddress)(implicit session: Option[Session] = None): Directive[Unit] = {
-    BasicDirectives.extractRequest.map { yyy =>
-      UserAction()
-    }
-  }
-
   def getAll: Route =
     concat(
       pathPrefix("docs") {
@@ -54,45 +53,53 @@ class Routes(
         getFromResourceDirectory("web/swagger/swagger-ui/")
       },
       cors(settings) {
-        concat(
-          sessionRoutes.routes,
-          apiKeysRoutes.getAllApiKeysForEnvRoute,
-          sessionOperations.requiredSession {
-            implicit session =>
-              validatesTosInSession(session) {
-                concat(
-                  // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
-                  concat(
-                    userRoutes.getCurrentUserRoute,
-                    userRoutes.updateCurrentUserRoute,
-                    apiKeysRoutes.getCurrentUserKeysRoute,
-                    apiKeysRoutes.getCurrentKeyUsageRoute
-                  ),
-                  concat(
-                    apiKeysRoutes.refreshKeysRoute,
-                    apiKeysRoutes.getApiKeysRoute,
-                    apiKeysRoutes.validateApiKeyRoute,
-                    apiKeysRoutes.getUserKeysRoute,
-                    apiKeysRoutes.getApiKeyUsageRoute,
-                    apiKeysRoutes.getApiKeyQueryStatsRoute
-                  ),
-                  concat(
-                    userRoutes.getUserRoute,
-                    userRoutes.updateUserRoute,
-                    userRoutes.deleteCurrentUserRoute,
-                    userRoutes.deleteUserRoute,
-                    userRoutes.getUsersRoute
-                  ),
-                  concat(tierRoutes.createTierRoute, tierRoutes.getTierRoute),
-                  concat(
-                    resourceRoutes.getResource,
-                    resourceRoutes.createResource,
-                    resourceRoutes.listResources
-                  )
-                )
+        extractClientIP {
+          ip =>
+            concat(
+              sessionRoutes.routes,
+              apiKeysRoutes.getAllApiKeysForEnvRoute,
+              sessionOperations.requiredSession {
+                implicit session =>
+                  validatesTosInSession(session) {
+                    userActionHistoryOperations.logRequestWithSession(ip)(session) {
+                      concat(
+                        // current routes must be at the beginning to avoid unwanted overriding (`/users/id` is being overridden by `/users/me`)
+                        concat(
+                          userRoutes.getCurrentUserRoute,
+                          userRoutes.updateCurrentUserRoute,
+                          userRoutes.getCurrentUserActions,
+                          apiKeysRoutes.getCurrentUserKeysRoute,
+                          apiKeysRoutes.getCurrentKeyUsageRoute
+                        ),
+                        concat(
+                          apiKeysRoutes.refreshKeysRoute,
+                          apiKeysRoutes.getApiKeysRoute,
+                          apiKeysRoutes.validateApiKeyRoute,
+                          apiKeysRoutes.getUserKeysRoute,
+                          userRoutes.getUserActions,
+                          apiKeysRoutes.getApiKeyUsageRoute,
+                          apiKeysRoutes.getApiKeyQueryStatsRoute
+                        ),
+                        concat(
+                          userRoutes.getUserRoute,
+                          userRoutes.updateUserRoute,
+                          userRoutes.deleteCurrentUserRoute,
+                          userRoutes.deleteUserRoute,
+                          userRoutes.getUsersRoute
+                        ),
+                        concat(tierRoutes.createTierRoute, tierRoutes.getTierRoute),
+                        concat(
+                          resourceRoutes.getResource,
+                          resourceRoutes.createResource,
+                          resourceRoutes.listResources
+                        )
+                      )
+                    }
+                  }
+
               }
-          }
-        )
+            )
+        }
       }
     )
 }

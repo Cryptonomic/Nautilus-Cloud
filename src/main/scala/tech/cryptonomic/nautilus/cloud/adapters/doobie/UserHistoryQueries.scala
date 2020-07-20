@@ -1,12 +1,10 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
-
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import doobie.implicits._
 import doobie.util.query.Query0
 import doobie.util.update.Update0
-import tech.cryptonomic.nautilus.cloud.domain.user.UserAction
-
+import tech.cryptonomic.nautilus.cloud.domain.user.history.UserAction
 
 trait UserHistoryQueries {
   def insertUserHistory(userAction: UserAction): Update0 =

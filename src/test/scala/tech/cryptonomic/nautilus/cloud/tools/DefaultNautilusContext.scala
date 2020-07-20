@@ -27,6 +27,7 @@ import tech.cryptonomic.nautilus.cloud.application.{
   TierApplication,
   UserApplication
 }
+import tech.cryptonomic.nautilus.cloud.domain.user.history.UserHistoryService
 
 object DefaultNautilusContext extends NautilusContext
 
@@ -39,6 +40,7 @@ class DefaultNautilusContextWithInMemoryImplementations extends NautilusContext 
   override lazy val authRepository = new InMemoryAuthenticationProviderRepository()
   override lazy val resourcesRepository = new InMemoryResourceRepository()
   override lazy val meteringApiRepository = new InMemoryMeteringApiRepository()
+  override lazy val userHistoryRepository = new InMemoryUserHistoryRepository()
 }
 
 class IdContext {
@@ -61,12 +63,14 @@ class IdContext {
   lazy val resourceRepository = new InMemoryResourceRepository()
   lazy val registrationAttemptRepository = wire[InMemoryRegistrationAttemptRepository[Id]]
   lazy val meteringApiRepository = wire[InMemoryMeteringApiRepository[Id]]
+  lazy val userHistoryRepository = wire[InMemoryUserHistoryRepository[Id]]
 
   lazy val apiKeyService = wire[ApiKeyService[Id]]
   lazy val authenticationService = wire[AuthenticationService[Id]]
   lazy val tierService = wire[TierService[Id]]
   lazy val userService = wire[UserService[Id]]
   lazy val resourceService = wire[ResourceService[Id]]
+  lazy val userHistoryService = wire[UserHistoryService[Id]]
 
   lazy val apiKeyApplication = wire[ApiKeyApplication[Id]]
   lazy val authenticationApplication = wire[AuthenticationApplication[Id]]

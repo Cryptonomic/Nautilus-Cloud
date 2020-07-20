@@ -18,6 +18,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.akka.{
   ResourceRoutes,
   Routes,
   TierRoutes,
+  UserActionHistoryOperations,
   UserRoutes
 }
 import tech.cryptonomic.nautilus.cloud.adapters.authentication.github.sttp.SttpGithubAuthenticationProviderRepository
@@ -28,6 +29,7 @@ import tech.cryptonomic.nautilus.cloud.adapters.doobie.{
   DoobieConfig,
   DoobieResourceRepository,
   DoobieTierRepository,
+  DoobieUserHistoryRepository,
   DoobieUserRepository
 }
 import tech.cryptonomic.nautilus.cloud.adapters.metering.MeteringApiConfig
@@ -52,6 +54,7 @@ import tech.cryptonomic.nautilus.cloud.application.{
   UserApplication
 }
 import tech.cryptonomic.nautilus.cloud.domain.metering.api.MeteringApiRepository
+import tech.cryptonomic.nautilus.cloud.domain.user.history.{UserHistoryRepository, UserHistoryService}
 
 import scala.concurrent.ExecutionContext
 
@@ -82,6 +85,7 @@ trait NautilusContext extends StrictLogging {
   lazy val authConfig = wire[GithubAuthenticationConfiguration]
   lazy val apiKeyGenerator = wire[ApiKeyGenerator]
   lazy val registrationAttemptIdGenerator = wire[RegistrationAttemptIdGenerator]
+  lazy val userActionHistoryOperations = wire[UserActionHistoryOperations]
 
   lazy val apiKeyRepository: ApiKeyRepository[IO] = wire[DoobieApiKeyRepository[IO]]
   lazy val userRepository: UserRepository[IO] = wire[DoobieUserRepository[IO]]
@@ -91,12 +95,14 @@ trait NautilusContext extends StrictLogging {
   lazy val registrationAttemptRepository: RegistrationAttemptRepository[IO] =
     wire[InMemoryRegistrationAttemptRepository[IO]]
   lazy val meteringApiRepository: MeteringApiRepository[IO] = wire[SttpMeteringApiRepository[IO]]
+  lazy val userHistoryRepository: UserHistoryRepository[IO] = wire[DoobieUserHistoryRepository[IO]]
 
   lazy val authenticationService = wire[AuthenticationService[IO]]
   lazy val apiKeysService = wire[ApiKeyService[IO]]
   lazy val tierService = wire[TierService[IO]]
   lazy val userService = wire[UserService[IO]]
   lazy val resourceService = wire[ResourceService[IO]]
+  lazy val userHistoryService = wire[UserHistoryService[IO]]
 
   lazy val authenticationApplication = wire[AuthenticationApplication[IO]]
   lazy val apiKeysApplication = wire[ApiKeyApplication[IO]]

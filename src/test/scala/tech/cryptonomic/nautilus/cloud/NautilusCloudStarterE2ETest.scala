@@ -67,6 +67,20 @@ class NautilusCloudStarterE2ETest
         // then
         response.code shouldBe HTTP_OK
         response.body.right.value should include("name@domain.com")
+
+        sttp
+          .get(uri"http://localhost:1235/users/1/history")
+          .cookies(authCodeResult.cookies)
+          .send()
+          .body
+          .right
+          .value should matchJson(
+          """[{
+            |	"userId": 1,
+            |	"performedBy": 1,
+            |	"action": "users/github-init"
+            |}]""".stripMargin
+        )
       }
 
       "return HTTP 403 FORBIDDEN when user is logged-in with user role (which is default)" in {
@@ -205,6 +219,20 @@ class NautilusCloudStarterE2ETest
                                     |    "environment": "dev"
                                     |  }
                                     |]""".stripMargin)
+
+        sttp
+          .get(uri"http://localhost:1235/users/me/history")
+          .cookies(authCookies)
+          .send()
+          .body
+          .right
+          .value should matchJson(
+          """[{
+            |	"userId": 1,
+            |	"performedBy": 1,
+            |	"action": "/users/me/apiKeys/prod/refresh"
+            |}]""".stripMargin
+        )
       }
 
       "return initial usageLeft generated for a user with first login" in {

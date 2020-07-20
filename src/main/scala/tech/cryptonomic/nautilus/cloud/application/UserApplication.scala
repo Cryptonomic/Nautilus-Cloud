@@ -7,6 +7,7 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.Session
 import tech.cryptonomic.nautilus.cloud.domain.pagination.{PaginatedResult, Pagination}
 import tech.cryptonomic.nautilus.cloud.domain.user.Role.Administrator
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import tech.cryptonomic.nautilus.cloud.domain.user.history.{UserAction, UserHistoryService}
 import tech.cryptonomic.nautilus.cloud.domain.user.{
   AdminUpdateUser,
   Role,
@@ -20,7 +21,8 @@ import scala.language.higherKinds
 
 /** User service implementation */
 class UserApplication[F[_]: Applicative](
-    userService: UserService[F]
+    userService: UserService[F],
+    userHistoryService: UserHistoryService[F]
 ) {
 
   /** Get current user */
@@ -59,4 +61,14 @@ class UserApplication[F[_]: Applicative](
   def getUser(userId: UserId)(implicit session: Session): F[Permission[Option[User]]] = requiredRole(Administrator) {
     userService.getUser(userId)
   }
+
+  /** Returns history for current user */
+  def getCurrentUserHistory(implicit session: Session): F[List[UserAction]] =
+    userHistoryService.getHistoryForUser(session.userId)
+
+  /** Returns history for given user */
+  def getUserHistory(userId: UserId)(implicit session: Session): F[Permission[List[UserAction]]] =
+    requiredRole(Administrator) {
+      userHistoryService.getHistoryForUser(userId)
+    }
 }
