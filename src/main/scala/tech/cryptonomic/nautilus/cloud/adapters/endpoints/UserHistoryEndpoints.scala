@@ -6,6 +6,9 @@ import tech.cryptonomic.nautilus.cloud.domain.authentication.AuthorizationServic
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 import tech.cryptonomic.nautilus.cloud.domain.user.history.UserAction
 
+/**
+  * Endpoint definitions for the user history actions
+  */
 trait UserHistoryEndpoints
     extends algebra.Endpoints
     with algebra.JsonSchemaEntities

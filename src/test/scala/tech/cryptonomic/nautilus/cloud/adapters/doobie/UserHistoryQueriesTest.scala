@@ -18,10 +18,10 @@ class UserHistoryQueriesTest extends WordSpec with Matchers with IOChecker with 
   // check if all queries are valid
   "UserHistoryQueries" should {
       "check selectUserHistory" in {
-        check(sut.selectUserHistory(1))
+        check(sut.selectUserHistoryActions(1))
       }
       "check insertUserHistory" in {
-        check(sut.insertUserHistory(UserAction(1, None, Instant.now(), None, "")))
+        check(sut.insertUserHistoryAction(UserAction(1, None, Instant.now(), None, "")))
       }
     }
 }

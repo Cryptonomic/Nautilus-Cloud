@@ -1,6 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.user.history
 
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+import scala.language.higherKinds
 
 /** Interface for handling user history entries */
 trait UserHistoryRepository[F[_]] {

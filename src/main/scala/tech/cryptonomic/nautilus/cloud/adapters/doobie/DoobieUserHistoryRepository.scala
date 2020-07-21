@@ -14,9 +14,9 @@ class DoobieUserHistoryRepository[F[_]](transactor: Transactor[F])(implicit brac
 
   /** Inserts action to the user history repository */
   override def insertUserHistoryEntry(userHistory: UserAction): F[Unit] =
-    insertUserHistory(userHistory).run.void.transact(transactor)
+    insertUserHistoryAction(userHistory).run.void.transact(transactor)
 
   /** Returns actions from the repository for the given user */
   override def getUserHistory(userId: UserId): F[List[UserAction]] =
-    selectUserHistory(userId).to[List].transact(transactor)
+    selectUserHistoryActions(userId).to[List].transact(transactor)
 }
