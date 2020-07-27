@@ -43,7 +43,7 @@ class SessionRoutes(
                 case Success(Right(Right(user))) =>
                   sessionOperations.setSession(user.asSession) { ctx =>
                     userActionHistoryOperations
-                      .logReqest(user.userId, ip.toIP.map(_.ip.getHostAddress), "/users/github-init")
+                      .logRequest(Some(user.userId), ip.toIP.map(_.ip.getHostAddress), "/users/github-init")
                     ctx.complete(InitResponse(Header(PayloadType.REGISTERED), UserResponse(user)))
                   }
                 case Success(Right(Left(registrationAttemptId))) =>
@@ -97,7 +97,7 @@ class SessionRoutes(
         path("logout") {
           post {
             sessionOperations.invalidateSession {
-              userActionHistoryOperations.logReqest(session.userId, ip.toIP.map(_.ip.getHostAddress), "/logout")
+              userActionHistoryOperations.logRequest(Some(session.userId), ip.toIP.map(_.ip.getHostAddress), "/logout")
               complete(NoContent)
             }
           }

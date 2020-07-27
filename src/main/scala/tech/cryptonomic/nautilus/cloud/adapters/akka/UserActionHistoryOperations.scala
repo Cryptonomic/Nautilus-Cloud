@@ -17,29 +17,28 @@ class UserActionHistoryOperations(userHistoryService: UserHistoryService[IO]) {
 
   /** Directive for logging user actions to thee DB for non-OPTIONS/GET requests */
   def logRequestWithSession(ip: RemoteAddress)(implicit session: Session): Directive[Unit] =
-    BasicDirectives.extractRequest.flatMap { request =>
-      val path = request.uri.path.toString()
-      val maybeUserId = if (path.contains("/users/me")) {
-        Some(session.userId)
-      } else
-        Try {
-          path.stripPrefix("/users/").takeWhile(_ != '/').toInt
-        }.toOption
-
-      val address = ip.toIP.map(_.ip.getHostAddress)
-      val userAction = maybeUserId.map(u => UserAction(u, Some(session.userId), Instant.now(), address, path))
-
+    BasicDirectives.extractRequest.map { request =>
       request.method match {
         case HttpMethods.OPTIONS | HttpMethods.GET => ()
-        case _ => userAction.foreach(ua => userHistoryService.insertUserAction(ua).unsafeRunAsyncAndForget())
+        case _ =>
+          val path = request.uri.path.toString()
+          val maybeUserId = if (path.contains("/users/me")) {
+            Some(session.userId)
+          } else
+            Try {
+              path.stripPrefix("/users/").takeWhile(_ != '/').toInt
+            }.toOption
+          val address = ip.toIP.map(_.ip.getHostAddress)
+
+          logRequest(maybeUserId, address, path)
       }
-      BasicDirectives.mapResponse(identity)
     }
 
   /** Generic log for user action */
-  def logReqest(userId: UserId, ip: Option[String], action: String): Unit = {
-    val userAction = UserAction(userId, Some(userId), Instant.now(), ip, action)
-    userHistoryService.insertUserAction(userAction).unsafeRunAsyncAndForget()
+  def logRequest(maybeUserId: Option[UserId], ip: Option[String], action: String): Unit = maybeUserId.foreach {
+    userId =>
+      val userAction = UserAction(userId, Some(userId), Instant.now(), ip, action)
+      userHistoryService.insertUserAction(userAction).unsafeRunAsyncAndForget()
   }
 
 }
