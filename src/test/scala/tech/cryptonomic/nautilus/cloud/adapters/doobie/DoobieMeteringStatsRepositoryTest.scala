@@ -55,7 +55,7 @@ class DoobieMeteringStatsRepositoryTest
         )
         sut.insertStats(exampleAggregateMeteringStats).unsafeRunSync()
         // when
-        val result = sut.getStatsPerUser(exampleUser.userId)
+        val result = sut.getStatsPerUser(exampleUser.userId, None)
         // then
         result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
       }
@@ -76,7 +76,7 @@ class DoobieMeteringStatsRepositoryTest
           .flatMap(_ => sut.insertStats(exampleAggregateMeteringStats))
           .unsafeRunSync()
         // when
-        val result = sut.getStatsPerUser(exampleUser.userId)
+        val result = sut.getStatsPerUser(exampleUser.userId, None)
         // then
         result.unsafeRunSync() should contain theSameElementsAs exampleAggregateMeteringStats
       }

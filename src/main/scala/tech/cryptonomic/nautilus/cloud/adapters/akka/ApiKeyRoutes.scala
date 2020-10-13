@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.akka
 
+import java.time.Instant
+
 import akka.http.scaladsl.server.Route
 import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
@@ -66,7 +68,23 @@ class ApiKeyRoutes(apiKeysApplication: ApiKeyApplication[IO])
 
   /** ApiKey Query Stats route implementation*/
   def getApiKeyAggregatedStatsRoute(implicit session: Session): Route =
-    getApiKeyAggregatedStats.implementedByAsync { userId =>
-      apiKeysApplication.getAggregatedMeteringStats(userId).unsafeToFuture()
+    getApiKeyAggregatedStats.implementedByAsync {
+      case (userId, fromOpt, apiKeyOpt) =>
+        apiKeysApplication
+          .getAggregatedMeteringStats(userId, fromOpt.map(Instant.ofEpochMilli), apiKeyOpt)
+          .unsafeToFuture()
     }
+
+  def deactivateApiKeysForUsersRoute: Route =
+    deactivateApiKeysForUsers.implementedByAsync {
+      case (ids, apiKey) =>
+        apiKeysApplication.deactivateApiKeysForUsers(ids, apiKey).unsafeToFuture()
+    }
+
+  def activateApiKeysForUsersRoute: Route =
+    activateApiKeysForUsers.implementedByAsync {
+      case (ids, apiKey) =>
+        apiKeysApplication.activateApiKeysForUsers(ids, apiKey).unsafeToFuture()
+    }
+
 }

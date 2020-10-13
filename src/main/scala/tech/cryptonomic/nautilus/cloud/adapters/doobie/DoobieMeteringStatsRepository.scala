@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.adapters.doobie
 
+import java.time.Instant
+
 import cats.effect.Bracket
 import doobie.util.transactor.Transactor
 import doobie.implicits._
@@ -23,6 +25,6 @@ class DoobieMeteringStatsRepository[F[_]](transactor: Transactor[F])(implicit br
     lastRecordedIntervalPerUser.to[List].transact(transactor)
 
   /** Fetches all stats for the given user */
-  override def getStatsPerUser(userId: UserId): F[List[AggregatedMeteringStats]] =
-    meteringStatsPerUser(userId).to[List].transact(transactor)
+  override def getStatsPerUser(userId: UserId, from: Option[Instant]): F[List[AggregatedMeteringStats]] =
+    meteringStatsPerUser(userId, from).to[List].transact(transactor)
 }

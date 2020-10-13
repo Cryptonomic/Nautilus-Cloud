@@ -55,6 +55,8 @@ class Routes(
         concat(
           sessionRoutes.routes,
           apiKeysRoutes.getAllApiKeysForEnvRoute,
+          apiKeysRoutes.activateApiKeysForUsersRoute,
+          apiKeysRoutes.deactivateApiKeysForUsersRoute,
           sessionOperations.requiredSession {
             implicit session =>
               validatesTosInSession(session) {

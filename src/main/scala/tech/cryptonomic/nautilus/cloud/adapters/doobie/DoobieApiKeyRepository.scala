@@ -65,7 +65,7 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
     getKeysForEnvQuery(environment).to[List].transact(transactor)
 
   /** Invalidate all API keys connected to user */
-  override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] =
+  override def deactivateApiKeysForUser(userId: UserId, now: Instant): F[Unit] =
     invalidateApiKeysQuery(userId, now).run.void.transact(transactor)
 
   /** Gets keys which were active during last month */
@@ -75,6 +75,11 @@ class DoobieApiKeyRepository[F[_]](transactor: Transactor[F])(implicit bracket: 
   /** Gets keys which were active in between dates */
   override def getUserActiveKeysInGivenRange(userId: UserId, start: Instant, end: Instant): F[List[ApiKey]] =
     getUserKeysValidIn(userId, start, end).to[List].transact(transactor)
+
+  /** Validate all API keys connected to user */
+  override def activateApiKeysForUser(userId: UserId): F[Unit] =
+    validateApiKeysQuery(userId).run.void.transact(transactor)
+
 }
 
 case class InvalidateApiKey(

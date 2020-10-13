@@ -90,10 +90,39 @@ trait ApiKeyEndpoints
     )
 
   /** Api keys aggregated stats endpoint definition */
-  def getApiKeyAggregatedStats: Endpoint[UserId, Permission[List[AggregatedMeteringStats]]] =
+  def getApiKeyAggregatedStats: Endpoint[(UserId, Option[Long], Option[String]), Permission[
+    List[AggregatedMeteringStats]
+  ]] =
     endpoint(
-      request = get(url = path / "users" / segment[UserId]("userId") / "stats" / "aggregated"),
+      request = get(
+        url = path / "users" / segment[UserId]("userId") / "stats" / "aggregated" /? qs[Option[Long]]("from"),
+        headers = optHeader("X-Api-Key")
+      ),
       response = jsonResponse[List[AggregatedMeteringStats]]().orForbidden(),
       tags = List("User")
+    )
+
+  /** Refresh api keys endpoint definition */
+  def activateApiKeysForUsers: Endpoint[(List[UserId], String), Permission[Unit]] =
+    endpoint(
+      request = post(
+        url = path / "users" / "all" / "apiKeys" / "activate",
+        entity = jsonRequest[List[UserId]](),
+        headers = header("X-Api-Key")
+      ),
+      response = emptyResponse().orForbidden(),
+      tags = List("ApiKeys")
+    )
+
+  /** Refresh api keys endpoint definition */
+  def deactivateApiKeysForUsers: Endpoint[(List[UserId], String), Permission[Unit]] =
+    endpoint(
+      request = post(
+        url = path / "users" / "all" / "apiKeys" / "deactivate",
+        entity = jsonRequest[List[UserId]](),
+        headers = header("X-Api-Key")
+      ),
+      response = emptyResponse().orForbidden(),
+      tags = List("ApiKeys")
     )
 }

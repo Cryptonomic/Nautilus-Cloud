@@ -43,6 +43,10 @@ trait ApiKeyQueries extends EnvironmentMappers {
   def invalidateApiKeysQuery(userId: UserId, now: Instant): Update0 =
     sql"UPDATE api_keys SET datesuspended = $now WHERE userid = $userId".update
 
+  /** Inserts API key for user */
+  def validateApiKeysQuery(userId: UserId): Update0 =
+    sql"UPDATE api_keys SET datesuspended = NULL WHERE userid = $userId".update
+
   /** Query returning API keys usage for given user */
   def getUsageForUserQuery(userId: UserId): Query0[UsageLeft] =
     sql"SELECT key, monthly, daily FROM api_keys JOIN usage_left USING(key) WHERE userid = $userId"
