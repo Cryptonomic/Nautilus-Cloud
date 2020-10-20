@@ -25,6 +25,6 @@ class DoobieMeteringStatsRepository[F[_]](transactor: Transactor[F])(implicit br
     lastRecordedIntervalPerUser.to[List].transact(transactor)
 
   /** Fetches all stats for the given user */
-  override def getStatsPerUser(userId: UserId, from: Option[Instant]): F[List[AggregatedMeteringStats]] =
+  override def getStatsPerUser(userId: UserId, from: Option[Instant] = None): F[List[AggregatedMeteringStats]] =
     meteringStatsPerUser(userId, from).to[List].transact(transactor)
 }

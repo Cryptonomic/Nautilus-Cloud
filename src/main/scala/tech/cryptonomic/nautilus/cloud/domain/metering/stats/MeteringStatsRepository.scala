@@ -16,6 +16,6 @@ trait MeteringStatsRepository[F[_]] {
   def getLastStats(list: List[UserId]): F[List[AggregatedMeteringStats]]
 
   /** Fetches stats for the given user */
-  def getStatsPerUser(userId: UserId, from: Option[Instant]): F[List[AggregatedMeteringStats]]
+  def getStatsPerUser(userId: UserId, from: Option[Instant] = None): F[List[AggregatedMeteringStats]]
 
 }

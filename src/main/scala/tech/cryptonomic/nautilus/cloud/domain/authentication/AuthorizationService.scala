@@ -21,20 +21,20 @@ object AuthorizationService {
   def requiredRoleOrApiKey[F[_]: Applicative, T](
       requiredRole: Role,
       apiKey: Option[String],
-      supportedKeys: List[String]
+      supportedKeys: Set[String]
   )(f: => F[T])(implicit session: Session): F[Permission[T]] =
-    if (requiredRole == session.role || apiKey.exists(supportedKeys.contains))
+    if (requiredRole == session.role || apiKey.exists(supportedKeys))
       f.map(Right(_))
     else
       AccessDenied(requiredRole, session).asLeft[T].pure[F]
 
   def requiredApiKey[F[_]: Applicative, T](
       apiKey: String,
-      supportedKeys: List[String]
+      supportedKeys: Set[String]
   )(f: => F[T]): F[Permission[T]] =
     Either
       .cond(
-        supportedKeys.contains(apiKey),
+        supportedKeys(apiKey),
         f,
         AccessDenied("Wrong API key").pure[F]
       )
