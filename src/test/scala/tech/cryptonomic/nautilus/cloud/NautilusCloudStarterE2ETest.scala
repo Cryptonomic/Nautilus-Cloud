@@ -60,9 +60,13 @@ class NautilusCloudStarterE2ETest
             .body("""{"code": "auth-code"}""")
             .followRedirects(false)
             .send()
+        val headers = authCodeResult.headers.toMap
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCodeResult.cookies).send()
+        val response = sttp
+          .get(uri"http://localhost:1235/users/1")
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
+          .send()
 
         // then
         response.code shouldBe HTTP_OK
@@ -71,10 +75,13 @@ class NautilusCloudStarterE2ETest
 
       "return HTTP 403 FORBIDDEN when user is logged-in with user role (which is default)" in {
         // given
-        val authCookies = login().cookies
+        val headers = login().headers.toMap
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/1").cookies(authCookies).send()
+        val response = sttp
+          .get(uri"http://localhost:1235/users/1")
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
+          .send()
 
         // then
         response.code shouldBe HTTP_FORBIDDEN
@@ -93,10 +100,14 @@ class NautilusCloudStarterE2ETest
 
       "should return email address and current role (user is default)" in {
         // given
-        val authCookies = login("name@domain.com").cookies
+        val log = login("name@domain.com")
+        val headers = log.headers.toMap
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCookies).send()
+        val response = sttp
+          .get(uri"http://localhost:1235/users/me")
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
+          .send()
 
         // and
         response.code shouldBe HTTP_OK
@@ -105,10 +116,13 @@ class NautilusCloudStarterE2ETest
 
       "return HTTP 403 when ToS is not accepted" in {
         // given
-        val authCookies = loginWithoutToS("name@domain.com").cookies
+        val headers = loginWithoutToS("name@domain.com").headers.toMap
 
         // when
-        val response = sttp.get(uri"http://localhost:1235/users/me").cookies(authCookies).send()
+        val response = sttp
+          .get(uri"http://localhost:1235/users/me")
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
+          .send()
 
         // and
         response.code shouldBe HTTP_FORBIDDEN
@@ -116,12 +130,12 @@ class NautilusCloudStarterE2ETest
 
       "return user apiKeys generated with first login" in {
         // given
-        val authCookies = login().cookies
+        val headers = login().headers.toMap
 
         // when
         val apiKeys = sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
 
         // then
@@ -144,12 +158,12 @@ class NautilusCloudStarterE2ETest
 
       "return HTTP 403 when ToS was not accepted" in {
         // given
-        val authCookies = loginWithoutToS().cookies
+        val headers = loginWithoutToS().headers.toMap
 
         // when
         val apiKeys = sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
 
         // then
@@ -158,11 +172,11 @@ class NautilusCloudStarterE2ETest
 
       "refresh apiKeys" in {
         // given
-        val authCookies = login().cookies
+        val headers = login().headers.toMap
 
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
           .body
           .right
@@ -180,7 +194,7 @@ class NautilusCloudStarterE2ETest
         // when
         val apiKeys = sttp
           .post(uri"http://localhost:1235/users/me/apiKeys/prod/refresh")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
 
         // then
@@ -191,7 +205,7 @@ class NautilusCloudStarterE2ETest
 
         sttp
           .get(uri"http://localhost:1235/users/me/apiKeys")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
           .body
           .right
@@ -209,12 +223,12 @@ class NautilusCloudStarterE2ETest
 
       "return initial usageLeft generated for a user with first login" in {
         // given
-        val authCookies = login().cookies
+        val headers = login().headers.toMap
 
         // when
         val usageLeft = sttp
           .get(uri"http://localhost:1235/users/me/usage")
-          .cookies(authCookies)
+          .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
           .send()
 
         // then
@@ -240,7 +254,7 @@ class NautilusCloudStarterE2ETest
 
   "login endpoints" should {
 
-      "set a cookie after successful log-in" in {
+      "set an authorization header after successful log-in" in {
         // when
         val response = login("name@domain.com")
 
@@ -248,10 +262,12 @@ class NautilusCloudStarterE2ETest
         response.body.right.value should matchJson(
           """{"header":{"payloadType":"REGISTERED"},"payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
         )
-        response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
+        response.headers.toMap.get("Set-Authorization").value should endWith(
+          "xprovider~github&email~name%40domain.com&role~user&tosAccepted~true&id~1"
+        )
       }
 
-      "set a cookie after successful log-in when user exists" in {
+      "set an authorization header after successful log-in when user exists" in {
         // given
         login("name@domain.com")
 
@@ -267,7 +283,9 @@ class NautilusCloudStarterE2ETest
         response.body.right.value should matchJson(
           """{"header":{"payloadType":"REGISTERED"},"payload":{"userId":1,"userEmail":"name@domain.com","userRole":"user"}}"""
         )
-        response.cookies.headOption.value.name shouldBe "_sessiondata" // check if auth cookie named "_sessiondata" was set up
+        response.headers.toMap.get("Set-Authorization").value should endWith(
+          "xprovider~github&email~name%40domain.com&role~user&tosAccepted~true&id~1"
+        )
       }
     }
 
@@ -275,18 +293,20 @@ class NautilusCloudStarterE2ETest
 
       "invalidate session" in {
         // given
-        val authCookies = login().cookies
+        val headers = login().headers.toMap
 
         // when
         val response =
-          sttp.post(uri"http://localhost:1235/logout").cookies(authCookies).followRedirects(false).send()
+          sttp
+            .post(uri"http://localhost:1235/logout")
+            .header("Authorization", headers.getOrElse("Set-Authorization", "not-defined"))
+            .followRedirects(false)
+            .send()
 
         // and
         response.code shouldBe HTTP_NO_CONTENT
-        response.cookies.headOption.value should have(
-          'name ("_sessiondata"),
-          'value ("deleted")
-        )
+        response.headers.toMap.get("Set-Authorization").value shouldBe ""
+
       }
     }
 
