@@ -1,9 +1,12 @@
 package tech.cryptonomic.nautilus.cloud.adapters.inmemory
 
+import java.time.Instant
+
 import cats.Monad
 import cats.implicits._
 import tech.cryptonomic.nautilus.cloud.domain.metering.stats.{AggregatedMeteringStats, MeteringStatsRepository}
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
+
 import scala.language.higherKinds
 
 class InMemoryMeteringStatsRepository[F[_]: Monad] extends MeteringStatsRepository[F] {
@@ -30,7 +33,7 @@ class InMemoryMeteringStatsRepository[F[_]: Monad] extends MeteringStatsReposito
     }.pure[F]
 
   /** Fetches stats for the given user */
-  override def getStatsPerUser(userId: UserId): F[List[AggregatedMeteringStats]] =
+  override def getStatsPerUser(userId: UserId, from: Option[Instant] = None): F[List[AggregatedMeteringStats]] =
     this.synchronized {
       statsRepository.filter(_.userId == userId)
     }.pure[F]

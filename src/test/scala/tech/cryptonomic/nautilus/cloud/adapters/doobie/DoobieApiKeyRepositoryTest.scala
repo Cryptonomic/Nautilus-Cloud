@@ -120,7 +120,7 @@ class DoobieApiKeyRepositoryTest
           .unsafeRunSync()
 
         // when
-        sut.invalidateApiKeys(userId = 1, Instant.now()).unsafeRunSync()
+        sut.deactivateApiKeysForUser(userId = 1, Instant.now()).unsafeRunSync()
 
         // then (only api key for a given user should be invalidated)
         sut.validateApiKey("cfa60c07-2e5e-4e13-8aef-9c178b1a8bd3").unsafeRunSync() shouldBe false

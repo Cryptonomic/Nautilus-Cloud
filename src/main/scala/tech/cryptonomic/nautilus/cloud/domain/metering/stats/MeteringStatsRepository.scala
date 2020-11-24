@@ -1,5 +1,7 @@
 package tech.cryptonomic.nautilus.cloud.domain.metering.stats
 
+import java.time.Instant
+
 import tech.cryptonomic.nautilus.cloud.domain.user.User.UserId
 
 import scala.language.higherKinds
@@ -14,6 +16,6 @@ trait MeteringStatsRepository[F[_]] {
   def getLastStats(list: List[UserId]): F[List[AggregatedMeteringStats]]
 
   /** Fetches stats for the given user */
-  def getStatsPerUser(userId: UserId): F[List[AggregatedMeteringStats]]
+  def getStatsPerUser(userId: UserId, from: Option[Instant] = None): F[List[AggregatedMeteringStats]]
 
 }

@@ -35,13 +35,17 @@ trait ApiKeyQueries extends EnvironmentMappers {
   def putApiKeyQuery(apiKey: CreateApiKey): Update0 =
     sql"INSERT INTO api_keys (key, environment, userid, dateissued, datesuspended) VALUES(${apiKey.key}, ${apiKey.environment.name}, ${apiKey.userId}, ${apiKey.dateIssued}, ${apiKey.dateSuspended})".update
 
-  /** Inserts API key for user */
+  /** Invalidates API key */
   def invalidateApiKeyQuery(invalidateApiKey: InvalidateApiKey): Update0 =
     sql"UPDATE api_keys SET datesuspended = ${invalidateApiKey.now} WHERE environment = ${invalidateApiKey.environment} AND userid = ${invalidateApiKey.userId}".update
 
-  /** Inserts API key for user */
+  /** Invalidates API keys */
   def invalidateApiKeysQuery(userId: UserId, now: Instant): Update0 =
     sql"UPDATE api_keys SET datesuspended = $now WHERE userid = $userId".update
+
+  /** Restores validity of API keys for user */
+  def validateApiKeysQuery(userId: UserId): Update0 =
+    sql"UPDATE api_keys SET datesuspended = NULL WHERE userid = $userId".update
 
   /** Query returning API keys usage for given user */
   def getUsageForUserQuery(userId: UserId): Query0[UsageLeft] =

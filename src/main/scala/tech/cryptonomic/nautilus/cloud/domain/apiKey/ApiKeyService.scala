@@ -51,6 +51,14 @@ class ApiKeyService[F[_]: Monad](
   def validateApiKey(apiKey: String): F[Boolean] =
     apiKeyRepository.validateApiKey(apiKey)
 
+  /** Deactivates API keys for user */
+  def deactivateApiKeysForUsers(userIds: List[UserId]): F[Unit] =
+    userIds.traverse(userId => apiKeyRepository.deactivateApiKeysForUser(userId, Instant.now)).map(_ => ())
+
+  /** Activates API keys for user */
+  def activateApiKeysForUsers(userIds: List[UserId]): F[Unit] =
+    userIds.traverse(userId => apiKeyRepository.activateApiKeysForUser(userId)).map(_ => ())
+
   /** Refreshes api key */
   def refreshApiKey(userId: UserId, environment: Environment): F[ApiKey] =
     for {
@@ -78,8 +86,8 @@ class ApiKeyService[F[_]: Monad](
     } yield meteringStats
 
   /** Returns aggregated stats for the user */
-  def getAggregatedMeteringStatsForUser(userId: UserId): F[List[AggregatedMeteringStats]] =
-    meteringStatsRepository.getStatsPerUser(userId)
+  def getAggregatedMeteringStatsForUser(userId: UserId, from: Option[Instant]): F[List[AggregatedMeteringStats]] =
+    meteringStatsRepository.getStatsPerUser(userId, from)
 
   private def fetchMeteringStats(activeApiKeys: List[ApiKey]): F[MeteringStats] =
     (

@@ -25,7 +25,10 @@ trait ApiKeyRepository[F[_]] {
   def updateApiKey(refreshApiKey: RefreshApiKey): F[ApiKey]
 
   /** Invalidate all API keys connected to user */
-  def invalidateApiKeys(userId: UserId, now: Instant): F[Unit]
+  def deactivateApiKeysForUser(userId: UserId, now: Instant): F[Unit]
+
+  /** Validate all API keys connected to user */
+  def activateApiKeysForUser(userId: UserId): F[Unit]
 
   /** Inserts API key */
   def putApiKey(apiKey: CreateApiKey): F[Unit]

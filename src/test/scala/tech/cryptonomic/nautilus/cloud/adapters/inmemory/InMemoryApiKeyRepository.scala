@@ -96,7 +96,7 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
     apiKeys.filter(_.environment == environment).map(_.key).pure[F]
 
   /** Invalidate all API keys connected to user */
-  override def invalidateApiKeys(userId: UserId, now: Instant): F[Unit] = this.synchronized {
+  override def deactivateApiKeysForUser(userId: UserId, now: Instant): F[Unit] = this.synchronized {
     apiKeys = apiKeys.filterNot(_.userId == userId)
     ().pure[F]
   }
@@ -125,4 +125,10 @@ class InMemoryApiKeyRepository[F[_]: Monad] extends ApiKeyRepository[F] {
           (key.dateIssued.exists(di => di.isBefore(end))  && key.dateSuspended.isEmpty))
       }.pure[F]
     }
+
+  /** Validate all API keys connected to user */
+  override def activateApiKeysForUser(userId: UserId): F[Unit] = this.synchronized {
+    apiKeys = apiKeys.filter(_.userId == userId)
+    ().pure[F]
+  }
 }

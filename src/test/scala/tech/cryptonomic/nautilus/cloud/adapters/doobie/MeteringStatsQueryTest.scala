@@ -17,7 +17,7 @@ class MeteringStatsQueryTest extends WordSpec with Matchers with IOChecker with 
   // check if all queries are valid
   "MeteringStatsRepo" should {
       "check meteringStatsPerUser" in {
-        check(sut.meteringStatsPerUser(1))
+        check(sut.meteringStatsPerUser(1, Some(Instant.now())))
       }
       "check insertMeteringStats" in {
         check(sut.insertMeteringStats(AggregatedMeteringStats(1, "", 1, Instant.now(), Instant.now())))
